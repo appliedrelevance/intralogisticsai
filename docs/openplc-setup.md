@@ -140,7 +140,7 @@ docker port <project-name>-openplc-1 8080
 - **Protocol**: MODBUS TCP
 
 ### Frappe/ERPNext Interface
-- **URL**: `http://localhost:8080` (or your configured HTTP_PUBLISH_PORT)
+- **URL**: Use `docker compose ps` to find the auto-assigned port for the frontend service
 
 ## Container Health Monitoring
 

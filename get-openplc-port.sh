@@ -6,10 +6,19 @@
 echo "OpenPLC Service Port Information:"
 echo "================================="
 
+# Detect if we're on Mac M4/ARM64 and set compose command accordingly
+if [[ $(uname -m) == "arm64" ]] && [[ $(uname -s) == "Darwin" ]]; then
+    COMPOSE_CMD="docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.mac-m4.yaml -f overrides/compose.openplc.yaml"
+    echo "Detected Mac M4/ARM64 system"
+else
+    COMPOSE_CMD="docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.openplc.yaml"
+    echo "Using standard configuration"
+fi
+
 # Check if OpenPLC service is running
-if docker-compose -f compose.yaml -f overrides/compose.openplc.yaml ps openplc | grep -q "Up"; then
+if $COMPOSE_CMD ps openplc | grep -q "Up"; then
     # Get the auto-generated port for web interface
-    WEB_PORT=$(docker-compose -f compose.yaml -f overrides/compose.openplc.yaml ps openplc | grep "8080/tcp" | sed 's/.*0.0.0.0:\([0-9]*\)->8080\/tcp.*/\1/')
+    WEB_PORT=$($COMPOSE_CMD ps openplc | grep "8080/tcp" | sed 's/.*0.0.0.0:\([0-9]*\)->8080\/tcp.*/\1/')
     
     if [ -n "$WEB_PORT" ]; then
         echo "✅ OpenPLC Web Interface: http://localhost:$WEB_PORT"
@@ -26,5 +35,9 @@ else
     echo "❌ OpenPLC service is not running"
     echo ""
     echo "To start OpenPLC:"
-    echo "  docker-compose -f compose.yaml -f overrides/compose.openplc.yaml up -d"
+    if [[ $(uname -m) == "arm64" ]] && [[ $(uname -s) == "Darwin" ]]; then
+        echo "  docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.mac-m4.yaml -f overrides/compose.openplc.yaml up -d"
+    else
+        echo "  docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.openplc.yaml up -d"
+    fi
 fi

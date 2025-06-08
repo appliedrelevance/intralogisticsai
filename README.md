@@ -43,7 +43,7 @@ Then run: `docker compose -f pwd.yml up -d`
 
 ## Final steps
 
-Wait for 5 minutes for ERPNext site to be created or check `create-site` container logs before opening browser on port 8080. (username: `Administrator`, password: `admin`)
+Wait for 5 minutes for ERPNext site to be created or check `create-site` container logs before opening browser. Use `docker compose ps` to find the auto-assigned port for the frontend service. (username: `Administrator`, password: `admin`)
 
 If you ran in a Dev Docker environment, to view container logs: `docker compose -f pwd.yml logs -f create-site`. Don't worry about some of the initial error messages, some services take a while to become ready, and then they go away.
 
@@ -56,6 +56,7 @@ If you ran in a Dev Docker environment, to view container logs: `docker compose 
 - [List of containers](docs/list-of-containers.md)
 - [Single Compose Setup](docs/single-compose-setup.md)
 - [Environment Variables](docs/environment-variables.md)
+- [Dynamic Port Mapping](docs/dynamic-port-mapping.md)
 - [Single Server Example](docs/single-server-example.md)
 - [Setup Options](docs/setup-options.md)
 - [Site Operations](docs/site-operations.md)

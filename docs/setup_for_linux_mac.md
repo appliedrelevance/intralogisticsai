@@ -128,7 +128,7 @@ services:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
     ports:
-      - "8080:8080"
+      - "0:8080"  # Dynamic port mapping (0 = auto-assign)
 
   queue-long:
     image: frappe/erpnext:v15
@@ -223,4 +223,4 @@ docker-compose -f ./pwd.yml up
 
 Wait for couple of minutes.
 
-Open localhost:8080
+Use `docker compose ps` to find the auto-assigned port, then open localhost:[port]

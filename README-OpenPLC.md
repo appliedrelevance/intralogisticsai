@@ -1,13 +1,17 @@
 # OpenPLC Integration with Frappe Docker
 
-This repository now includes OpenPLC as a containerized service that runs alongside Frappe, Redis, and MariaDB.
+This repository now includes OpenPLC as a containerized service by building a custom Docker image from the official OpenPLC source code, ensuring ARM64 compatibility and running alongside Frappe, Redis, and MariaDB.
 
 ## Quick Start
 
 ### 1. Start All Services (including OpenPLC)
 
 ```bash
-docker-compose -f compose.yaml -f overrides/compose.openplc.yaml up -d
+# For Mac M4/ARM64 systems:
+docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.mac-m4.yaml -f overrides/compose.openplc.yaml up -d
+
+# For other systems:
+docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.openplc.yaml up -d
 ```
 
 ### 2. Access OpenPLC Web Interface
@@ -28,12 +32,11 @@ docker-compose -f compose.yaml -f overrides/compose.openplc.yaml up -d
 
 - **`overrides/compose.openplc.yaml`** - Docker Compose override for OpenPLC service
 - **`docs/openplc-integration.md`** - Comprehensive integration documentation
-- **`OpenPLC_v3/`** - Complete OpenPLC source code and Docker configuration
 
 ### Service Configuration
 
 The OpenPLC service:
-- ✅ Builds from existing OpenPLC_v3 source code
+- ✅ Builds custom Docker image from official OpenPLC source code for ARM64 compatibility
 - ✅ Exposes web interface on auto-generated port (avoids development conflicts)
 - ✅ Provides MODBUS TCP server on port 502
 - ✅ Uses persistent storage for programs and configuration
@@ -54,17 +57,31 @@ OPENPLC_LOG_LEVEL=INFO
 ## Service Management
 
 ```bash
+# For Mac M4/ARM64 systems:
 # Start only OpenPLC
-docker-compose -f compose.yaml -f overrides/compose.openplc.yaml up -d openplc
+docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.mac-m4.yaml -f overrides/compose.openplc.yaml up -d openplc
 
 # View OpenPLC logs
-docker-compose -f compose.yaml -f overrides/compose.openplc.yaml logs -f openplc
+docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.mac-m4.yaml -f overrides/compose.openplc.yaml logs -f openplc
 
 # Stop OpenPLC
-docker-compose -f compose.yaml -f overrides/compose.openplc.yaml stop openplc
+docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.mac-m4.yaml -f overrides/compose.openplc.yaml stop openplc
 
-# Rebuild OpenPLC (if needed)
-docker-compose -f compose.yaml -f overrides/compose.openplc.yaml build --no-cache openplc
+# Rebuild OpenPLC image (if needed)
+docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.mac-m4.yaml -f overrides/compose.openplc.yaml build openplc
+
+# For other systems:
+# Start only OpenPLC
+docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.openplc.yaml up -d openplc
+
+# View OpenPLC logs
+docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.openplc.yaml logs -f openplc
+
+# Stop OpenPLC
+docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.openplc.yaml stop openplc
+
+# Rebuild OpenPLC image (if needed)
+docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.openplc.yaml build openplc
 ```
 
 ## Integration with Frappe
@@ -132,26 +149,33 @@ docker run --rm -v openplc-data:/data -v $(pwd):/backup alpine tar xzf /backup/o
 
 ## Troubleshooting
 
-### Build Issues
+### Image Issues
 
-If the OpenPLC build fails:
+If the OpenPLC image fails to build or start:
 
-1. Check available disk space (build requires ~2GB)
+1. Check available disk space for image building
 2. Ensure Docker has sufficient memory allocated
-3. Try building with more verbose output:
+3. Try rebuilding the image:
    ```bash
-   docker-compose -f compose.yaml -f overrides/compose.openplc.yaml build --no-cache --progress=plain openplc
+   # For Mac M4/ARM64:
+   docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.mac-m4.yaml -f overrides/compose.openplc.yaml build --no-cache openplc
+   
+   # For other systems:
+   docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.openplc.yaml build --no-cache openplc
    ```
 
 ### Service Issues
 
 1. **Web interface not accessible**:
    ```bash
-   # Check if service is running
-   docker-compose -f compose.yaml -f overrides/compose.openplc.yaml ps openplc
+   # Check if service is running (Mac M4/ARM64)
+   docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.mac-m4.yaml -f overrides/compose.openplc.yaml ps openplc
    
-   # Check health status
-   docker-compose -f compose.yaml -f overrides/compose.openplc.yaml exec openplc /workdir/entrypoint.sh health
+   # Check if service is running (other systems)
+   docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.openplc.yaml ps openplc
+   
+   # Check logs for issues (use same compose command as above based on your system)
+   docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.openplc.yaml logs openplc
    ```
 
 2. **MODBUS connection issues**:
@@ -175,4 +199,4 @@ If the OpenPLC build fails:
 
 ---
 
-**Status**: ✅ Ready for use - OpenPLC service is fully integrated and functional
+**Status**: ✅ Ready for use - OpenPLC service builds from official source code and is fully functional
