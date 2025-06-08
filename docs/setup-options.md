@@ -96,6 +96,55 @@ docker compose -f compose.yaml \
 docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -d
 ```
 
+### Setup with OpenPLC Simulator
+
+Add OpenPLC simulator for industrial automation and logistics education scenarios:
+
+```sh
+# Generate YAML with OpenPLC
+docker compose -f compose.yaml \
+  -f overrides/compose.openplc.yaml \
+  config > ~/gitops/docker-compose.yml
+
+# Start containers
+docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -d
+```
+
+### Setup ERPNext with MariaDB, Redis, and OpenPLC
+
+Complete development environment with database, cache, and PLC simulator:
+
+```sh
+# Generate YAML
+docker compose -f compose.yaml \
+  -f overrides/compose.mariadb.yaml \
+  -f overrides/compose.redis.yaml \
+  -f overrides/compose.openplc.yaml \
+  config > ~/gitops/docker-compose.yml
+
+# Start containers
+docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -d
+```
+
+### Setup with HTTPS and OpenPLC
+
+Production setup with SSL certificates and PLC simulator:
+
+```sh
+# Ensure LETSENCRYPT_EMAIL and SITES are set in .env
+docker compose -f compose.yaml \
+  -f overrides/compose.mariadb.yaml \
+  -f overrides/compose.redis.yaml \
+  -f overrides/compose.https.yaml \
+  -f overrides/compose.openplc.yaml \
+  config > ~/gitops/docker-compose.yml
+
+# Start containers
+docker compose --project-name <project-name> -f ~/gitops/docker-compose.yml up -d
+```
+
+**Note**: OpenPLC web interface will be available at `http://localhost:8081` and MODBUS TCP server at port `502`. For detailed OpenPLC configuration, see [OpenPLC Setup Guide](./openplc-setup.md).
+
 ## Create first site
 
 After starting containers, the first site needs to be created. Refer [site operations](./site-operations.md#setup-new-site).

@@ -1,182 +1,164 @@
 # Frappe Docker for Mac M4 (ARM64) Setup Guide
 
-This guide provides Mac M4-specific instructions for running Frappe/ERPNext on Apple Silicon systems using stable version 15 with MariaDB database.
+This guide provides Mac M4-specific configuration files and scripts for running Frappe Docker with ARM64 compatibility and port collision prevention.
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
 1. **Docker Desktop for Mac** with Apple Silicon support
-2. **Docker Compose** (included with Docker Desktop)
+2. **Docker Buildx** (included with Docker Desktop)
 3. **Git** (for cloning the repository)
 
 ### Installation
 
 1. Clone the repository and navigate to the directory:
+   
    ```bash
    git clone https://github.com/frappe/frappe_docker.git
    cd frappe_docker
    ```
 
-2. Create the environment configuration file:
+2. Run the Mac M4 setup script:
+   
    ```bash
-   cp example.env .env
+   ./setup-mac-m4.sh
    ```
 
-3. Edit the `.env` file with the following configuration:
+3. Get your access URL:
+   
    ```bash
-   ERPNEXT_VERSION=version-15
-   DB_PASSWORD=123
-   HTTP_PUBLISH_PORT=55001
-   FRAPPE_SITE_NAME_HEADER=intralogistics.localhost
-   PROXY_READ_TIMEOUT=120s
-   CLIENT_MAX_BODY_SIZE=50m
-   UPSTREAM_REAL_IP_ADDRESS=127.0.0.1
-   UPSTREAM_REAL_IP_HEADER=X-Forwarded-For
-   UPSTREAM_REAL_IP_RECURSIVE=off
+   ./get-access-url.sh
    ```
 
-4. Start the services:
-   ```bash
-   docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml up -d
-   ```
-
-5. Create a new site:
-   ```bash
-   docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml exec backend bench new-site intralogistics.localhost --no-mariadb-socket --admin-password admin --db-root-password 123
-   ```
-
-6. Install ERPNext on the site:
-   ```bash
-   docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml exec backend bench --site intralogistics.localhost install-app erpnext
-   ```
-
-7. Access your ERPNext installation at: http://intralogistics.localhost:55001
-   - **Username**: Administrator
-   - **Password**: admin
-
-## 📁 Configuration Files
+## 📁 Mac M4 Specific Files
 
 ### 1. `.env` - Environment Configuration
-- **Purpose**: Defines stable version 15 and site configuration
-- **Key Settings**:
-  - `ERPNEXT_VERSION=version-15` - Uses stable version 15 (ERPNext 15.64.1, Frappe 15.69.3)
-  - `DB_PASSWORD=123` - Database password
-  - `HTTP_PUBLISH_PORT=55001` - Fixed port for consistent access
-  - `FRAPPE_SITE_NAME_HEADER=intralogistics.localhost` - Site domain
 
-### 2. `overrides/compose.mac-m4.yaml` - ARM64 Platform Override
-- **Purpose**: Configures all services for ARM64 compatibility
+- **Purpose**: Optimized environment variables for Mac M4
+- **Key Features**:
+  - Uses `ERPNEXT_VERSION=latest` for ARM64 compatibility
+  - Secure database password generation
+  - Ephemeral port assignment to prevent conflicts
+  - Mac-optimized performance settings
+
+### 2. `overrides/compose.mac-m4.yaml` - Docker Compose Override
+
+- **Purpose**: ARM64 platform configuration for all services
 - **Key Features**:
   - Sets `platform: linux/arm64` for all services
-  - Ensures ARM64-compatible image usage
+  - Configures ephemeral port assignment for frontend
   - Optimizes network settings for Mac M4
+  - Ensures ARM64-compatible image usage
 
-### 3. `overrides/compose.redis.yaml` - Redis Services
-- **Purpose**: Adds Redis cache and queue services
+### 3. `setup-mac-m4.sh` - Setup Script
+
+- **Purpose**: Automated setup and deployment script
 - **Features**:
-  - Separate Redis instances for cache and queue
-  - Persistent storage for queue data
-  - Proper service dependencies
+  - Docker and Buildx availability checks
+  - ARM64 buildx builder configuration
+  - Service startup with proper error handling
+  - Port discovery and access URL generation
+  - Colored output for better user experience
 
-### 4. `overrides/compose.mariadb.yaml` - MariaDB Database
-- **Purpose**: Provides MariaDB database service
+### 4. `get-access-url.sh` - Access Helper Script
+
+- **Purpose**: Discover dynamically assigned ports and service status
 - **Features**:
-  - MariaDB 10.6 with UTF8MB4 support
-  - Health checks for proper startup sequencing
-  - Persistent database storage
-  - Configured for Frappe/ERPNext requirements
+  - Dynamic port discovery
+  - Service health checking
+  - Log viewing capabilities
+  - Comprehensive service status reporting
 
-## 🔧 Docker Compose Commands
+## 🔧 Usage Commands
 
-### Service Management
+### Setup and Management
+
 ```bash
-# Start all services
-docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml up -d
+# Full setup (recommended for first time)
+./setup-mac-m4.sh
+
+# Build ARM64 images only
+./setup-mac-m4.sh build
+
+# Start services only
+./setup-mac-m4.sh start
 
 # Stop all services
-docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml down
+./setup-mac-m4.sh stop
 
-# View service status
-docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml ps
-
-# View logs for all services
-docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml logs -f
-
-# View logs for specific service
-docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml logs -f frontend
+# Check service status
+./setup-mac-m4.sh status
 ```
 
-### Site Operations
+### Access and Monitoring
+
 ```bash
-# Create a new site
-docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml exec backend bench new-site SITE_NAME --no-mariadb-socket --admin-password ADMIN_PASSWORD --db-root-password DB_PASSWORD
+# Get access URL and service status
+./get-access-url.sh
 
-# Install ERPNext on a site
-docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml exec backend bench --site SITE_NAME install-app erpnext
+# Check detailed service status
+./get-access-url.sh status
 
-# Access backend shell
-docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml exec backend bash
+# View frontend service logs
+./get-access-url.sh logs
 
-# Access bench console
-docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml exec backend bench --site SITE_NAME console
+# View specific service logs
+./get-access-url.sh logs backend
 
-# Access MariaDB directly
-docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml exec db mysql -u root -p
+# Perform health check
+./get-access-url.sh health
+
+# Show help
+./get-access-url.sh help
+```
+
+### Manual Docker Compose Commands
+
+```bash
+# Start services with Mac M4 overrides
+docker compose -f compose.yaml -f overrides/compose.mac-m4.yaml up -d
+
+# Stop services
+docker compose -f compose.yaml -f overrides/compose.mac-m4.yaml down
+
+# View service status
+docker compose -f compose.yaml -f overrides/compose.mac-m4.yaml ps
+
+# View logs
+docker compose -f compose.yaml -f overrides/compose.mac-m4.yaml logs -f frontend
 ```
 
 ## 🏗️ Architecture Details
 
 ### ARM64 Compatibility
+
 - All services configured with `platform: linux/arm64`
-- Uses stable ERPNext version 15 images with ARM64 support
+- Uses latest ERPNext images with ARM64 support
+- Docker Buildx configured for ARM64 builds
 - Optimized for Apple Silicon performance
 
+### Port Management
+
+- **Ephemeral Port Assignment**: Prevents conflicts with existing services
+- **Dynamic Discovery**: Scripts automatically find assigned ports
+- **Flexible Configuration**: Easy to override ports if needed
+
 ### Service Configuration
-- **Frontend**: Nginx proxy running on port 55001
+
+- **Frontend**: Nginx proxy with ARM64 optimization
 - **Backend**: Frappe application server
 - **WebSocket**: Real-time communication service
-- **Queue Workers**: Background job processing (short and long)
+- **Queue Workers**: Background job processing
 - **Scheduler**: Cron-like task scheduling
 - **Configurator**: Initial setup and configuration
-- **Redis Cache**: Session and cache storage
-- **Redis Queue**: Background job queue
-- **Database**: MariaDB 10.6 database server
-
-### Version Information
-- **ERPNext**: 15.64.1 (stable)
-- **Frappe**: 15.69.3 (stable)
-- **Redis**: 6.2-alpine
-- **MariaDB**: 10.6
-- **Platform**: linux/arm64
 
 ## 🔍 Troubleshooting
-
-### Version Issues
-
-1. **Avoid unstable version 16**
-   ```bash
-   # Always use version-15 in .env file
-   ERPNEXT_VERSION=version-15
-   
-   # If you accidentally used latest or version-16, recreate containers
-   docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml down
-   docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml pull
-   docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml up -d
-   ```
-
-2. **Check current versions**
-   ```bash
-   # Check ERPNext version
-   docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml exec backend bench version
-   
-   # Check Frappe version
-   docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml exec backend bench --version
-   ```
 
 ### Common Issues
 
 1. **Docker not running**
+   
    ```bash
    # Check Docker status
    docker info
@@ -186,120 +168,103 @@ docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/comp
    ```
 
 2. **Port conflicts**
-   ```bash
-   # Check what's using port 55001
-   lsof -i :55001
    
-   # Change port in .env file if needed
-   HTTP_PUBLISH_PORT=55002
+   ```bash
+   # Check what's using ports
+   lsof -i :8080
+   
+   # The setup uses ephemeral ports to avoid this
+   ./get-access-url.sh
    ```
 
 3. **ARM64 compatibility issues**
-   ```bash
-   # Verify platform configuration
-   docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml config | grep platform
    
-   # Pull ARM64 images
-   docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml pull
+   ```bash
+   # Verify platform
+   docker compose -f compose.yaml -f overrides/compose.mac-m4.yaml config | grep platform
+   
+   # Rebuild with ARM64
+   ./setup-mac-m4.sh build
    ```
 
 4. **Services not starting**
+   
    ```bash
    # Check service logs
-   docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml logs configurator
+   ./get-access-url.sh logs
    
-   # Check all service status
-   docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml ps
-   ```
-
-5. **Site creation fails**
-   ```bash
-   # Check database connectivity
-   docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml exec backend bench --site intralogistics.localhost mariadb
-   
-   # Check MariaDB service health
-   docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml exec db mysqladmin ping -h localhost -p
-   
-   # Verify database password in .env matches the one used in site creation
-   ```
-
-6. **Cannot access site**
-   ```bash
-   # Check if site exists
-   docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml exec backend bench --site intralogistics.localhost list-apps
-   
-   # Check frontend logs
-   docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml logs frontend
+   # Check individual service
+   ./get-access-url.sh logs configurator
    ```
 
 ### Performance Optimization
 
 1. **Docker Desktop Settings**:
+   
    - Allocate at least 4GB RAM
    - Enable VirtioFS for better file sharing performance
    - Use Apple Virtualization Framework
 
 2. **Mac M4 Specific**:
-   - Ensure sufficient disk space (at least 10GB free)
+   
+   - Ensure Rosetta 2 is installed: `softwareupdate --install-rosetta`
    - Close unnecessary applications to free up resources
-   - Consider increasing Docker Desktop memory allocation for large datasets
 
 ## 📊 Service Ports
 
-| Service | Internal Port | External Port | Access |
-|---------|---------------|---------------|---------|
-| Frontend | 8080 | 55001 | http://intralogistics.localhost:55001 |
-| Backend | 8000 | Internal only | - |
-| WebSocket | 9000 | Internal only | - |
-| MariaDB | 3306 | Internal only | - |
-| Redis Cache | 6379 | Internal only | - |
-| Redis Queue | 6379 | Internal only | - |
+| Service   | Internal Port | External Port        |
+| --------- | ------------- | -------------------- |
+| Frontend  | 8080          | Dynamically assigned |
+| Backend   | 8000          | Internal only        |
+| WebSocket | 9000          | Internal only        |
+| Database  | 3306          | Internal only        |
+| Redis     | 6379          | Internal only        |
 
 ## 🔐 Security Considerations
 
-- Database password is configurable in `.env` file
+- Database password is set to a secure default in `.env`
 - Services are isolated within Docker network
 - Only frontend port is exposed externally
 - All internal communication uses service names
-- Default admin password should be changed after first login
 
 ## 📝 Customization
 
-### Custom Domain
-Edit `.env` file:
-```bash
-FRAPPE_SITE_NAME_HEADER=your-domain.localhost
-HTTP_PUBLISH_PORT=8080  # Change port if needed
-```
-
-Then create site with the new domain:
-```bash
-docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml exec backend bench new-site your-domain.localhost --no-mariadb-socket --admin-password admin --db-root-password 123
-```
-
 ### Custom Images
+
 Edit `.env` file:
+
 ```bash
 CUSTOM_IMAGE=your-registry/frappe-custom
 CUSTOM_TAG=your-tag
 ```
 
-### Additional Apps
+### Custom Ports
+
+Edit `.env` file:
+
 ```bash
-# Install additional Frappe apps
-docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml exec backend bench get-app APP_NAME
-docker compose -f compose.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.mac-m4.yaml exec backend bench --site SITE_NAME install-app APP_NAME
+HTTP_PUBLISH_PORT=8080  # Set specific port instead of ephemeral
+```
+
+### Additional Overrides
+
+Create additional override files in `overrides/` directory and include them:
+
+```bash
+docker compose -f compose.yaml -f overrides/compose.mac-m4.yaml -f overrides/your-custom.yaml up -d
 ```
 
 ## 🆘 Support
 
 For issues specific to Mac M4 setup:
+
 1. Check the troubleshooting section above
-2. Verify you're using stable version 15 (`ERPNEXT_VERSION=version-15`)
-3. Review service logs for specific error messages
+2. Review service logs: `./get-access-url.sh logs`
+3. Verify Docker Desktop configuration
 4. Ensure all prerequisites are met
 
 For general Frappe Docker issues:
+
 - [Frappe Docker Documentation](https://github.com/frappe/frappe_docker)
 - [Frappe Community Forum](https://discuss.frappe.io/)
 

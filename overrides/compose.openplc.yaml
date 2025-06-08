@@ -1,0 +1,41 @@
+services:
+  configurator:
+    environment:
+      OPENPLC_HOST: openplc
+      OPENPLC_PORT: 502
+      OPENPLC_WEB_PORT: 8080
+    depends_on:
+      openplc:
+        condition: service_healthy
+
+  openplc:
+    build:
+      context: OpenPLC_v3
+      dockerfile: Dockerfile
+    platform: linux/arm64
+    ports:
+      - "8080"                              # Web interface (auto-generated port)
+      - "502:502"                           # Modbus TCP (fixed port for protocol compliance)
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: ${RESTART_POLICY:-unless-stopped}
+    environment:
+      OPENPLC_RUNTIME_PORT: 502
+      OPENPLC_WEB_PORT: 8080
+      OPENPLC_LOG_LEVEL: ${OPENPLC_LOG_LEVEL:-INFO}
+    volumes:
+      - openplc-data:/docker_persistent
+    networks:
+      - default
+
+volumes:
+  openplc-data:
+
+networks:
+  default:
+    name: ${COMPOSE_PROJECT_NAME:-frappe_docker}_default
+    external: true

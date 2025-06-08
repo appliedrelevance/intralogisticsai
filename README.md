@@ -65,6 +65,11 @@ If you ran in a Dev Docker environment, to view container logs: `docker compose 
 - [running on linux/mac](docs/setup_for_linux_mac.md)
 - [TLS for local deployment](docs/tls-for-local-deployment.md)
 
+### [Industrial Automation](#industrial-automation)
+
+- [OpenPLC Integration](README-OpenPLC.md)
+- [OpenPLC Setup Guide](docs/openplc-integration.md)
+
 ### [Custom Images](#custom-images)
 
 - [Custom Apps](docs/custom-apps.md)
