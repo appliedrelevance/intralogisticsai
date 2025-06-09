@@ -5,6 +5,8 @@ x-customizable-image: &customizable_image
   image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
   pull_policy: ${PULL_POLICY:-always}
   restart: ${RESTART_POLICY:-unless-stopped}
+  networks:
+    - frappe_network
 
 x-depends-on-configurator: &depends_on_configurator
   depends_on:
@@ -41,10 +43,14 @@ services:
       SOCKETIO_PORT: 9000
     depends_on: {}
     restart: on-failure
+    networks:
+      - frappe_network
 
   backend:
     <<: *backend_defaults
     platform: linux/amd64
+    networks:
+      - frappe_network
 
   frontend:
     <<: *customizable_image
@@ -65,6 +71,8 @@ services:
     depends_on:
       - backend
       - websocket
+    networks:
+      - frappe_network
 
   websocket:
     <<: [*depends_on_configurator, *customizable_image]
@@ -74,22 +82,34 @@ services:
       - /home/frappe/frappe-bench/apps/frappe/socketio.js
     volumes:
       - sites:/home/frappe/frappe-bench/sites
+    networks:
+      - frappe_network
 
   queue-short:
     <<: *backend_defaults
     platform: linux/amd64
     command: bench worker --queue short,default
+    networks:
+      - frappe_network
 
   queue-long:
     <<: *backend_defaults
     platform: linux/amd64
     command: bench worker --queue long,default,short
+    networks:
+      - frappe_network
 
   scheduler:
     <<: *backend_defaults
     platform: linux/amd64
     command: bench schedule
+    networks:
+      - frappe_network
 
 # ERPNext requires local assets access (Frappe does not)
 volumes:
   sites:
+
+networks:
+  frappe_network:
+    name: frappe_network

@@ -1,0 +1,42 @@
+services:
+  configurator:
+    environment:
+      PLC_BRIDGE_HOST: plc-bridge
+      PLC_BRIDGE_PORT: 7654
+
+  plc-bridge:
+    build:
+      context: ./epibus/plc/bridge
+      dockerfile: Dockerfile
+    ports:
+      - "7654:7654"                           # SSE server port
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:7654/signals', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: ${RESTART_POLICY:-unless-stopped}
+    environment:
+      FRAPPE_URL: ${FRAPPE_URL:-http://frontend:8080}
+      FRAPPE_API_KEY: ${FRAPPE_API_KEY}
+      FRAPPE_API_SECRET: ${FRAPPE_API_SECRET}
+      PLC_POLL_INTERVAL: ${PLC_POLL_INTERVAL:-1.0}
+      PLC_LOG_LEVEL: ${PLC_LOG_LEVEL:-INFO}
+      SSE_HOST: 0.0.0.0
+      SSE_PORT: 7654
+    volumes:
+      - plc-bridge-logs:/app/logs
+    networks:
+      - frappe_network
+    depends_on:
+      backend:
+        condition: service_started
+      openplc:
+        condition: service_healthy
+
+volumes:
+  plc-bridge-logs:
+
+networks:
+  frappe_network: {}

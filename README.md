@@ -70,6 +70,7 @@ If you ran in a Dev Docker environment, to view container logs: `docker compose 
 
 - [OpenPLC Integration](README-OpenPLC.md)
 - [OpenPLC Setup Guide](docs/openplc-integration.md)
+- [PLC Bridge Setup and Usage](docs/plc-bridge-setup.md)
 
 ### [Custom Images](#custom-images)
 

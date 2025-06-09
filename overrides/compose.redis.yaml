@@ -11,11 +11,19 @@ services:
     image: redis:6.2-alpine
     restart: unless-stopped
 
+    networks:
+      - frappe_network
+
   redis-queue:
     image: redis:6.2-alpine
     restart: unless-stopped
     volumes:
       - redis-queue-data:/data
+    networks:
+      - frappe_network
 
 volumes:
   redis-queue-data:
+
+networks:
+  frappe_network: {}

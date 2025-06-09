@@ -7,17 +7,23 @@ services:
     platform: linux/arm64
     # Use ARM64-compatible base image
     image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
+    networks:
+      - frappe_network
 
   # Backend service - ARM64 platform
   backend:
     platform: linux/arm64
     # Ensure ARM64 compatibility for the main application backend
     image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
+    networks:
+      - frappe_network
 
   # Frontend service - ARM64 platform with ephemeral port assignment
   frontend:
     platform: linux/arm64
     image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
+    networks:
+      - frappe_network
     ports:
       # Use ephemeral port assignment to prevent conflicts on Mac
       # Docker will automatically assign an available port
@@ -37,20 +43,28 @@ services:
   websocket:
     platform: linux/arm64
     image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
+    networks:
+      - frappe_network
 
   # Queue services - ARM64 platform
   queue-short:
     platform: linux/arm64
     image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
+    networks:
+      - frappe_network
 
   queue-long:
     platform: linux/arm64
     image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
+    networks:
+      - frappe_network
 
   # Scheduler service - ARM64 platform
   scheduler:
     platform: linux/arm64
     image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
+    networks:
+      - frappe_network
 
 # Volume configuration remains the same
 # ARM64 containers will use the same volume structure
@@ -60,8 +74,4 @@ volumes:
 
 # Network configuration optimized for Mac M4
 networks:
-  default:
-    driver: bridge
-    driver_opts:
-      # Optimize network performance for Mac M4
-      com.docker.network.bridge.name: frappe-mac-m4
+  frappe_network: {}

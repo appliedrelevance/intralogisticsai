@@ -29,12 +29,10 @@ services:
     volumes:
       - openplc-data:/docker_persistent
     networks:
-      - default
+      - frappe_network
 
 volumes:
   openplc-data:
 
 networks:
-  default:
-    name: ${COMPOSE_PROJECT_NAME:-frappe_docker}_default
-    external: true
+  frappe_network: {}

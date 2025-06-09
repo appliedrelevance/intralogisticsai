@@ -24,5 +24,11 @@ services:
     volumes:
       - db-data:/var/lib/mysql
 
+    networks:
+      - frappe_network
+
 volumes:
   db-data:
+
+networks:
+  frappe_network: {}
