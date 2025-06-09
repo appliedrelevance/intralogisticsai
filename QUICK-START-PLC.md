@@ -1,78 +1,120 @@
 # Quick Start: PLC Bridge with Frappe Docker
 
-## ⚠️ IMPORTANT: Use pwd.yml as Base File
+## Complete Setup Command
 
-This project uses `pwd.yml` as the base compose file, **NOT** `compose.yaml`.
+Use the full compose + overrides approach for the complete PLC-integrated system:
 
-## Complete Setup Commands
-
-### 1. Basic Frappe/ERPNext Only
 ```bash
-docker-compose -f pwd.yml up -d
-```
-
-### 2. With OpenPLC Simulator
-```bash
-docker-compose -f pwd.yml -f overrides/compose.openplc.yaml up -d
-```
-
-### 3. Complete Setup: Frappe + OpenPLC + PLC Bridge
-```bash
-docker-compose -f pwd.yml -f overrides/compose.openplc.yaml -f overrides/compose.plc-bridge.yaml up -d
+docker compose \
+  -f compose.yaml \
+  -f overrides/compose.mariadb.yaml \
+  -f overrides/compose.redis.yaml \
+  -f overrides/compose.openplc.yaml \
+  -f overrides/compose.plc-bridge.yaml \
+  -f overrides/compose.mac-m4.yaml \
+  up -d
 ```
 
 ## Environment Setup
 
-Create `.env` file in project root:
+Create `.env` file in project root (copy from example.env):
+
 ```bash
-# Required for PLC Bridge
+cp example.env .env
+```
+
+Edit the `.env` file and ensure these settings:
+
+```bash
+# Database password (required)
+DB_PASSWORD=123
+
+# Comment out external database settings (we use containerized MariaDB/Redis)
+# DB_HOST=
+# DB_PORT=
+# REDIS_CACHE=
+# REDIS_QUEUE=
+
+# Optional PLC Bridge settings
 FRAPPE_API_KEY=your_api_key_here
 FRAPPE_API_SECRET=your_api_secret_here
-
-# Optional
 PLC_POLL_INTERVAL=1.0
 PLC_LOG_LEVEL=INFO
 ```
 
+## Site Creation
+
+After containers start, create a Frappe site:
+
+```bash
+# Wait for services to be healthy, then create site
+docker compose exec backend bench new-site localhost --admin-password admin --db-root-password 123 --install-app erpnext
+```
+
 ## Service Access
 
-- **Frappe/ERPNext**: http://localhost:8080 (admin/admin)
-- **OpenPLC Web Interface**: http://localhost:8080 (admin/admin)
+- **Frappe/ERPNext**: http://localhost:[dynamic_port] (Administrator/admin)
+- **OpenPLC Web Interface**: http://localhost:[dynamic_port] 
 - **OpenPLC MODBUS**: Port 502 (MODBUS TCP)
 - **PLC Bridge API**: http://localhost:7654/signals
 - **PLC Bridge SSE**: http://localhost:7654/events
+
+Use `docker compose ps` to find the dynamic port assignments.
 
 ## Quick Verification
 
 ```bash
 # Check all services
-docker-compose -f pwd.yml -f overrides/compose.openplc.yaml -f overrides/compose.plc-bridge.yaml ps
+docker compose ps
 
 # Test PLC Bridge
 curl http://localhost:7654/signals
 
-# View logs
-docker-compose -f pwd.yml -f overrides/compose.openplc.yaml -f overrides/compose.plc-bridge.yaml logs plc-bridge
+# View configurator logs
+docker compose logs configurator
+
+# View backend logs
+docker compose logs backend
 ```
 
 ## File Structure
 
 ```
 frappe_docker/
-├── pwd.yml                           # Base compose file
+├── compose.yaml                     # Base compose file
+├── .env                            # Environment variables
 ├── overrides/
-│   ├── compose.openplc.yaml         # OpenPLC service
-│   └── compose.plc-bridge.yaml      # PLC Bridge service
-└── epibus/plc/bridge/               # PLC Bridge source code
-    ├── bridge.py                    # Main application
-    ├── Dockerfile                   # Container definition
-    └── requirements.txt             # Python dependencies
+│   ├── compose.mariadb.yaml        # MariaDB database
+│   ├── compose.redis.yaml          # Redis cache/queue
+│   ├── compose.openplc.yaml        # OpenPLC service
+│   ├── compose.plc-bridge.yaml     # PLC Bridge service
+│   └── compose.mac-m4.yaml         # Mac ARM64 support
+└── epibus/plc/bridge/              # PLC Bridge source code
+    ├── bridge.py                   # Main application
+    ├── Dockerfile                  # Container definition
+    └── requirements.txt            # Python dependencies
 ```
 
 ## Common Issues
 
-1. **Wrong base file**: Always use `pwd.yml`, not `compose.yaml`
-2. **Missing API keys**: Set `FRAPPE_API_KEY` and `FRAPPE_API_SECRET` in `.env`
-3. **Port conflicts**: Ensure ports 7654 and 8080 are available
+1. **Missing .env file**: Copy from example.env and set DB_PASSWORD
+2. **Database connection errors**: Ensure DB_HOST/DB_PORT are commented out in .env
+3. **Site creation fails**: Database may have wrong credentials - wipe volumes and restart
+4. **Port not found**: Use `docker compose ps` to find dynamic port assignments
+
+## Troubleshooting
+
+If you encounter database issues, completely reset:
+
+```bash
+# Stop and remove everything
+docker compose down --volumes
+
+# Remove database volumes
+docker volume rm frappe_docker_db-data frappe_docker_sites
+
+# Restart fresh
+docker compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.openplc.yaml -f overrides/compose.plc-bridge.yaml -f overrides/compose.mac-m4.yaml up -d
+```
 
 For detailed documentation, see [docs/plc-bridge-setup.md](docs/plc-bridge-setup.md)

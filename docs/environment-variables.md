@@ -17,6 +17,32 @@ To bypass `nginx-entrypoint.sh`, mount desired `/etc/nginx/conf.d/default.conf` 
 
 We use environment variables to configure our setup. docker-compose uses variables from the `environment:` section of the services defined within and the`.env` file, if present. Variables defined in the `.env` file are referenced via `${VARIABLE_NAME}` within the docker-compose `.yml` file. `example.env` contains a non-exhaustive list of possible configuration variables. To get started, copy `example.env` to `.env`.
 
+### Recommended .env Setup
+
+For the standard containerized setup with MariaDB and Redis:
+
+1. Copy the example environment file:
+   ```bash
+   cp example.env .env
+   ```
+
+2. Edit `.env` and ensure these settings:
+   ```bash
+   # Required: Database password
+   DB_PASSWORD=123
+   
+   # Required: ERPNext version
+   ERPNEXT_VERSION=v15.64.1
+   
+   # IMPORTANT: Comment out external database/Redis settings when using containerized services
+   # DB_HOST=
+   # DB_PORT=
+   # REDIS_CACHE=
+   # REDIS_QUEUE=
+   ```
+
+The MariaDB and Redis overrides (`compose.mariadb.yaml` and `compose.redis.yaml`) will automatically configure the database and cache connections. Setting `DB_HOST`, `DB_PORT`, `REDIS_CACHE`, or `REDIS_QUEUE` in your `.env` file will override these automatic configurations and likely cause connection issues.
+
 ### `FRAPPE_VERSION`
 
 Frappe framework release. You can find all releases [here](https://github.com/frappe/frappe/releases).
@@ -27,19 +53,19 @@ Password for MariaDB (or Postgres) database.
 
 ### `DB_HOST`
 
-Hostname for MariaDB (or Postgres) database. Set only if external service for database is used or the container can not be reached by its service name (db) by other containers.
+Hostname for MariaDB (or Postgres) database. **Only set this if using an external database service.** When using the `compose.mariadb.yaml` override (recommended), leave this unset or commented out in your `.env` file - the override will automatically configure it.
 
 ### `DB_PORT`
 
-Port for MariaDB (3306) or Postgres (5432) database. Set only if external service for database is used.
+Port for MariaDB (3306) or Postgres (5432) database. **Only set this if using an external database service.** When using the `compose.mariadb.yaml` override (recommended), leave this unset or commented out in your `.env` file.
 
 ### `REDIS_CACHE`
 
-Hostname for redis server to store cache. Set only if external service for redis is used or the container can not be reached by its service name (redis-cache) by other containers.
+Hostname for redis server to store cache. **Only set this if using an external Redis service.** When using the `compose.redis.yaml` override (recommended), leave this unset or commented out in your `.env` file - the override will automatically configure it.
 
 ### `REDIS_QUEUE`
 
-Hostname for redis server to store queue data and socketio. Set only if external service for redis is used or the container can not be reached by its service name (redis-queue) by other containers.
+Hostname for redis server to store queue data and socketio. **Only set this if using an external Redis service.** When using the `compose.redis.yaml` override (recommended), leave this unset or commented out in your `.env` file.
 
 ### `ERPNEXT_VERSION`
 

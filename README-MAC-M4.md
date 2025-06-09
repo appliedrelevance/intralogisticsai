@@ -1,14 +1,13 @@
 # Frappe Docker for Mac M4 (ARM64) Setup Guide
 
-This guide provides Mac M4-specific configuration files and scripts for running Frappe Docker with ARM64 compatibility and port collision prevention.
+This guide provides Mac M4-specific configuration for running Frappe Docker with ARM64 compatibility and automatic port assignment.
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
 1. **Docker Desktop for Mac** with Apple Silicon support
-2. **Docker Buildx** (included with Docker Desktop)
-3. **Git** (for cloning the repository)
+2. **Git** (for cloning the repository)
 
 ### Installation
 
@@ -19,114 +18,91 @@ This guide provides Mac M4-specific configuration files and scripts for running 
    cd frappe_docker
    ```
 
-2. Run the Mac M4 setup script:
+2. Create environment file:
    
    ```bash
-   ./setup-mac-m4.sh
+   cp example.env .env
    ```
 
-3. Get your access URL:
+3. Start the complete system:
    
    ```bash
-   ./get-access-url.sh
+   docker compose \
+     -f compose.yaml \
+     -f overrides/compose.mariadb.yaml \
+     -f overrides/compose.redis.yaml \
+     -f overrides/compose.openplc.yaml \
+     -f overrides/compose.plc-bridge.yaml \
+     -f overrides/compose.mac-m4.yaml \
+     up -d
    ```
 
-## 📁 Mac M4 Specific Files
+4. Create a Frappe site:
+   
+   ```bash
+   docker compose exec backend bench new-site localhost --admin-password admin --db-root-password 123 --install-app erpnext
+   ```
 
-### 1. `.env` - Environment Configuration
+5. Find your access port:
+   
+   ```bash
+   docker compose ps
+   ```
 
-- **Purpose**: Optimized environment variables for Mac M4
-- **Key Features**:
-  - Uses `ERPNEXT_VERSION=latest` for ARM64 compatibility
-  - Secure database password generation
-  - Ephemeral port assignment to prevent conflicts
-  - Mac-optimized performance settings
+## 📁 Mac M4 Specific Configuration
 
-### 2. `overrides/compose.mac-m4.yaml` - Docker Compose Override
+### `overrides/compose.mac-m4.yaml` - ARM64 Configuration
 
-- **Purpose**: ARM64 platform configuration for all services
-- **Key Features**:
-  - Sets `platform: linux/arm64` for all services
-  - Configures ephemeral port assignment for frontend
-  - Optimizes network settings for Mac M4
-  - Ensures ARM64-compatible image usage
+This override file provides:
 
-### 3. `setup-mac-m4.sh` - Setup Script
+- **ARM64 Platform**: Sets `platform: linux/arm64` for all services
+- **Ephemeral Ports**: Prevents port conflicts with `"0:8080"` mapping
+- **Optimized Images**: Uses ARM64-compatible Frappe/ERPNext images
+- **Performance Tuning**: Mac-specific environment variables
 
-- **Purpose**: Automated setup and deployment script
-- **Features**:
-  - Docker and Buildx availability checks
-  - ARM64 buildx builder configuration
-  - Service startup with proper error handling
-  - Port discovery and access URL generation
-  - Colored output for better user experience
+### Key Features
 
-### 4. `get-access-url.sh` - Access Helper Script
-
-- **Purpose**: Discover dynamically assigned ports and service status
-- **Features**:
-  - Dynamic port discovery
-  - Service health checking
-  - Log viewing capabilities
-  - Comprehensive service status reporting
+- **Automatic Port Assignment**: Docker assigns available ports to prevent conflicts
+- **ARM64 Compatibility**: All services run natively on Apple Silicon
+- **No Manual Port Configuration**: System finds free ports automatically
 
 ## 🔧 Usage Commands
 
 ### Setup and Management
 
 ```bash
-# Full setup (recommended for first time)
-./setup-mac-m4.sh
-
-# Build ARM64 images only
-./setup-mac-m4.sh build
-
-# Start services only
-./setup-mac-m4.sh start
+# Full setup with all services
+docker compose \
+  -f compose.yaml \
+  -f overrides/compose.mariadb.yaml \
+  -f overrides/compose.redis.yaml \
+  -f overrides/compose.openplc.yaml \
+  -f overrides/compose.plc-bridge.yaml \
+  -f overrides/compose.mac-m4.yaml \
+  up -d
 
 # Stop all services
-./setup-mac-m4.sh stop
-
-# Check service status
-./setup-mac-m4.sh status
-```
-
-### Access and Monitoring
-
-```bash
-# Get access URL and service status
-./get-access-url.sh
-
-# Check detailed service status
-./get-access-url.sh status
-
-# View frontend service logs
-./get-access-url.sh logs
-
-# View specific service logs
-./get-access-url.sh logs backend
-
-# Perform health check
-./get-access-url.sh health
-
-# Show help
-./get-access-url.sh help
-```
-
-### Manual Docker Compose Commands
-
-```bash
-# Start services with Mac M4 overrides
-docker compose -f compose.yaml -f overrides/compose.mac-m4.yaml up -d
-
-# Stop services
-docker compose -f compose.yaml -f overrides/compose.mac-m4.yaml down
+docker compose down
 
 # View service status
-docker compose -f compose.yaml -f overrides/compose.mac-m4.yaml ps
+docker compose ps
 
 # View logs
-docker compose -f compose.yaml -f overrides/compose.mac-m4.yaml logs -f frontend
+docker compose logs configurator
+docker compose logs backend
+```
+
+### Site Management
+
+```bash
+# Create new site
+docker compose exec backend bench new-site localhost --admin-password admin --db-root-password 123
+
+# Install ERPNext
+docker compose exec backend bench --site localhost install-app erpnext
+
+# Set default site
+docker compose exec backend bench use localhost
 ```
 
 ## 🏗️ Architecture Details
@@ -134,24 +110,27 @@ docker compose -f compose.yaml -f overrides/compose.mac-m4.yaml logs -f frontend
 ### ARM64 Compatibility
 
 - All services configured with `platform: linux/arm64`
-- Uses latest ERPNext images with ARM64 support
-- Docker Buildx configured for ARM64 builds
+- Uses Frappe/ERPNext v15.64.1 with ARM64 support
 - Optimized for Apple Silicon performance
+
+### Service Stack
+
+- **Frontend**: Nginx proxy (dynamically assigned port)
+- **Backend**: Frappe application server
+- **WebSocket**: Real-time communication service
+- **Queue Workers**: Background job processing (long and short)
+- **Scheduler**: Cron-like task scheduling
+- **Configurator**: Initial setup and configuration
+- **Database**: MariaDB 10.6 with persistent storage
+- **Cache/Queue**: Redis services for caching and job queues
+- **OpenPLC**: PLC simulator for industrial automation
+- **PLC Bridge**: Real-time MODBUS communication service
 
 ### Port Management
 
-- **Ephemeral Port Assignment**: Prevents conflicts with existing services
-- **Dynamic Discovery**: Scripts automatically find assigned ports
-- **Flexible Configuration**: Easy to override ports if needed
-
-### Service Configuration
-
-- **Frontend**: Nginx proxy with ARM64 optimization
-- **Backend**: Frappe application server
-- **WebSocket**: Real-time communication service
-- **Queue Workers**: Background job processing
-- **Scheduler**: Cron-like task scheduling
-- **Configurator**: Initial setup and configuration
+- **Dynamic Assignment**: Frontend port is automatically assigned
+- **Internal Communication**: Services communicate via Docker network
+- **No Conflicts**: System avoids port collisions automatically
 
 ## 🔍 Troubleshooting
 
@@ -167,101 +146,120 @@ docker compose -f compose.yaml -f overrides/compose.mac-m4.yaml logs -f frontend
    open -a Docker
    ```
 
-2. **Port conflicts**
+2. **Database connection errors**
    
    ```bash
-   # Check what's using ports
-   lsof -i :8080
+   # Ensure .env file has correct settings
+   cat .env | grep DB_PASSWORD
    
-   # The setup uses ephemeral ports to avoid this
-   ./get-access-url.sh
+   # Reset database if needed
+   docker compose down --volumes
+   docker volume rm frappe_docker_db-data frappe_docker_sites
    ```
 
 3. **ARM64 compatibility issues**
    
    ```bash
-   # Verify platform
-   docker compose -f compose.yaml -f overrides/compose.mac-m4.yaml config | grep platform
-   
-   # Rebuild with ARM64
-   ./setup-mac-m4.sh build
+   # Verify platform configuration
+   docker compose config | grep platform
    ```
 
 4. **Services not starting**
    
    ```bash
    # Check service logs
-   ./get-access-url.sh logs
+   docker compose logs configurator
+   docker compose logs backend
    
-   # Check individual service
-   ./get-access-url.sh logs configurator
+   # Verify all services are healthy
+   docker compose ps
    ```
 
-### Performance Optimization
+### Database Reset
 
-1. **Docker Desktop Settings**:
-   
-   - Allocate at least 4GB RAM
-   - Enable VirtioFS for better file sharing performance
-   - Use Apple Virtualization Framework
+If you encounter persistent database issues:
 
-2. **Mac M4 Specific**:
-   
-   - Ensure Rosetta 2 is installed: `softwareupdate --install-rosetta`
-   - Close unnecessary applications to free up resources
+```bash
+# Complete reset
+docker compose down --volumes
+docker volume rm frappe_docker_db-data frappe_docker_sites frappe_docker_redis-queue-data
+
+# Restart fresh
+docker compose \
+  -f compose.yaml \
+  -f overrides/compose.mariadb.yaml \
+  -f overrides/compose.redis.yaml \
+  -f overrides/compose.openplc.yaml \
+  -f overrides/compose.plc-bridge.yaml \
+  -f overrides/compose.mac-m4.yaml \
+  up -d
+```
 
 ## 📊 Service Ports
 
-| Service   | Internal Port | External Port        |
-| --------- | ------------- | -------------------- |
-| Frontend  | 8080          | Dynamically assigned |
-| Backend   | 8000          | Internal only        |
-| WebSocket | 9000          | Internal only        |
-| Database  | 3306          | Internal only        |
-| Redis     | 6379          | Internal only        |
+| Service    | Internal Port | External Port        | Access                    |
+| ---------- | ------------- | -------------------- | ------------------------- |
+| Frontend   | 8080          | Dynamically assigned | Frappe/ERPNext web UI     |
+| Backend    | 8000          | Internal only        | Application server        |
+| WebSocket  | 9000          | Internal only        | Real-time communication   |
+| Database   | 3306          | Internal only        | MariaDB                   |
+| Redis      | 6379          | Internal only        | Cache and queue           |
+| OpenPLC    | 8080          | Dynamically assigned | PLC web interface         |
+| MODBUS     | 502           | 502                  | PLC MODBUS TCP server     |
+| PLC Bridge | 7654          | 7654                 | Bridge API and SSE        |
 
 ## 🔐 Security Considerations
 
-- Database password is set to a secure default in `.env`
+- Database password is configurable via `.env` file
 - Services are isolated within Docker network
-- Only frontend port is exposed externally
+- Only necessary ports are exposed externally
 - All internal communication uses service names
 
-## 📝 Customization
+## 📝 Environment Configuration
 
-### Custom Images
-
-Edit `.env` file:
+### Required `.env` Settings
 
 ```bash
+# Database password (required)
+DB_PASSWORD=123
+
+# ERPNext version
+ERPNEXT_VERSION=v15.64.1
+
+# Comment out external database settings (using containerized services)
+# DB_HOST=
+# DB_PORT=
+# REDIS_CACHE=
+# REDIS_QUEUE=
+```
+
+### Optional Settings
+
+```bash
+# Custom images
 CUSTOM_IMAGE=your-registry/frappe-custom
 CUSTOM_TAG=your-tag
-```
 
-### Custom Ports
+# PLC Bridge configuration
+FRAPPE_API_KEY=your_api_key_here
+FRAPPE_API_SECRET=your_api_secret_here
+PLC_POLL_INTERVAL=1.0
+PLC_LOG_LEVEL=INFO
 
-Edit `.env` file:
-
-```bash
-HTTP_PUBLISH_PORT=8080  # Set specific port instead of ephemeral
-```
-
-### Additional Overrides
-
-Create additional override files in `overrides/` directory and include them:
-
-```bash
-docker compose -f compose.yaml -f overrides/compose.mac-m4.yaml -f overrides/your-custom.yaml up -d
+# OpenPLC settings
+OPENPLC_WEB_PORT=8081
+OPENPLC_MODBUS_PORT=502
+OPENPLC_LOG_LEVEL=INFO
 ```
 
 ## 🆘 Support
 
-For issues specific to Mac M4 setup:
+For Mac M4-specific issues:
 
-1. Check the troubleshooting section above
-2. Review service logs: `./get-access-url.sh logs`
-3. Verify Docker Desktop configuration
-4. Ensure all prerequisites are met
+1. Ensure Docker Desktop is configured for Apple Silicon
+2. Verify all services show `platform: linux/arm64`
+3. Check Docker Desktop resource allocation (4GB+ RAM recommended)
+4. Review service logs for specific error messages
 
 For general Frappe Docker issues:
 

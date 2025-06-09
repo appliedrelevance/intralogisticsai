@@ -8,10 +8,10 @@ echo "================================="
 
 # Detect if we're on Mac M4/ARM64 and set compose command accordingly
 if [[ $(uname -m) == "arm64" ]] && [[ $(uname -s) == "Darwin" ]]; then
-    COMPOSE_CMD="docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.mac-m4.yaml -f overrides/compose.openplc.yaml"
+    COMPOSE_CMD="docker compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.openplc.yaml -f overrides/compose.plc-bridge.yaml -f overrides/compose.mac-m4.yaml"
     echo "Detected Mac M4/ARM64 system"
 else
-    COMPOSE_CMD="docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.openplc.yaml"
+    COMPOSE_CMD="docker compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.openplc.yaml -f overrides/compose.plc-bridge.yaml"
     echo "Using standard configuration"
 fi
 
@@ -34,10 +34,10 @@ if $COMPOSE_CMD ps openplc | grep -q "Up"; then
 else
     echo "❌ OpenPLC service is not running"
     echo ""
-    echo "To start OpenPLC:"
+    echo "To start the complete system with OpenPLC:"
     if [[ $(uname -m) == "arm64" ]] && [[ $(uname -s) == "Darwin" ]]; then
-        echo "  docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.mac-m4.yaml -f overrides/compose.openplc.yaml up -d"
+        echo "  docker compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.openplc.yaml -f overrides/compose.plc-bridge.yaml -f overrides/compose.mac-m4.yaml up -d"
     else
-        echo "  docker-compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.openplc.yaml up -d"
+        echo "  docker compose -f compose.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.redis.yaml -f overrides/compose.openplc.yaml -f overrides/compose.plc-bridge.yaml up -d"
     fi
 fi

@@ -1,226 +1,168 @@
-# How to install ERPNext on linux/mac using Frappe_docker ?
+# How to install ERPNext on Linux/Mac using Frappe Docker
 
-step1: clone the repo
+## Quick Setup
 
-```
+### Step 1: Clone the repository
+
+```bash
 git clone https://github.com/frappe/frappe_docker
-```
-
-step2: add platform: linux/amd64 to all services in the /pwd.yaml
-
-here is the update pwd.yml file
-
-```yml
-version: "3"
-
-services:
-  backend:
-    image: frappe/erpnext:v15
-    platform: linux/amd64
-    deploy:
-      restart_policy:
-        condition: on-failure
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
-
-  configurator:
-    image: frappe/erpnext:v15
-    platform: linux/amd64
-    deploy:
-      restart_policy:
-        condition: none
-    entrypoint:
-      - bash
-      - -c
-    # add redis_socketio for backward compatibility
-    command:
-      - >
-        ls -1 apps > sites/apps.txt;
-        bench set-config -g db_host $$DB_HOST;
-        bench set-config -gp db_port $$DB_PORT;
-        bench set-config -g redis_cache "redis://$$REDIS_CACHE";
-        bench set-config -g redis_queue "redis://$$REDIS_QUEUE";
-        bench set-config -g redis_socketio "redis://$$REDIS_QUEUE";
-        bench set-config -gp socketio_port $$SOCKETIO_PORT;
-    environment:
-      DB_HOST: db
-      DB_PORT: "3306"
-      REDIS_CACHE: redis-cache:6379
-      REDIS_QUEUE: redis-queue:6379
-      SOCKETIO_PORT: "9000"
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
-
-  create-site:
-    image: frappe/erpnext:v15
-    platform: linux/amd64
-    deploy:
-      restart_policy:
-        condition: none
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
-    entrypoint:
-      - bash
-      - -c
-    command:
-      - >
-        wait-for-it -t 120 db:3306;
-        wait-for-it -t 120 redis-cache:6379;
-        wait-for-it -t 120 redis-queue:6379;
-        export start=`date +%s`;
-        until [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".db_host // empty"` ]] && \
-          [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".redis_cache // empty"` ]] && \
-          [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".redis_queue // empty"` ]];
-        do
-          echo "Waiting for sites/common_site_config.json to be created";
-          sleep 5;
-          if (( `date +%s`-start > 120 )); then
-            echo "could not find sites/common_site_config.json with required keys";
-            exit 1
-          fi
-        done;
-        echo "sites/common_site_config.json found";
-        bench new-site --mariadb-user-host-login-scope=% --admin-password=admin --db-root-password=admin --install-app erpnext --set-default frontend;
-
-  db:
-    image: mariadb:10.6
-    platform: linux/amd64
-    healthcheck:
-      test: mysqladmin ping -h localhost --password=admin
-      interval: 1s
-      retries: 20
-    deploy:
-      restart_policy:
-        condition: on-failure
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-      - --skip-character-set-client-handshake
-      - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
-    environment:
-      MYSQL_ROOT_PASSWORD: admin
-    volumes:
-      - db-data:/var/lib/mysql
-
-  frontend:
-    image: frappe/erpnext:v15
-    platform: linux/amd64
-    depends_on:
-      - websocket
-    deploy:
-      restart_policy:
-        condition: on-failure
-    command:
-      - nginx-entrypoint.sh
-    environment:
-      BACKEND: backend:8000
-      FRAPPE_SITE_NAME_HEADER: frontend
-      SOCKETIO: websocket:9000
-      UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
-      UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
-      UPSTREAM_REAL_IP_RECURSIVE: "off"
-      PROXY_READ_TIMEOUT: 120
-      CLIENT_MAX_BODY_SIZE: 50m
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
-    ports:
-      - "0:8080"  # Dynamic port mapping (0 = auto-assign)
-
-  queue-long:
-    image: frappe/erpnext:v15
-    platform: linux/amd64
-    deploy:
-      restart_policy:
-        condition: on-failure
-    command:
-      - bench
-      - worker
-      - --queue
-      - long,default,short
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
-
-  queue-short:
-    image: frappe/erpnext:v15
-    platform: linux/amd64
-    deploy:
-      restart_policy:
-        condition: on-failure
-    command:
-      - bench
-      - worker
-      - --queue
-      - short,default
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
-
-  redis-queue:
-    image: redis:6.2-alpine
-    platform: linux/amd64
-    deploy:
-      restart_policy:
-        condition: on-failure
-    volumes:
-      - redis-queue-data:/data
-
-  redis-cache:
-    image: redis:6.2-alpine
-    platform: linux/amd64
-    deploy:
-      restart_policy:
-        condition: on-failure
-
-  scheduler:
-    image: frappe/erpnext:v15
-    platform: linux/amd64
-    deploy:
-      restart_policy:
-        condition: on-failure
-    command:
-      - bench
-      - schedule
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
-
-  websocket:
-    image: frappe/erpnext:v15
-    platform: linux/amd64
-    deploy:
-      restart_policy:
-        condition: on-failure
-    command:
-      - node
-      - /home/frappe/frappe-bench/apps/frappe/socketio.js
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
-
-volumes:
-  db-data:
-  redis-queue-data:
-  sites:
-  logs:
-```
-
-step3: run the docker
-
-```
 cd frappe_docker
 ```
 
+### Step 2: Create environment file
+
+```bash
+cp example.env .env
 ```
-docker-compose -f ./pwd.yml up
+
+Edit the `.env` file to ensure these settings:
+
+```bash
+# Database password (required)
+DB_PASSWORD=123
+
+# Comment out external database settings (we use containerized services)
+# DB_HOST=
+# DB_PORT=
+# REDIS_CACHE=
+# REDIS_QUEUE=
 ```
 
----
+### Step 3: Start the services
 
-Wait for couple of minutes.
+For **Mac M-series (ARM64)**:
+```bash
+docker compose \
+  -f compose.yaml \
+  -f overrides/compose.mariadb.yaml \
+  -f overrides/compose.redis.yaml \
+  -f overrides/compose.mac-m4.yaml \
+  up -d
+```
 
-Use `docker compose ps` to find the auto-assigned port, then open localhost:[port]
+For **Linux/Mac Intel (x86_64)**:
+```bash
+docker compose \
+  -f compose.yaml \
+  -f overrides/compose.mariadb.yaml \
+  -f overrides/compose.redis.yaml \
+  up -d
+```
+
+### Step 4: Create a site
+
+Wait for the configurator to complete, then create a site:
+
+```bash
+# Check that configurator completed successfully
+docker compose logs configurator
+
+# Create site with ERPNext
+docker compose exec backend bench new-site localhost --admin-password admin --db-root-password 123 --install-app erpnext
+```
+
+### Step 5: Access the application
+
+Find the assigned port:
+
+```bash
+docker compose ps
+```
+
+Access Frappe/ERPNext at `http://localhost:[assigned_port]` with:
+- **Username**: Administrator
+- **Password**: admin
+
+## Architecture
+
+This setup provides:
+
+- **Frontend**: Nginx proxy with dynamic port assignment
+- **Backend**: Frappe application server
+- **Database**: MariaDB 10.6 with persistent storage
+- **Cache/Queue**: Redis services for caching and job processing
+- **Queue Workers**: Background job processing
+- **Scheduler**: Automated task scheduling
+- **WebSocket**: Real-time communication
+
+## Platform-Specific Notes
+
+### Mac M-series (ARM64)
+
+The `compose.mac-m4.yaml` override provides:
+- `platform: linux/arm64` for all services
+- Optimized for Apple Silicon performance
+- Automatic port assignment to prevent conflicts
+
+### Linux/Intel Mac (x86_64)
+
+Uses standard `linux/amd64` platform for compatibility.
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Database connection errors**
+   ```bash
+   # Ensure .env has correct DB_PASSWORD
+   cat .env | grep DB_PASSWORD
+   ```
+
+2. **Site creation fails**
+   ```bash
+   # Reset volumes and restart
+   docker compose down --volumes
+   docker volume rm frappe_docker_db-data frappe_docker_sites
+   ```
+
+3. **Services not starting**
+   ```bash
+   # Check logs
+   docker compose logs configurator
+   docker compose logs backend
+   ```
+
+### Complete Reset
+
+If you encounter persistent issues:
+
+```bash
+# Stop and remove everything
+docker compose down --volumes
+docker volume rm frappe_docker_db-data frappe_docker_sites frappe_docker_redis-queue-data
+
+# Start fresh
+docker compose \
+  -f compose.yaml \
+  -f overrides/compose.mariadb.yaml \
+  -f overrides/compose.redis.yaml \
+  -f overrides/compose.mac-m4.yaml \
+  up -d
+```
+
+## Additional Services
+
+To add PLC integration and industrial automation:
+
+```bash
+docker compose \
+  -f compose.yaml \
+  -f overrides/compose.mariadb.yaml \
+  -f overrides/compose.redis.yaml \
+  -f overrides/compose.openplc.yaml \
+  -f overrides/compose.plc-bridge.yaml \
+  -f overrides/compose.mac-m4.yaml \
+  up -d
+```
+
+This adds:
+- **OpenPLC**: PLC simulator for industrial automation
+- **PLC Bridge**: Real-time MODBUS communication service
+
+## Support
+
+For issues:
+- Check service logs: `docker compose logs [service_name]`
+- Verify .env configuration
+- Ensure Docker has sufficient resources (4GB+ RAM recommended)
+- Review [Frappe Docker documentation](https://github.com/frappe/frappe_docker)
