@@ -17,7 +17,7 @@ To play in an already set up sandbox, in your browser, click the button below:
   <img src="https://raw.githubusercontent.com/play-with-docker/stacks/master/assets/images/button.png" alt="Try in PWD"/>
 </a>
 
-### Try on your Dev environment
+### Setup Development Environment
 
 First clone the repo:
 
@@ -26,26 +26,39 @@ git clone https://github.com/frappe/frappe_docker
 cd frappe_docker
 ```
 
-Then run: `docker compose -f pwd.yml up -d`
+Start the full stack with PLC integration:
 
-### To run on ARM64 architecture follow this instructions
+```sh
+# Start with MariaDB, Redis, OpenPLC, PLC Bridge, and Mac M4 support
+docker compose \
+  -f compose.yaml \
+  -f overrides/compose.mariadb.yaml \
+  -f overrides/compose.redis.yaml \
+  -f overrides/compose.openplc.yaml \
+  -f overrides/compose.plc-bridge.yaml \
+  -f overrides/compose.mac-m4.yaml \
+  up -d
+```
 
-After cloning the repo run this command to build multi-architecture images specifically for ARM64.
+**Note**: Do NOT use `pwd.yml` - it is deprecated and not compatible with this PLC-integrated setup.
 
-`docker buildx bake --no-cache --set "*.platform=linux/arm64"`
+### ARM64 Architecture (Mac M-series)
 
-and then
-
-- add `platform: linux/arm64` to all services in the `pwd.yml`
-- replace the current specified versions of erpnext image on `pwd.yml` with `:latest`
-
-Then run: `docker compose -f pwd.yml up -d`
+The `compose.mac-m4.yaml` override automatically handles ARM64 platform configuration. No additional setup required.
 
 ## Final steps
 
-Wait for 5 minutes for ERPNext site to be created or check `create-site` container logs before opening browser. Use `docker compose ps` to find the auto-assigned port for the frontend service. (username: `Administrator`, password: `admin`)
+Wait for 5 minutes for ERPNext site to be created or check container logs before opening browser. Use `docker compose ps` to find the auto-assigned port for the frontend service. (username: `Administrator`, password: `admin`)
 
-If you ran in a Dev Docker environment, to view container logs: `docker compose -f pwd.yml logs -f create-site`. Don't worry about some of the initial error messages, some services take a while to become ready, and then they go away.
+To view container logs:
+```sh
+docker compose logs -f configurator
+```
+
+Use helper scripts:
+- `./get-openplc-port.sh` - Get OpenPLC web interface port
+
+Don't worry about some initial error messages, services take time to become ready.
 
 # Documentation
 
