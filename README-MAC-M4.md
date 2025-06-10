@@ -1,12 +1,12 @@
-# Frappe Docker for Mac M4 (ARM64) Setup Guide
+# Frappe Docker for Mac M4 (ARM64) with EpiBus Integration
 
-This guide provides Mac M4-specific configuration for running Frappe Docker with ARM64 compatibility and automatic port assignment.
+This guide provides Mac M4-specific configuration for running Frappe Docker with EpiBus industrial automation capabilities, ARM64 compatibility, and automatic port assignment.
 
-## 🚀 Quick Start
+## 🚀 Quick Start with EpiBus
 
 ### Prerequisites
 
-1. **Docker Desktop for Mac** with Apple Silicon support
+1. **Docker Desktop for Mac** with Apple Silicon support (4GB+ RAM recommended)
 2. **Git** (for cloning the repository)
 
 ### Installation
@@ -18,32 +18,46 @@ This guide provides Mac M4-specific configuration for running Frappe Docker with
    cd frappe_docker
    ```
 
-2. Create environment file:
+2. Build custom image with EpiBus:
+   
+   ```bash
+   ./development/build-epibus-image.sh
+   ```
+
+3. Create and configure environment file:
    
    ```bash
    cp example.env .env
+   # Edit .env to set:
+   # CUSTOM_IMAGE=frappe-epibus
+   # CUSTOM_TAG=latest
+   # PULL_POLICY=never
+   # DB_PASSWORD=123
    ```
 
-3. Start the complete system:
+4. Start the system with EpiBus:
    
    ```bash
    docker compose \
      -f compose.yaml \
      -f overrides/compose.mariadb.yaml \
      -f overrides/compose.redis.yaml \
-     -f overrides/compose.openplc.yaml \
-     -f overrides/compose.plc-bridge.yaml \
      -f overrides/compose.mac-m4.yaml \
      up -d
    ```
 
-4. Create a Frappe site:
+5. Create a site with EpiBus:
    
    ```bash
-   docker compose exec backend bench new-site localhost --admin-password admin --db-root-password 123 --install-app erpnext
+   docker compose exec backend \
+     bench new-site mysite.localhost \
+     --admin-password admin \
+     --db-root-password 123 \
+     --install-app erpnext \
+     --install-app epibus
    ```
 
-5. Find your access port:
+6. Find your access port:
    
    ```bash
    docker compose ps
@@ -123,8 +137,9 @@ docker compose exec backend bench use localhost
 - **Configurator**: Initial setup and configuration
 - **Database**: MariaDB 10.6 with persistent storage
 - **Cache/Queue**: Redis services for caching and job queues
-- **OpenPLC**: PLC simulator for industrial automation
-- **PLC Bridge**: Real-time MODBUS communication service
+- **EpiBus**: Industrial automation integration for ERPNext
+- **OpenPLC**: PLC simulator for testing (optional)
+- **PLC Bridge**: Real-time MODBUS communication (optional)
 
 ### Port Management
 

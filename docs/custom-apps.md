@@ -2,6 +2,25 @@
 
 Base64 encoded string of `apps.json` file needs to be passed in as build arg environment variable.
 
+#### EpiBus Integration Example
+
+For the included EpiBus industrial automation integration, create this `apps.json` file:
+
+```json
+[
+  {
+    "url": "https://github.com/frappe/erpnext",
+    "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/appliedrelevance/epibus.git",
+    "branch": "main"
+  }
+]
+```
+
+#### General Custom Apps Format
+
 Create the following `apps.json` file:
 
 ```json

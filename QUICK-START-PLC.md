@@ -1,36 +1,101 @@
 # Quick Start: EpiBus + PLC Integration with Frappe Docker
 
-## Automatic EpiBus Installation (Recommended)
+## Prerequisites
 
-The easiest way to get started with EpiBus and PLC integration:
+- Docker and Docker Compose installed
+- Git installed
+- At least 4GB available RAM
+
+## Step-by-Step Setup
+
+### 1. Clone and Build Custom Image
 
 ```bash
-# Run the automated installation script
-python development/install-epibus.py
+git clone https://github.com/frappe/frappe_docker
+cd frappe_docker
 
-# Or with custom settings
-python development/install-epibus.py --site-name mysite.localhost --admin-password mypassword
+# Build custom Docker image with EpiBus
+./development/build-epibus-image.sh
 ```
 
-This script automatically:
-- ✅ Starts all required services (Frappe, ERPNext, MariaDB, Redis, OpenPLC, PLC Bridge)
-- ✅ Creates a new site with ERPNext and EpiBus pre-installed
-- ✅ Configures PLC Bridge for MODBUS communication
-- ✅ Provides access URLs for all services
-
-## Manual Setup (Alternative)
-
-If you prefer manual control, use the complete compose + overrides approach:
+### 2. Environment Configuration
 
 ```bash
-# Option 1: Use the comprehensive EpiBus override (includes all services)
+# Copy environment file and configure
+cp example.env .env
+
+# Edit .env file to set:
+# CUSTOM_IMAGE=frappe-epibus
+# CUSTOM_TAG=latest
+# PULL_POLICY=never
+# DB_PASSWORD=123
+```
+
+### 3. Start Services
+
+For Mac M-series (ARM64):
+```bash
 docker compose \
   -f compose.yaml \
-  -f overrides/compose.epibus.yaml \
+  -f overrides/compose.mariadb.yaml \
+  -f overrides/compose.redis.yaml \
   -f overrides/compose.mac-m4.yaml \
   up -d
+```
 
-# Option 2: Individual overrides (more granular control)
+For x86_64 systems:
+```bash
+docker compose \
+  -f compose.yaml \
+  -f overrides/compose.mariadb.yaml \
+  -f overrides/compose.redis.yaml \
+  up -d
+```
+
+### 4. Create Site with EpiBus
+
+```bash
+# Wait for services to be ready (about 2-3 minutes)
+docker compose exec backend \
+  bench new-site mysite.localhost \
+  --admin-password admin \
+  --db-root-password 123 \
+  --install-app erpnext \
+  --install-app epibus
+```
+
+## Access the Application
+
+### 1. Find Your Port
+
+```bash
+# Check which port the frontend is using
+docker compose ps
+```
+
+### 2. Open Web Interface
+
+- **URL**: `http://localhost:[port]/` (port from previous step)
+- **Username**: `Administrator`
+- **Password**: `admin`
+
+### 3. Access EpiBus Features
+
+After logging in:
+- Navigate to **EpiBus** workspace from the sidebar
+- Configure **Modbus Connections** for your PLCs
+- Set up **Modbus Signals** for I/O mapping
+- Create **Modbus Actions** for automation workflows
+
+## Optional: Add PLC Simulation
+
+To add OpenPLC simulator and PLC Bridge for testing:
+
+```bash
+# Stop current services
+docker compose down
+
+# Restart with PLC services
 docker compose \
   -f compose.yaml \
   -f overrides/compose.mariadb.yaml \
@@ -41,41 +106,10 @@ docker compose \
   up -d
 ```
 
-## Environment Setup
-
-Create `.env` file in project root (copy from example.env):
-
-```bash
-cp example.env .env
-```
-
-Edit the `.env` file and ensure these settings:
-
-```bash
-# Database password (required)
-DB_PASSWORD=123
-
-# Comment out external database settings (we use containerized MariaDB/Redis)
-# DB_HOST=
-# DB_PORT=
-# REDIS_CACHE=
-# REDIS_QUEUE=
-
-# Optional PLC Bridge settings
-FRAPPE_API_KEY=your_api_key_here
-FRAPPE_API_SECRET=your_api_secret_here
-PLC_POLL_INTERVAL=1.0
-PLC_LOG_LEVEL=INFO
-```
-
-## Manual Site Creation (if not using install-epibus.py)
-
-After containers start, create a Frappe site with EpiBus:
-
-```bash
-# Wait for services to be healthy, then create site with EpiBus
-docker compose exec backend bench new-site localhost --admin-password admin --db-root-password 123 --install-app erpnext --install-app epibus
-```
+This adds:
+- **OpenPLC Web Interface**: Check port with `./get-openplc-port.sh`
+- **PLC Bridge API**: Port 7654 for real-time communication
+- **MODBUS TCP Server**: Port 502 for PLC communication
 
 ## Service Access
 

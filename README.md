@@ -9,14 +9,6 @@ To get started you need [Docker](https://docs.docker.com/get-docker/), [docker-c
 
 Once completed, chose one of the following two sections for next steps.
 
-### Try in Play With Docker
-
-To play in an already set up sandbox, in your browser, click the button below:
-
-<a href="https://labs.play-with-docker.com/?stack=https://raw.githubusercontent.com/frappe/frappe_docker/main/pwd.yml">
-  <img src="https://raw.githubusercontent.com/play-with-docker/stacks/master/assets/images/button.png" alt="Try in PWD"/>
-</a>
-
 ### Setup Development Environment
 
 First clone the repo:
@@ -26,57 +18,90 @@ git clone https://github.com/frappe/frappe_docker
 cd frappe_docker
 ```
 
-### Quick Start with EpiBus (Recommended)
+### Quick Start with EpiBus Integration
 
-For automatic setup with EpiBus industrial automation:
+This setup includes industrial automation capabilities through EpiBus, OpenPLC, and PLC Bridge integration.
+
+#### Step 1: Build Custom Image with EpiBus
 
 ```sh
-# Automated installation with EpiBus
-python development/install-epibus.py
+# Build custom Docker image with EpiBus included
+./development/build-epibus-image.sh
 ```
 
-### Manual Setup
+#### Step 2: Configure Environment
 
-Start the full stack with PLC integration:
+Copy and configure environment file:
 
 ```sh
-# Complete setup with EpiBus (Mac M-series)
-docker compose \
-  -f compose.yaml \
-  -f overrides/compose.epibus.yaml \
-  -f overrides/compose.mac-m4.yaml \
-  up -d
+cp example.env .env
+# Edit .env to set:
+# CUSTOM_IMAGE=frappe-epibus
+# CUSTOM_TAG=latest
+# PULL_POLICY=never
+```
 
-# Individual overrides (more granular control)
+#### Step 3: Start Services
+
+For Mac M-series (ARM64):
+```sh
 docker compose \
   -f compose.yaml \
   -f overrides/compose.mariadb.yaml \
   -f overrides/compose.redis.yaml \
-  -f overrides/compose.openplc.yaml \
-  -f overrides/compose.plc-bridge.yaml \
   -f overrides/compose.mac-m4.yaml \
   up -d
 ```
 
-**Note**: Do NOT use `pwd.yml` - it is deprecated and not compatible with this PLC-integrated setup.
+For x86_64 systems:
+```sh
+docker compose \
+  -f compose.yaml \
+  -f overrides/compose.mariadb.yaml \
+  -f overrides/compose.redis.yaml \
+  up -d
+```
 
-### ARM64 Architecture (Mac M-series)
+#### Step 4: Create Site with EpiBus
 
-The `compose.mac-m4.yaml` override automatically handles ARM64 platform configuration. No additional setup required.
+```sh
+# Wait for services to be ready, then create site
+docker compose exec backend \
+  bench new-site mysite.localhost \
+  --admin-password admin \
+  --db-root-password 123 \
+  --install-app erpnext \
+  --install-app epibus
+```
 
-## Final steps
+## Access the Application
 
-Wait for 5 minutes for ERPNext site to be created or check container logs before opening browser. Use `docker compose ps` to find the auto-assigned port for the frontend service. (username: `Administrator`, password: `admin`)
+1. **Find the frontend port**: Use `docker compose ps` to find the auto-assigned port for the frontend service
+2. **Access web interface**: Open `http://localhost:<port>/` in your browser
+3. **Login credentials**: Username: `Administrator`, Password: `admin`
 
 To view container logs:
 ```sh
 docker compose logs -f configurator
+docker compose logs -f backend
 ```
 
-Use helper scripts:
-- `./get-openplc-port.sh` - Get OpenPLC web interface port
+### Access Industrial Automation Features
 
-Don't worry about some initial error messages, services take time to become ready.
+- **EpiBus Dashboard**: Navigate to "EpiBus" module after login
+- **OpenPLC Web Interface**: Use `./get-openplc-port.sh` to get port number
+- **PLC Bridge API**: Available on port 7654 for real-time PLC communication
+- **MODBUS Communication**: Monitor and control PLC signals through EpiBus interface
+
+### Troubleshooting
+
+If you encounter database connection issues after restarting containers, run:
+```sh
+# Get current backend container IP
+BACKEND_IP=$(docker compose exec backend hostname -i)
+# Grant database access (adjust user/password as needed)
+docker compose exec db mysql -u root -p123 -e "GRANT ALL PRIVILEGES ON *.* TO 'site_user'@'$BACKEND_IP'; FLUSH PRIVILEGES;"
+```
 
 # Documentation
 
