@@ -41,7 +41,7 @@ cp example.env .env
 # PULL_POLICY=never
 ```
 
-#### Step 3: Start Services
+#### Step 3: Start All Services (Including OpenPLC and PLC Bridge)
 
 For Mac M-series (ARM64):
 ```sh
@@ -50,6 +50,8 @@ docker compose \
   -f overrides/compose.mariadb.yaml \
   -f overrides/compose.redis.yaml \
   -f overrides/compose.mac-m4.yaml \
+  -f overrides/compose.openplc.yaml \
+  -f overrides/compose.plc-bridge.yaml \
   up -d
 ```
 
@@ -59,17 +61,21 @@ docker compose \
   -f compose.yaml \
   -f overrides/compose.mariadb.yaml \
   -f overrides/compose.redis.yaml \
+  -f overrides/compose.openplc.yaml \
+  -f overrides/compose.plc-bridge.yaml \
   up -d
 ```
 
-#### Step 4: Create Site with EpiBus
+#### Step 4: Create Site with EpiBus Integration
 
 ```sh
 # Wait for services to be ready, then create site
+# CRITICAL: Use --mariadb-user-host-login-scope=% for Docker network compatibility
 docker compose exec backend \
-  bench new-site mysite.localhost \
+  bench new-site intralogistics.localhost \
   --admin-password admin \
   --db-root-password 123 \
+  --mariadb-user-host-login-scope=% \
   --install-app erpnext \
   --install-app epibus
 ```
