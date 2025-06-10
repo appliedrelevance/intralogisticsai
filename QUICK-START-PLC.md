@@ -1,10 +1,36 @@
-# Quick Start: PLC Bridge with Frappe Docker
+# Quick Start: EpiBus + PLC Integration with Frappe Docker
 
-## Complete Setup Command
+## Automatic EpiBus Installation (Recommended)
 
-Use the full compose + overrides approach for the complete PLC-integrated system:
+The easiest way to get started with EpiBus and PLC integration:
 
 ```bash
+# Run the automated installation script
+python development/install-epibus.py
+
+# Or with custom settings
+python development/install-epibus.py --site-name mysite.localhost --admin-password mypassword
+```
+
+This script automatically:
+- ✅ Starts all required services (Frappe, ERPNext, MariaDB, Redis, OpenPLC, PLC Bridge)
+- ✅ Creates a new site with ERPNext and EpiBus pre-installed
+- ✅ Configures PLC Bridge for MODBUS communication
+- ✅ Provides access URLs for all services
+
+## Manual Setup (Alternative)
+
+If you prefer manual control, use the complete compose + overrides approach:
+
+```bash
+# Option 1: Use the comprehensive EpiBus override (includes all services)
+docker compose \
+  -f compose.yaml \
+  -f overrides/compose.epibus.yaml \
+  -f overrides/compose.mac-m4.yaml \
+  up -d
+
+# Option 2: Individual overrides (more granular control)
 docker compose \
   -f compose.yaml \
   -f overrides/compose.mariadb.yaml \
@@ -42,24 +68,25 @@ PLC_POLL_INTERVAL=1.0
 PLC_LOG_LEVEL=INFO
 ```
 
-## Site Creation
+## Manual Site Creation (if not using install-epibus.py)
 
-After containers start, create a Frappe site:
+After containers start, create a Frappe site with EpiBus:
 
 ```bash
-# Wait for services to be healthy, then create site
-docker compose exec backend bench new-site localhost --admin-password admin --db-root-password 123 --install-app erpnext
+# Wait for services to be healthy, then create site with EpiBus
+docker compose exec backend bench new-site localhost --admin-password admin --db-root-password 123 --install-app erpnext --install-app epibus
 ```
 
 ## Service Access
 
-- **Frappe/ERPNext**: http://localhost:[dynamic_port] (Administrator/admin)
-- **OpenPLC Web Interface**: http://localhost:[dynamic_port] 
+- **Frappe/ERPNext with EpiBus**: http://localhost:[dynamic_port] (Administrator/admin)
+- **EpiBus Workspace**: Available in Frappe desk after login
+- **OpenPLC Web Interface**: http://localhost:[dynamic_port] (openplc/openplc)
 - **OpenPLC MODBUS**: Port 502 (MODBUS TCP)
 - **PLC Bridge API**: http://localhost:7654/signals
 - **PLC Bridge SSE**: http://localhost:7654/events
 
-Use `docker compose ps` to find the dynamic port assignments.
+Use `docker compose ps` to find the dynamic port assignments or run `./get-openplc-port.sh` for OpenPLC details.
 
 ## Quick Verification
 

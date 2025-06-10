@@ -1,7 +1,7 @@
 [![Build Stable](https://github.com/frappe/frappe_docker/actions/workflows/build_stable.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/build_stable.yml)
 [![Build Develop](https://github.com/frappe/frappe_docker/actions/workflows/build_develop.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/build_develop.yml)
 
-Everything about [Frappe](https://github.com/frappe/frappe) and [ERPNext](https://github.com/frappe/erpnext) in containers.
+Everything about [Frappe](https://github.com/frappe/frappe) and [ERPNext](https://github.com/frappe/erpnext) in containers, with integrated industrial automation capabilities through EpiBus.
 
 # Getting Started
 
@@ -26,10 +26,28 @@ git clone https://github.com/frappe/frappe_docker
 cd frappe_docker
 ```
 
+### Quick Start with EpiBus (Recommended)
+
+For automatic setup with EpiBus industrial automation:
+
+```sh
+# Automated installation with EpiBus
+python development/install-epibus.py
+```
+
+### Manual Setup
+
 Start the full stack with PLC integration:
 
 ```sh
-# Start with MariaDB, Redis, OpenPLC, PLC Bridge, and Mac M4 support
+# Complete setup with EpiBus (Mac M-series)
+docker compose \
+  -f compose.yaml \
+  -f overrides/compose.epibus.yaml \
+  -f overrides/compose.mac-m4.yaml \
+  up -d
+
+# Individual overrides (more granular control)
 docker compose \
   -f compose.yaml \
   -f overrides/compose.mariadb.yaml \

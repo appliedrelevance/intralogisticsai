@@ -1,0 +1,171 @@
+# EpiBus Integration Override
+# Complete setup including MariaDB, Redis, OpenPLC, PLC Bridge, and EpiBus integration
+
+services:
+  # Configurator with EpiBus integration
+  configurator:
+    volumes:
+      - ./epibus:/workspace/epibus:ro
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      REDIS_CACHE: redis-cache:6379
+      REDIS_QUEUE: redis-queue:6379
+      INSTALL_EPIBUS: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis-cache:
+        condition: service_started
+      redis-queue:
+        condition: service_started
+    command:
+      - >
+        ls -1 apps > sites/apps.txt;
+        bench set-config -g db_host $$DB_HOST;
+        bench set-config -gp db_port $$DB_PORT;
+        bench set-config -g redis_cache "redis://$$REDIS_CACHE";
+        bench set-config -g redis_queue "redis://$$REDIS_QUEUE";
+        bench set-config -g redis_socketio "redis://$$REDIS_QUEUE";
+        bench set-config -gp socketio_port $$SOCKETIO_PORT;
+        if [ "$$INSTALL_EPIBUS" = "true" ]; then
+          echo "Installing EpiBus app...";
+          if [ -d "/workspace/epibus" ]; then
+            bench get-app epibus /workspace/epibus;
+            echo "EpiBus app added to bench - but not to apps.txt yet";
+            sed -i '/epibus/d' sites/apps.txt;
+          else
+            echo "Warning: EpiBus directory not found at /workspace/epibus";
+          fi;
+        fi;
+
+  # MariaDB Database
+  db:
+    image: mariadb:10.6
+    healthcheck:
+      test: mysqladmin ping -h localhost --password=${DB_PASSWORD}
+      interval: 1s
+      retries: 20
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+      - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:?No db password set}
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - frappe_network
+
+  # Redis Cache
+  redis-cache:
+    image: redis:6.2-alpine
+    restart: unless-stopped
+    networks:
+      - frappe_network
+
+  # Redis Queue
+  redis-queue:
+    image: redis:6.2-alpine
+    restart: unless-stopped
+    volumes:
+      - redis-queue-data:/data
+    networks:
+      - frappe_network
+
+  # Backend with EpiBus integration
+  backend:
+    volumes:
+      - ./epibus:/workspace/epibus:ro
+    environment:
+      PLC_BRIDGE_HOST: plc-bridge
+      PLC_BRIDGE_PORT: 7654
+      OPENPLC_HOST: openplc
+      OPENPLC_MODBUS_PORT: 502
+
+  # Frontend with EpiBus integration
+  frontend:
+    volumes:
+      - ./epibus:/workspace/epibus:ro
+
+  # WebSocket with EpiBus integration
+  websocket:
+    volumes:
+      - ./epibus:/workspace/epibus:ro
+
+  # Queue workers with EpiBus integration
+  queue-short:
+    volumes:
+      - ./epibus:/workspace/epibus:ro
+    environment:
+      PLC_BRIDGE_HOST: plc-bridge
+      PLC_BRIDGE_PORT: 7654
+
+  queue-long:
+    volumes:
+      - ./epibus:/workspace/epibus:ro
+    environment:
+      PLC_BRIDGE_HOST: plc-bridge
+      PLC_BRIDGE_PORT: 7654
+
+  scheduler:
+    volumes:
+      - ./epibus:/workspace/epibus:ro
+    environment:
+      PLC_BRIDGE_HOST: plc-bridge
+      PLC_BRIDGE_PORT: 7654
+
+  # OpenPLC Service
+  openplc:
+    build:
+      context: ./openplc
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      OPENPLC_LOG_LEVEL: ${OPENPLC_LOG_LEVEL:-INFO}
+    ports:
+      - "${OPENPLC_WEB_PORT:-8081}:8080"  # Web interface
+      - "502:502"  # MODBUS TCP
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - frappe_network
+
+  # PLC Bridge Service
+  plc-bridge:
+    build:
+      context: ./epibus/plc/bridge
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      FRAPPE_URL: http://backend:8000
+      OPENPLC_HOST: openplc
+      OPENPLC_PORT: 502
+      PLC_POLL_INTERVAL: ${PLC_POLL_INTERVAL:-1.0}
+      LOG_LEVEL: ${PLC_LOG_LEVEL:-INFO}
+    ports:
+      - "7654:7654"  # SSE server for real-time events
+    depends_on:
+      openplc:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7654/signals"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - frappe_network
+
+volumes:
+  db-data:
+  redis-queue-data:
+
+networks:
+  frappe_network:
