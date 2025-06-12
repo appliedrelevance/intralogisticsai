@@ -27,19 +27,6 @@ git clone https://github.com/frappe/frappe_docker.git
 cd frappe_docker
 ```
 
-### EpiBus Development Setup
-
-For industrial automation development with EpiBus integration:
-
-```shell
-# Build custom development image with EpiBus
-./development/build-epibus-image.sh
-
-# Copy environment configuration
-cp example.env .env
-# Edit .env to set CUSTOM_IMAGE=frappe-epibus and CUSTOM_TAG=latest
-```
-
 Copy example devcontainer config from `devcontainer-example` to `.devcontainer`
 
 ```shell
