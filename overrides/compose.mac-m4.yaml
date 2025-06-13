@@ -10,6 +10,14 @@ services:
     networks:
       - frappe_network
 
+  # Create-site service - ARM64 platform
+  create-site:
+    platform: linux/arm64
+    # Use ARM64-compatible base image
+    image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
+    networks:
+      - frappe_network
+
   # Backend service - ARM64 platform
   backend:
     platform: linux/arm64

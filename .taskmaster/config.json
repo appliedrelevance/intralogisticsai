@@ -1,8 +1,8 @@
 {
   "models": {
     "main": {
-      "provider": "anthropic",
-      "modelId": "claude-4-sonnet-20250514",
+      "provider": "openrouter",
+      "modelId": "google/gemini-2.5-flash-preview-05-20",
       "maxTokens": 120000,
       "temperature": 0.2
     },

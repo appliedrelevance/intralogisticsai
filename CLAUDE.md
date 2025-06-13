@@ -79,10 +79,10 @@ docker compose \
 ### Site Operations
 ```bash
 # Create new site with ERPNext
-docker compose exec backend bench new-site localhost --admin-password admin --db-root-password 123 --install-app erpnext
+docker compose exec backend bench new-site intralogistics.localhost --admin-password admin --db-root-password 123 --install-app erpnext
 
 # Install EpiBus app on existing site
-docker compose exec backend bench --site localhost install-app epibus
+docker compose exec backend bench --site intralogistics.localhost install-app epibus
 
 # Access backend container
 docker compose exec backend bash
@@ -93,15 +93,7 @@ docker compose ps
 
 ### OpenPLC Operations
 ```bash
-# Get auto-assigned OpenPLC web interface port
-./get-openplc-port.sh
 
-# Access OpenPLC web interface (default credentials: openplc/openplc)
-# URL provided by get-openplc-port.sh
-
-# MODBUS TCP communication on port 502
-# telnet localhost 502
-```
 
 ### Development Workflows
 ```bash
@@ -129,6 +121,7 @@ cp example.env .env
 # Essential variables:
 DB_PASSWORD=123
 ERPNEXT_VERSION=v15.64.1
+
 
 # IMPORTANT: Comment out external DB/Redis settings when using containerized services
 # DB_HOST=
