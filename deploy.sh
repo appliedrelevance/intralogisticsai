@@ -18,6 +18,11 @@ fi
 DEPLOY_TYPE=${1:-"basic"}
 log "Starting deployment: $DEPLOY_TYPE"
 
+if [ "$DEPLOY_TYPE" = "with-epibus" ]; then
+    log "Deploying with EpiBus application"
+    ./development/build-epibus-image.sh || error "EpiBus image build failed. Exiting."
+fi
+
 # Check directory
 [ ! -f "compose.yaml" ] && error "Must run from frappe_docker directory"
 
@@ -44,6 +49,15 @@ if [ "$DEPLOY_TYPE" = "with-plc" ]; then
       -f overrides/compose.redis.yaml \
       -f overrides/compose.openplc.yaml \
       -f overrides/compose.plc-bridge.yaml \
+      -f overrides/compose.mac-m4.yaml \
+      -f overrides/compose.create-site.yaml \
+      up -d
+elif [ "$DEPLOY_TYPE" = "with-epibus" ]; then
+    log "Deploying with EpiBus application using compose.yaml with overrides"
+    CUSTOM_IMAGE=frappe-epibus CUSTOM_TAG=latest docker compose \
+      -f compose.yaml \
+      -f overrides/compose.mariadb.yaml \
+      -f overrides/compose.redis.yaml \
       -f overrides/compose.mac-m4.yaml \
       -f overrides/compose.create-site.yaml \
       up -d
@@ -90,6 +104,8 @@ if curl -f -s "http://localhost:$PORT" >/dev/null 2>&1; then
     if [ "$DEPLOY_TYPE" = "with-plc" ]; then
         echo "OpenPLC: http://localhost:8081 (openplc/openplc)"
         echo "PLC Bridge: http://localhost:7654"
+    elif [ "$DEPLOY_TYPE" = "with-epibus" ]; then
+        echo "EpiBus application deployed."
     fi
     echo "=================================="
 else
