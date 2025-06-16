@@ -45,13 +45,14 @@ overrides/compose.mac-m4.yaml  # ARM64 optimization
 
 ### Standard Setup (Mac M-series ARM64)
 ```bash
-# Complete setup with industrial automation
+# Complete setup with industrial automation and automatic site creation
 docker compose \
   -f compose.yaml \
   -f overrides/compose.mariadb.yaml \
   -f overrides/compose.redis.yaml \
   -f overrides/compose.openplc.yaml \
   -f overrides/compose.plc-bridge.yaml \
+  -f overrides/compose.create-site.yaml \
   -f overrides/compose.mac-m4.yaml \
   up -d
 
@@ -66,13 +67,14 @@ docker compose \
 
 ### Standard Setup (Linux/Intel Mac x86_64)
 ```bash
-# Complete setup with industrial automation
+# Complete setup with industrial automation and automatic site creation
 docker compose \
   -f compose.yaml \
   -f overrides/compose.mariadb.yaml \
   -f overrides/compose.redis.yaml \
   -f overrides/compose.openplc.yaml \
   -f overrides/compose.plc-bridge.yaml \
+  -f overrides/compose.create-site.yaml \
   up -d
 ```
 
