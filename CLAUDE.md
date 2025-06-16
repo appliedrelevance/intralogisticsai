@@ -43,9 +43,17 @@ overrides/compose.mac-m4.yaml  # ARM64 optimization
 
 ## Essential Commands
 
-### Standard Setup (Mac M-series ARM64)
+### Complete Industrial Automation Setup (Mac M-series ARM64)
 ```bash
-# Complete setup with industrial automation and automatic site creation
+# STEP 1: Build custom image with EpiBus (required for complete functionality)
+./development/build-epibus-image.sh
+
+# STEP 2: Configure environment for custom image
+export CUSTOM_IMAGE=frappe-epibus
+export CUSTOM_TAG=latest
+export PULL_POLICY=never
+
+# STEP 3: Deploy complete stack with EpiBus integration
 docker compose \
   -f compose.yaml \
   -f overrides/compose.mariadb.yaml \
@@ -55,6 +63,9 @@ docker compose \
   -f overrides/compose.create-site.yaml \
   -f overrides/compose.mac-m4.yaml \
   up -d
+
+# STEP 4: Install EpiBus on the created site (after deployment completes)
+docker compose exec backend bench --site intralogistics.localhost install-app epibus
 
 # Standard setup without PLC integration
 docker compose \
@@ -65,9 +76,17 @@ docker compose \
   up -d
 ```
 
-### Standard Setup (Linux/Intel Mac x86_64)
+### Complete Industrial Automation Setup (Linux/Intel Mac x86_64)
 ```bash
-# Complete setup with industrial automation and automatic site creation
+# STEP 1: Build custom image with EpiBus (required for complete functionality)
+./development/build-epibus-image.sh
+
+# STEP 2: Configure environment for custom image
+export CUSTOM_IMAGE=frappe-epibus
+export CUSTOM_TAG=latest
+export PULL_POLICY=never
+
+# STEP 3: Deploy complete stack with EpiBus integration
 docker compose \
   -f compose.yaml \
   -f overrides/compose.mariadb.yaml \
@@ -76,7 +95,52 @@ docker compose \
   -f overrides/compose.plc-bridge.yaml \
   -f overrides/compose.create-site.yaml \
   up -d
+
+# STEP 4: Install EpiBus on the created site (after deployment completes)
+docker compose exec backend bench --site intralogistics.localhost install-app epibus
 ```
+
+## Complete Deployment Overview
+
+The above commands deploy a **complete industrial automation stack** including:
+
+✅ **Frappe/ERPNext ERP System** - Business platform with web interface  
+✅ **EpiBus Industrial App** - Custom Frappe app for industrial integration  
+✅ **OpenPLC Simulator** - Industrial PLC programming environment  
+✅ **MODBUS TCP Server** - Industrial communication protocol (port 502)  
+✅ **PLC Bridge Service** - Real-time data exchange between PLC and ERP  
+✅ **MariaDB Database** - Persistent data storage  
+✅ **Redis Cache/Queue** - Performance optimization  
+✅ **Automatic Site Creation** - Site `intralogistics.localhost` created automatically  
+
+### Verification Steps
+
+After deployment, verify the system is working:
+
+```bash
+# Check all services are healthy
+docker compose ps
+
+# Test ERPNext web interface (note the dynamic port)
+curl -I http://localhost:$(docker ps | grep frontend | sed 's/.*:\([0-9]*\)->8080.*/\1/')/ 
+# Should return HTTP 200 OK
+
+# Test OpenPLC web interface  
+curl -I http://localhost:$(docker ps | grep openplc | sed 's/.*:\([0-9]*\)->8080.*/\1/')/ 
+# Should return HTTP 302 (redirect to login)
+
+# Test EpiBus API integration
+curl http://localhost:$(docker ps | grep frontend | sed 's/.*:\([0-9]*\)->8080.*/\1/')/api/method/epibus.api.plc.get_signals
+# Should return {"message":[]} (empty signals list for fresh installation)
+```
+
+### Access Points
+
+- **ERPNext Web Interface**: `http://localhost:[dynamic-port]` (check port with `docker compose ps`)
+- **OpenPLC Web Interface**: `http://localhost:[dynamic-port]` (check port with `docker compose ps`)  
+- **MODBUS TCP**: `localhost:502` (industrial communication)
+- **PLC Bridge SSE**: `localhost:7654` (real-time events)
+- **Login Credentials**: Username `Administrator`, Password `admin`
 
 ### Site Operations
 ```bash
