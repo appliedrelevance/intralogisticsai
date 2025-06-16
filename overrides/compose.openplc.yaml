@@ -16,7 +16,7 @@ services:
       - "8080"                              # Web interface (auto-generated port)
       - "502:502"                           # Modbus TCP (fixed port for protocol compliance)
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--timeout=5", "-O", "/dev/null", "http://localhost:8080/"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
       interval: 30s
       timeout: 10s
       retries: 3
