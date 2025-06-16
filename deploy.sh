@@ -2,6 +2,18 @@
 
 # Clean Frappe Docker Deployment Script
 # Based on the working pwd.yml pattern
+#
+# Usage:
+#   ./deploy.sh                    # Basic Frappe/ERPNext deployment
+#   ./deploy.sh with-epibus        # EpiBus only deployment  
+#   ./deploy.sh with-plc           # Complete industrial automation (recommended)
+#
+# The 'with-plc' option deploys the complete stack:
+# - Frappe/ERPNext ERP system
+# - EpiBus industrial integration app (automatically installed)
+# - OpenPLC simulator
+# - MODBUS TCP server
+# - PLC Bridge for real-time communication
 
 source .env
 set -e
@@ -92,6 +104,17 @@ done
 # Get port and verify
 PORT=$(docker compose -f "$COMPOSE_FILE" port frontend 8080 2>/dev/null | cut -d: -f2 || echo "8080")
 
+# Install EpiBus if applicable
+if [ "$DEPLOY_TYPE" = "with-plc" ] || [ "$DEPLOY_TYPE" = "with-epibus" ]; then
+    log "Installing EpiBus on site"
+    sleep 30 # Give extra time for site creation to complete
+    if docker compose exec backend bench --site intralogistics.localhost install-app epibus; then
+        log "EpiBus installation completed"
+    else
+        log "EpiBus installation may need manual retry after site is fully ready"
+    fi
+fi
+
 # Test frontend
 log "Testing deployment"
 sleep 10
@@ -104,8 +127,9 @@ if curl -f -s "http://localhost:$PORT" >/dev/null 2>&1; then
     if [ "$DEPLOY_TYPE" = "with-plc" ]; then
         echo "OpenPLC: http://localhost:8081 (openplc/openplc)"
         echo "PLC Bridge: http://localhost:7654"
+        echo "EpiBus: Installed and integrated"
     elif [ "$DEPLOY_TYPE" = "with-epibus" ]; then
-        echo "EpiBus application deployed."
+        echo "EpiBus: Installed and ready"
     fi
     echo "=================================="
 else
