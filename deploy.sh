@@ -55,7 +55,7 @@ fi
 # Deploy based on type
 if [ "$DEPLOY_TYPE" = "with-plc" ]; then
     log "Deploying with PLC features using compose.yaml with overrides"
-    CUSTOM_IMAGE=frappe-epibus CUSTOM_TAG=latest docker compose \
+    CUSTOM_IMAGE=frappe-epibus CUSTOM_TAG=latest PULL_POLICY=never docker compose \
       -f compose.yaml \
       -f overrides/compose.mariadb.yaml \
       -f overrides/compose.redis.yaml \
@@ -66,7 +66,7 @@ if [ "$DEPLOY_TYPE" = "with-plc" ]; then
       up -d
 elif [ "$DEPLOY_TYPE" = "with-epibus" ]; then
     log "Deploying with EpiBus application using compose.yaml with overrides"
-    CUSTOM_IMAGE=frappe-epibus CUSTOM_TAG=latest docker compose \
+    CUSTOM_IMAGE=frappe-epibus CUSTOM_TAG=latest PULL_POLICY=never docker compose \
       -f compose.yaml \
       -f overrides/compose.mariadb.yaml \
       -f overrides/compose.redis.yaml \
@@ -86,11 +86,10 @@ fi
 
 # Wait for completion
 log "Waiting for site creation"
-COMPOSE_FILE="compose.yaml" # Always use compose.yaml for the base, overrides will be added
 
 # Wait for create-site to complete (up to 10 minutes)
 for i in {1..600}; do
-    if docker compose -f "$COMPOSE_FILE" ps create-site 2>/dev/null | grep -q "Exited (0)"; then
+    if docker ps -a --format "table {{.Names}}\t{{.Status}}" | grep "create-site.*Exited (0)"; then
         log "Site creation completed"
         break
     fi
@@ -102,7 +101,7 @@ for i in {1..600}; do
 done
 
 # Get port and verify
-PORT=$(docker compose -f "$COMPOSE_FILE" port frontend 8080 2>/dev/null | cut -d: -f2 || echo "8080")
+PORT=$(docker ps --format "table {{.Names}}\t{{.Ports}}" | grep frontend | sed 's/.*:\([0-9]*\)->8080.*/\1/' || echo "8080")
 
 # Install EpiBus if applicable
 if [ "$DEPLOY_TYPE" = "with-plc" ] || [ "$DEPLOY_TYPE" = "with-epibus" ]; then
