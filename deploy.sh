@@ -7,6 +7,7 @@
 #   ./deploy.sh                    # Basic Frappe/ERPNext deployment
 #   ./deploy.sh with-epibus        # EpiBus only deployment  
 #   ./deploy.sh with-plc           # Complete industrial automation (recommended)
+#   ./deploy.sh lab                # Training lab deployment with custom domains
 #
 # The 'with-plc' option deploys the complete stack:
 # - Frappe/ERPNext ERP system
@@ -53,7 +54,19 @@ fi
 # Validate required environment variables
 
 # Deploy based on type
-if [ "$DEPLOY_TYPE" = "with-plc" ]; then
+if [ "$DEPLOY_TYPE" = "lab" ]; then
+    log "Deploying training lab environment with custom domains"
+    ./development/build-epibus-image.sh || error "EpiBus image build failed. Exiting."
+    CUSTOM_IMAGE=frappe-epibus CUSTOM_TAG=latest PULL_POLICY=never docker compose \
+      -f compose.yaml \
+      -f overrides/compose.mariadb.yaml \
+      -f overrides/compose.redis.yaml \
+      -f overrides/compose.openplc.yaml \
+      -f overrides/compose.plc-bridge.yaml \
+      -f overrides/compose.lab.yaml \
+      -f overrides/compose.create-site.yaml \
+      up -d
+elif [ "$DEPLOY_TYPE" = "with-plc" ]; then
     log "Deploying with PLC features using compose.yaml with overrides"
     CUSTOM_IMAGE=frappe-epibus CUSTOM_TAG=latest PULL_POLICY=never docker compose \
       -f compose.yaml \
@@ -123,7 +136,14 @@ if curl -f -s "http://localhost:$PORT" >/dev/null 2>&1; then
     echo "Access: http://localhost:$PORT"
     echo "Login: Administrator / admin"
     echo "Deploy Type: $DEPLOY_TYPE"
-    if [ "$DEPLOY_TYPE" = "with-plc" ]; then
+    if [ "$DEPLOY_TYPE" = "lab" ]; then
+        echo "Lab Environment URLs:"
+        echo "  - Main Interface: http://intralogistics.lab"
+        echo "  - OpenPLC Simulator: http://openplc.lab"
+        echo "  - Traefik Dashboard: http://traefik.lab"
+        echo "MODBUS TCP: Port 502 (for real PLC connections)"
+        echo "Configure router DNS: intralogistics.lab -> $(hostname -I | awk '{print $1}')"
+    elif [ "$DEPLOY_TYPE" = "with-plc" ]; then
         echo "OpenPLC: http://localhost:8081 (openplc/openplc)"
         echo "PLC Bridge: http://localhost:7654"
         echo "EpiBus: Installed and integrated"

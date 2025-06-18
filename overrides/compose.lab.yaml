@@ -1,0 +1,40 @@
+services:
+  frontend:
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.frontend.loadbalancer.server.port=8080
+      - traefik.http.routers.frontend-http.entrypoints=web
+      - traefik.http.routers.frontend-http.rule=Host(`intralogistics.lab`)
+      - traefik.http.routers.frontend-http.priority=100
+
+  openplc:
+    # Fixed ports for lab environment
+    ports:
+      - "8081:8080"  # OpenPLC web interface
+      - "502:502"    # MODBUS TCP server
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.openplc.loadbalancer.server.port=8080
+      - traefik.http.routers.openplc-http.entrypoints=web
+      - traefik.http.routers.openplc-http.rule=Host(`openplc.lab`)
+      - traefik.http.routers.openplc-http.priority=100
+
+  proxy:
+    image: traefik:v2.11
+    command:
+      - --providers.docker
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --log.level=INFO
+      - --api.dashboard=true
+      - --api.insecure=true
+    ports:
+      - "80:80"      # HTTP
+      - "8080:8080"  # Traefik dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.traefik.rule=Host(`traefik.lab`)
+      - traefik.http.routers.traefik.service=api@internal
+    userns_mode: host

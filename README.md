@@ -88,7 +88,17 @@ After deployment, access the platform:
 
 ## 🔧 Deployment Options
 
-**Complete Industrial Stack (Recommended)**
+**Training Lab Environment (Recommended for Education)**
+```bash
+./deploy.sh lab
+```
+Complete training lab with custom domains and real PLC connectivity.
+- `http://intralogistics.lab` - Main ERP interface
+- `http://openplc.lab` - PLC simulator  
+- `http://traefik.lab` - Network dashboard
+- Port 502 - MODBUS TCP for real PLCs
+
+**Complete Industrial Stack**
 ```bash
 ./deploy.sh with-plc
 ```
@@ -126,10 +136,12 @@ docker compose down --volumes
 
 ## 📚 Documentation
 
-- [OpenPLC Integration Guide](README-OpenPLC.md)
-- [EpiBus API Documentation](epibus/README.md)
-- [PLC Bridge Setup](docs/plc-bridge-setup.md)
-- [Troubleshooting Guide](docs/troubleshoot.md)
+- **[Complete Documentation](docs/README.md)** - Full documentation index
+- **[Quick Start Guide](docs/deployment/quick-start.md)** - Get running in minutes
+- **[Training Lab Setup](docs/deployment/lab-setup.md)** - Multi-workstation configuration
+- **[EpiBus Integration](docs/epibus/README.md)** - Industrial automation guide
+- **[OpenPLC Programming](docs/openplc/README.md)** - PLC simulation and programming
+- **[Troubleshooting](docs/troubleshooting/README.md)** - Common issues and solutions
 
 ## 🎓 Educational Use
 
