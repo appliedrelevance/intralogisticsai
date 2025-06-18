@@ -1,159 +1,164 @@
-[![Build Stable](https://github.com/frappe/frappe_docker/actions/workflows/build_stable.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/build_stable.yml)
-[![Build Develop](https://github.com/frappe/frappe_docker/actions/workflows/build_develop.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/build_develop.yml)
+# IntralogisticsAI
 
-Everything about [Frappe](https://github.com/frappe/frappe) and [ERPNext](https://github.com/frappe/erpnext) in containers, with integrated industrial automation capabilities through EpiBus.
+**Industrial Automation Platform for Modern Logistics**
 
-# Getting Started
+IntralogisticsAI is a comprehensive industrial automation platform that combines enterprise resource planning (ERP) with real-time programmable logic controller (PLC) integration. Built on the proven Frappe/ERPNext foundation, it delivers seamless connectivity between business processes and industrial automation systems.
 
-To get started you need [Docker](https://docs.docker.com/get-docker/), [docker-compose](https://docs.docker.com/compose/), and [git](https://docs.github.com/en/get-started/getting-started-with-git/set-up-git) setup on your machine. For Docker basics and best practices refer to Docker's [documentation](http://docs.docker.com).
+## 🚀 Features
 
-Once completed, chose one of the following two sections for next steps.
+- **Enterprise ERP**: Complete business management with Frappe/ERPNext
+- **Industrial Integration**: Real-time PLC communication via MODBUS TCP
+- **Visual Programming**: OpenPLC environment for ladder logic development
+- **Real-time Monitoring**: Live dashboard for industrial signals and processes
+- **Containerized Deployment**: Docker-based architecture for easy scaling
+- **Educational Ready**: Perfect for logistics and automation education
 
-### Setup Development Environment
+## 🏗️ Architecture
 
-First clone the repo:
+IntralogisticsAI integrates multiple components:
 
-```sh
-git clone https://github.com/frappe/frappe_docker
-cd frappe_docker
+- **EpiBus**: Custom Frappe app providing MODBUS/TCP communication
+- **OpenPLC**: Industrial programming environment with MODBUS TCP server
+- **PLC Bridge**: Real-time communication service between ERP and PLCs
+- **React Dashboard**: Modern frontend for monitoring industrial processes
+
+## 🚦 Quick Start
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/)
+- [Git](https://docs.github.com/en/get-started/getting-started-with-git/set-up-git)
+- 8GB+ RAM recommended
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/appliedrelevance/intralogisticsai
+   cd intralogisticsai
+   ```
+
+2. **Configure environment**
+   ```bash
+   cp example.env .env
+   # The .env file is pre-configured with optimal settings
+   ```
+
+3. **Deploy the complete stack**
+   ```bash
+   ./deploy.sh with-plc
+   ```
+
+The deployment script will:
+- ✅ Build custom Docker images with EpiBus integration
+- ✅ Deploy Frappe/ERPNext ERP system
+- ✅ Install and configure EpiBus automation app
+- ✅ Start OpenPLC simulator with MODBUS TCP server
+- ✅ Initialize PLC Bridge for real-time communication
+- ✅ Create site (`intralogistics.localhost`) with admin user
+- ✅ Configure all networking and dependencies
+
+## 🌐 Access Points
+
+After deployment, access the platform:
+
+- **IntralogisticsAI Web Interface**: `http://localhost:[port]` (shown in deployment output)
+- **OpenPLC Programming Environment**: `http://localhost:[port]` (shown in deployment output)
+- **Login Credentials**: Username `Administrator`, Password `admin`
+- **OpenPLC Credentials**: Username `openplc`, Password `openplc`
+
+## 📊 Using the Platform
+
+### ERP Operations
+1. Access the web interface and login
+2. Navigate to standard ERPNext modules (Sales, Inventory, etc.)
+3. Use the **EpiBus** module for industrial automation features
+
+### PLC Programming
+1. Access OpenPLC web interface
+2. Create ladder logic programs
+3. Upload and start programs to activate MODBUS TCP server
+4. Monitor real-time I/O through the web interface
+
+### Industrial Integration
+1. Configure MODBUS connections in EpiBus
+2. Define signal mappings between ERP and PLC
+3. Set up automated actions triggered by ERP events
+4. Monitor real-time data flow in the dashboard
+
+## 🔧 Deployment Options
+
+**Complete Industrial Stack (Recommended)**
+```bash
+./deploy.sh with-plc
 ```
+Includes ERP, PLC simulator, and all automation features.
 
-### Quick Start with EpiBus Integration
-
-This setup includes industrial automation capabilities through EpiBus, OpenPLC, and PLC Bridge integration.
-
-#### Step 1: Build Custom Image with EpiBus
-
-```sh
-# Build custom Docker image with EpiBus included
-./development/build-epibus-image.sh
+**EpiBus Only**
+```bash
+./deploy.sh with-epibus
 ```
+ERP with automation capabilities, no PLC simulator.
 
-#### Step 2: Configure Environment
-
-Copy and configure environment file:
-
-```sh
-cp example.env .env
-# Edit .env to set:
-# CUSTOM_IMAGE=frappe-epibus
-# CUSTOM_TAG=latest
-# PULL_POLICY=never
+**Basic ERP**
+```bash
+./deploy.sh
 ```
+Standard Frappe/ERPNext without industrial features.
 
-#### Step 3: Start All Services (Including OpenPLC and PLC Bridge)
+## 🛠️ Development
 
-For Mac M-series (ARM64):
-```sh
-docker compose \
-  -f compose.yaml \
-  -f overrides/compose.mariadb.yaml \
-  -f overrides/compose.redis.yaml \
-  -f overrides/compose.mac-m4.yaml \
-  -f overrides/compose.openplc.yaml \
-  -f overrides/compose.plc-bridge.yaml \
-  up -d
-```
+For development and customization:
 
-For x86_64 systems:
-```sh
-docker compose \
-  -f compose.yaml \
-  -f overrides/compose.mariadb.yaml \
-  -f overrides/compose.redis.yaml \
-  -f overrides/compose.openplc.yaml \
-  -f overrides/compose.plc-bridge.yaml \
-  up -d
-```
-
-#### Step 4: Create Site with EpiBus Integration
-
-```sh
-# Wait for services to be ready, then create site
-# CRITICAL: Use --mariadb-user-host-login-scope=% for Docker network compatibility
-docker compose exec backend \
-  bench new-site intralogistics.localhost \
-  --admin-password admin \
-  --db-root-password 123 \
-  --mariadb-user-host-login-scope=% \
-  --install-app erpnext \
-  --install-app epibus
-```
-
-## Access the Application
-
-1. **Find the frontend port**: Use `docker compose ps` to find the auto-assigned port for the frontend service
-2. **Access web interface**: Open `http://localhost:<port>/` in your browser
-3. **Login credentials**: Username: `Administrator`, Password: `admin`
-
-To view container logs:
-```sh
-docker compose logs -f configurator
+```bash
+# View service logs
 docker compose logs -f backend
+docker compose logs -f plc-bridge
+docker compose logs -f openplc
+
+# Access backend container
+docker compose exec backend bash
+
+# Reset and redeploy
+docker compose down --volumes
+./deploy.sh with-plc
 ```
 
-### Access Industrial Automation Features
+## 📚 Documentation
 
-- **EpiBus Dashboard**: Navigate to "EpiBus" module after login
-- **OpenPLC Web Interface**: Use `./get-openplc-port.sh` to get port number
-- **PLC Bridge API**: Available on port 7654 for real-time PLC communication
-- **MODBUS Communication**: Monitor and control PLC signals through EpiBus interface
+- [OpenPLC Integration Guide](README-OpenPLC.md)
+- [EpiBus API Documentation](epibus/README.md)
+- [PLC Bridge Setup](docs/plc-bridge-setup.md)
+- [Troubleshooting Guide](docs/troubleshoot.md)
 
-### Troubleshooting
+## 🎓 Educational Use
 
-If you encounter database connection issues after restarting containers, run:
-```sh
-# Get current backend container IP
-BACKEND_IP=$(docker compose exec backend hostname -i)
-# Grant database access (adjust user/password as needed)
-docker compose exec db mysql -u root -p123 -e "GRANT ALL PRIVILEGES ON *.* TO 'site_user'@'$BACKEND_IP'; FLUSH PRIVILEGES;"
-```
+IntralogisticsAI is designed for educational institutions teaching:
+- Industrial automation and control systems
+- Logistics and supply chain management
+- Enterprise resource planning (ERP)
+- MODBUS communication protocols
+- Docker containerization and microservices
 
-# Documentation
+## 🤝 Contributing
 
-### [Frequently Asked Questions](https://github.com/frappe/frappe_docker/wiki/Frequently-Asked-Questions)
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-### [Production](#production)
+## 📄 License
 
-- [List of containers](docs/list-of-containers.md)
-- [Single Compose Setup](docs/single-compose-setup.md)
-- [Environment Variables](docs/environment-variables.md)
-- [Dynamic Port Mapping](docs/dynamic-port-mapping.md)
-- [Single Server Example](docs/single-server-example.md)
-- [Setup Options](docs/setup-options.md)
-- [Site Operations](docs/site-operations.md)
-- [Backup and Push Cron Job](docs/backup-and-push-cronjob.md)
-- [Port Based Multi Tenancy](docs/port-based-multi-tenancy.md)
-- [Migrate from multi-image setup](docs/migrate-from-multi-image-setup.md)
-- [running on linux/mac](docs/setup_for_linux_mac.md)
-- [TLS for local deployment](docs/tls-for-local-deployment.md)
+This project builds upon several open-source components:
+- [Frappe Framework](https://github.com/frappe/frappe) (MIT License)
+- [ERPNext](https://github.com/frappe/erpnext) (GPL v3)
+- [OpenPLC](https://openplcproject.com/) (GPL v3)
 
-### [Industrial Automation](#industrial-automation)
+See [LICENSE](LICENSE) for complete license information.
 
-- [OpenPLC Integration](README-OpenPLC.md)
-- [OpenPLC Setup Guide](docs/openplc-integration.md)
-- [PLC Bridge Setup and Usage](docs/plc-bridge-setup.md)
+## 🏢 About
 
-### [Custom Images](#custom-images)
+IntralogisticsAI is developed by [Applied Relevance](https://appliedrelevance.com) for educational and industrial applications. It bridges the gap between enterprise software and industrial automation, making advanced logistics concepts accessible for learning and implementation.
 
-- [Custom Apps](docs/custom-apps.md)
-- [Custom Apps with podman](docs/custom-apps-podman.md)
-- [Build Version 10 Images](docs/build-version-10-images.md)
+---
 
-### [Development](#development)
+**Ready to revolutionize your industrial automation education?** 🚀
 
-- [Development using containers](docs/development.md)
-- [Bench Console and VSCode Debugger](docs/bench-console-and-vscode-debugger.md)
-- [Connect to localhost services](docs/connect-to-localhost-services-from-containers-for-local-app-development.md)
-
-### [Troubleshoot](docs/troubleshoot.md)
-
-# Contributing
-
-If you want to contribute to this repo refer to [CONTRIBUTING.md](CONTRIBUTING.md)
-
-This repository is only for container related stuff. You also might want to contribute to:
-
-- [Frappe framework](https://github.com/frappe/frappe#contributing),
-- [ERPNext](https://github.com/frappe/erpnext#contributing),
-- [Frappe Bench](https://github.com/frappe/bench).
+[Get started with IntralogisticsAI](https://github.com/appliedrelevance/intralogisticsai) today!
