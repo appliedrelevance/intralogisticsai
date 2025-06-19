@@ -1,0 +1,78 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-09-26 22:08:26.657386",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "modbus_tab",
+  "enable_triggers",
+  "polling_interval"
+ ],
+ "fields": [
+  {
+   "default": "1",
+   "description": "If True, trigger  Modbus Actions on events.  ",
+   "fieldname": "enable_triggers",
+   "fieldtype": "Check",
+   "label": "Enable Triggers"
+  },
+  {
+   "fieldname": "modbus_tab",
+   "fieldtype": "Tab Break",
+   "label": "ModBus"
+  },
+  {
+   "default": "200",
+   "fieldname": "polling_interval",
+   "fieldtype": "Int",
+   "label": "Polling Interval (ms)",
+   "non_negative": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-02-23 16:02:44.850916",
+ "modified_by": "Administrator",
+ "module": "EpiBus",
+ "name": "Modbus Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Modbus Administrator",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Modbus User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

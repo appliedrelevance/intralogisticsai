@@ -1,0 +1,200 @@
+/* Modbus Dashboard Styles */
+.modbus-dashboard {
+    padding: 15px;
+}
+
+.modbus-signal-row {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.modbus-signal-row:last-child {
+    border-bottom: none;
+}
+
+.signal-name {
+    flex: 2;
+    font-weight: 500;
+}
+
+.signal-type {
+    flex: 1;
+    color: var(--text-muted);
+}
+
+.signal-value {
+    flex: 1;
+    text-align: center;
+}
+
+.signal-address {
+    flex: 1;
+    color: var(--text-muted);
+    font-family: monospace;
+}
+
+.signal-toggle {
+    padding: 6px 12px;
+    border-radius: 4px;
+    background-color: var(--gray-200);
+    border: 1px solid var(--gray-300);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.signal-toggle:hover {
+    background-color: var(--gray-300);
+}
+
+.signal-toggle.active {
+    background-color: var(--blue-500);
+    color: white;
+    border-color: var(--blue-600);
+}
+
+/* Signal status indicators */
+.signal-indicator {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.signal-indicator::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+
+.signal-indicator.green::before {
+    background-color: #28a745;
+}
+
+.signal-indicator.red::before {
+    background-color: #dc3545;
+}
+
+/* Dashboard header */
+.dashboard-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--gray-200);
+}
+
+.dashboard-header h2 {
+    margin: 0;
+    color: var(--text-color);
+}
+
+/* Signal value cell highlight animation */
+.signal-value-cell {
+    transition: background-color 0.5s ease;
+}
+
+/* Table styles */
+.signals-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.signals-container th {
+    background-color: #f8f9fa;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Sortable table headers */
+.signals-container th.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+}
+
+.signals-container th.sortable:hover {
+    background-color: #e9ecef;
+}
+
+.signals-container th .sort-indicator {
+    display: inline-block;
+    margin-left: 5px;
+    color: #6c757d;
+}
+
+.signals-container th.sortable:hover .sort-indicator {
+    color: #495057;
+}
+
+.signals-container tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Card styles */
+.card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .modbus-signal-row {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px 10px;
+    }
+
+    .signal-name,
+    .signal-type,
+    .signal-value,
+    .signal-address {
+        flex: none;
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .signal-value {
+        text-align: left;
+    }
+    
+    .signals-container {
+        overflow-x: auto;
+    }
+}
+
+/* Cross-browser compatibility fixes */
+/* For Firefox */
+@-moz-document url-prefix() {
+    .signals-container table {
+        width: 100%;
+    }
+}
+
+/* For Safari */
+@media not all and (min-resolution:.001dpcm) {
+    @supports (-webkit-appearance:none) {
+        .signal-indicator::before {
+            margin-top: 1px;
+        }
+    }
+}
+
+/* For IE11 */
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+    .signals-container {
+        width: 100%;
+    }
+    
+    .signal-indicator {
+        display: inline-block;
+    }
+}

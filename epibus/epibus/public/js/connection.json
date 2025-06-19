@@ -1,0 +1,211 @@
+{
+    "name": "US15-B10-B1",
+    "device_name": "US15-B10-B1",
+    "device_type": "PLC",
+    "enabled": 0,
+    "host": "openplc",
+    "port": 502,
+    "thumbnail": null,
+    "signals": [
+        {
+            "name": "d5dnhlvmao",
+            "signal_name": "PICK TO WAREHOUSE COMPLETE",
+            "signal_type": "Digital Input Contact",
+            "modbus_address": 8,
+            "plc_address": "%IX1.0",
+            "value": false
+        },
+        {
+            "name": "pdf0c04lmt",
+            "signal_name": "PICK TO WAREHOUSE IN PROCESS",
+            "signal_type": "Digital Input Contact",
+            "modbus_address": 7,
+            "plc_address": "%IX0.7",
+            "value": false
+        },
+        {
+            "name": "pr6p5jnv59",
+            "signal_name": "PICK TO RECEIVING COMPLETE",
+            "signal_type": "Digital Input Contact",
+            "modbus_address": 6,
+            "plc_address": "%IX0.6",
+            "value": false
+        },
+        {
+            "name": "06die76o70",
+            "signal_name": "PICK TO RECEIVING IN PROCESS",
+            "signal_type": "Digital Input Contact",
+            "modbus_address": 5,
+            "plc_address": "%IX0.5",
+            "value": false
+        },
+        {
+            "name": "6fjibbpc4s",
+            "signal_name": "PICK TO ASSEMBLY COMPLETE",
+            "signal_type": "Digital Input Contact",
+            "modbus_address": 4,
+            "plc_address": "%IX0.4",
+            "value": false
+        },
+        {
+            "name": "r9skl26434",
+            "signal_name": "PICK TO ASSEMBLY IN PROCESS",
+            "signal_type": "Digital Input Contact",
+            "modbus_address": 3,
+            "plc_address": "%IX0.3",
+            "value": false
+        },
+        {
+            "name": "uvndmnl2dg",
+            "signal_name": "PICK ERROR",
+            "signal_type": "Digital Input Contact",
+            "modbus_address": 2,
+            "plc_address": "%IX0.2",
+            "value": false
+        },
+        {
+            "name": "e0oi3ugvpr",
+            "signal_name": "PLC CYCLE RUNNING",
+            "signal_type": "Digital Input Contact",
+            "modbus_address": 1,
+            "plc_address": "%IX0.1",
+            "value": true
+        },
+        {
+            "name": "36rro9uiis",
+            "signal_name": "PLC CYCLE STOPPED",
+            "signal_type": "Digital Input Contact",
+            "modbus_address": 0,
+            "plc_address": "%IX0.0",
+            "value": false
+        },
+        {
+            "name": "8qlf8jahgt",
+            "signal_name": "FROM ASSEMBLY",
+            "signal_type": "Digital Output Coil",
+            "modbus_address": 34,
+            "plc_address": "%QX4.2",
+            "value": false
+        },
+        {
+            "name": "3d02dlt7ov",
+            "signal_name": "TO ASSEMBLY STA 1",
+            "signal_type": "Digital Output Coil",
+            "modbus_address": 32,
+            "plc_address": "%QX4.0",
+            "value": false
+        },
+        {
+            "name": "90g17239uh",
+            "signal_name": "FROM RECEIVING",
+            "signal_type": "Digital Output Coil",
+            "modbus_address": 31,
+            "plc_address": "%QX3.7",
+            "value": false
+        },
+        {
+            "name": "ne8e8kb80h",
+            "signal_name": "TO RECEIVING STA 1",
+            "signal_type": "Digital Output Coil",
+            "modbus_address": 30,
+            "plc_address": "%QX3.6",
+            "value": false
+        },
+        {
+            "name": "aktnk5mkla",
+            "signal_name": "PICK BIN 12",
+            "signal_type": "Digital Output Coil",
+            "modbus_address": 22,
+            "plc_address": "%QX2.6",
+            "value": false
+        },
+        {
+            "name": "n90ahdugik",
+            "signal_name": "PICK BIN 11",
+            "signal_type": "Digital Output Coil",
+            "modbus_address": 21,
+            "plc_address": "%QX2.5",
+            "value": false
+        },
+        {
+            "name": "o8au8mdc3g",
+            "signal_name": "PICK BIN 10",
+            "signal_type": "Digital Output Coil",
+            "modbus_address": 20,
+            "plc_address": "%QX2.4",
+            "value": false
+        },
+        {
+            "name": "vk6mf5gq7r",
+            "signal_name": "PICK BIN 09",
+            "signal_type": "Digital Output Coil",
+            "modbus_address": 19,
+            "plc_address": "%QX2.3",
+            "value": false
+        },
+        {
+            "name": "anpoerqncs",
+            "signal_name": "PICK BIN 08",
+            "signal_type": "Digital Output Coil",
+            "modbus_address": 18,
+            "plc_address": "%QX2.2",
+            "value": false
+        },
+        {
+            "name": "rd09vjaspr",
+            "signal_name": "PICK BIN 07",
+            "signal_type": "Digital Output Coil",
+            "modbus_address": 17,
+            "plc_address": "%QX2.1",
+            "value": false
+        },
+        {
+            "name": "qvri7d75h8",
+            "signal_name": "PICK BIN 06",
+            "signal_type": "Digital Output Coil",
+            "modbus_address": 16,
+            "plc_address": "%QX2.0",
+            "value": false
+        },
+        {
+            "name": "p7tdfk2tl4",
+            "signal_name": "PICK BIN 05",
+            "signal_type": "Digital Output Coil",
+            "modbus_address": 15,
+            "plc_address": "%QX1.7",
+            "value": true
+        },
+        {
+            "name": "he37pj3u6q",
+            "signal_name": "PICK BIN 04",
+            "signal_type": "Digital Output Coil",
+            "modbus_address": 14,
+            "plc_address": "%QX1.6",
+            "value": true
+        },
+        {
+            "name": "me0d2eht2k",
+            "signal_name": "PICK BIN 03",
+            "signal_type": "Digital Output Coil",
+            "modbus_address": 13,
+            "plc_address": "%QX1.5",
+            "value": true
+        },
+        {
+            "name": "532vs8qjhs",
+            "signal_name": "PICK BIN 02",
+            "signal_type": "Digital Output Coil",
+            "modbus_address": 12,
+            "plc_address": "%QX1.4",
+            "value": true
+        },
+        {
+            "name": "2pc7qo8ilr",
+            "signal_name": "PICK BIN 01",
+            "signal_type": "Digital Output Coil",
+            "modbus_address": 11,
+            "plc_address": "%QX1.3",
+            "value": true
+        }
+    ]
+}

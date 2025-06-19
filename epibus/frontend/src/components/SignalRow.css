@@ -1,0 +1,117 @@
+/* SignalRow styles */
+tr {
+  transition: background-color 0.3s ease;
+}
+
+/* Row highlight animation */
+@keyframes rowHighlight {
+  0% { background-color: transparent; }
+  30% { background-color: rgba(33, 150, 243, 0.15); }
+  100% { background-color: transparent; }
+}
+
+.row-highlight {
+  animation: rowHighlight 1.5s ease;
+}
+
+.signal-value-cell {
+  transition: background-color 0.5s ease;
+  position: relative;
+}
+
+.signal-value-cell.highlight {
+  background-color: rgba(33, 150, 243, 0.25);
+}
+
+/* Value change animation */
+.signal-value-cell.highlight::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(33, 150, 243, 0.1);
+  border-radius: 3px;
+  animation: pulse 1.5s ease-out;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; transform: scale(0.95); }
+  70% { opacity: 0; transform: scale(1.05); }
+  100% { opacity: 0; transform: scale(1.1); }
+}
+
+.signal-actions {
+  white-space: nowrap;
+}
+
+code {
+  font-family: monospace;
+  background-color: #f8f9fa;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 0.9em;
+  color: #333;
+}
+
+/* Update source indicators */
+.update-source {
+  display: inline-block;
+  margin-left: 5px;
+  width: 16px;
+  height: 16px;
+  text-align: center;
+  line-height: 16px;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 10px;
+}
+
+/* Source-specific styles */
+.source-verification .update-source {
+  color: #28a745;
+}
+
+.source-mismatch .update-source {
+  color: #dc3545;
+}
+
+.source-write .update-source {
+  color: #007bff;
+}
+
+.source-realtime .update-source {
+  color: #6c757d;
+}
+
+/* Source-specific row highlights */
+tr.source-verification.row-highlight {
+  animation: verificationHighlight 1.5s ease;
+}
+
+tr.source-mismatch.row-highlight {
+  animation: mismatchHighlight 1.5s ease;
+}
+
+tr.source-write.row-highlight {
+  animation: writeHighlight 1.5s ease;
+}
+
+@keyframes verificationHighlight {
+  0% { background-color: transparent; }
+  30% { background-color: rgba(40, 167, 69, 0.15); }
+  100% { background-color: transparent; }
+}
+
+@keyframes mismatchHighlight {
+  0% { background-color: transparent; }
+  30% { background-color: rgba(220, 53, 69, 0.15); }
+  100% { background-color: transparent; }
+}
+
+@keyframes writeHighlight {
+  0% { background-color: transparent; }
+  30% { background-color: rgba(0, 123, 255, 0.15); }
+  100% { background-color: transparent; }
+}
