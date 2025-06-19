@@ -223,6 +223,12 @@ retry_compose_up() {
     for attempt in $(seq 1 $max_attempts); do
         log "Starting deployment attempt $attempt of $max_attempts"
         
+        # Ensure environment variables are available to docker compose
+        if [ -n "$CUSTOM_IMAGE" ]; then
+            log "Using custom image: $CUSTOM_IMAGE:$CUSTOM_TAG with pull policy: $PULL_POLICY"
+            export CUSTOM_IMAGE CUSTOM_TAG PULL_POLICY
+        fi
+        
         if docker compose "$@" up -d; then
             log "Deployment successful on attempt $attempt"
             return 0
@@ -251,6 +257,8 @@ if [ "$DEPLOY_TYPE" = "lab" ] || [ "$DEPLOY_TYPE" = "with-plc" ] || [ "$DEPLOY_T
     export CUSTOM_IMAGE=frappe-epibus
     export CUSTOM_TAG=latest
     export PULL_POLICY=never
+    
+    log "Environment variables set: CUSTOM_IMAGE=$CUSTOM_IMAGE, CUSTOM_TAG=$CUSTOM_TAG, PULL_POLICY=$PULL_POLICY"
 fi
 
 # Deploy based on type
