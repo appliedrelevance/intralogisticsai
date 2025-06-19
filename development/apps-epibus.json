@@ -1,0 +1,10 @@
+[
+  {
+    "url": "https://github.com/frappe/erpnext.git",
+    "branch": "version-15"
+  },
+  {
+    "url": "/workspace/epibus",
+    "branch": "main"
+  }
+]

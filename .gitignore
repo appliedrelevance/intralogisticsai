@@ -12,6 +12,10 @@ development/*
 !development/installer.py
 !development/apps-example.json
 !development/vscode-example/
+!development/build-epibus-image.sh
+!development/apps-epibus.json
+!development/create_site.sh
+!development/install-epibus.py
 
 # Pycharm
 .idea
