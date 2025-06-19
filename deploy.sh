@@ -241,22 +241,21 @@ retry_compose_up() {
 }
 
 
-if [ "$DEPLOY_TYPE" = "with-plc" ]; then
-    log "Setting up PLC integration"
-    build_epibus_if_needed
-fi
-
 # Validate required environment variables
 
-# Deploy based on type
-if [ "$DEPLOY_TYPE" = "lab" ]; then
-    log "Deploying training lab environment with custom domains"
+# Build EpiBus image if needed for deployments that require it
+if [ "$DEPLOY_TYPE" = "lab" ] || [ "$DEPLOY_TYPE" = "with-plc" ] || [ "$DEPLOY_TYPE" = "with-epibus" ]; then
     build_epibus_if_needed
     
     # Export environment variables for docker compose
     export CUSTOM_IMAGE=frappe-epibus
     export CUSTOM_TAG=latest
     export PULL_POLICY=never
+fi
+
+# Deploy based on type
+if [ "$DEPLOY_TYPE" = "lab" ]; then
+    log "Deploying training lab environment with custom domains"
     
     retry_compose_up \
       -f compose.yaml \
@@ -270,11 +269,6 @@ if [ "$DEPLOY_TYPE" = "lab" ]; then
 elif [ "$DEPLOY_TYPE" = "with-plc" ]; then
     log "Deploying with PLC features using compose.yaml with overrides"
     
-    # Export environment variables for docker compose
-    export CUSTOM_IMAGE=frappe-epibus
-    export CUSTOM_TAG=latest
-    export PULL_POLICY=never
-    
     retry_compose_up \
       -f compose.yaml \
       -f overrides/compose.mariadb.yaml \
@@ -285,11 +279,6 @@ elif [ "$DEPLOY_TYPE" = "with-plc" ]; then
       -f overrides/compose.create-site.yaml
 elif [ "$DEPLOY_TYPE" = "with-epibus" ]; then
     log "Deploying with EpiBus application using compose.yaml with overrides"
-    
-    # Export environment variables for docker compose
-    export CUSTOM_IMAGE=frappe-epibus
-    export CUSTOM_TAG=latest
-    export PULL_POLICY=never
     
     retry_compose_up \
       -f compose.yaml \
