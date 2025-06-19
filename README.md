@@ -46,17 +46,25 @@ IntralogisticsAI integrates multiple components:
 
 3. **Deploy the complete stack**
    ```bash
+   # Complete industrial automation platform
    ./deploy.sh with-plc
+   
+   # Or training lab environment with custom domains
+   ./deploy.sh lab
    ```
 
 The deployment script will:
-- ✅ Build custom Docker images with EpiBus integration
-- ✅ Deploy Frappe/ERPNext ERP system
-- ✅ Install and configure EpiBus automation app
+- ✅ Auto-detect your platform (macOS Intel/ARM, Linux) 
+- ✅ Build custom Docker images with EpiBus integration (with smart caching)
+- ✅ Deploy Frappe/ERPNext ERP system with network resilience
+- ✅ Install and configure EpiBus automation app (with retry logic)
 - ✅ Start OpenPLC simulator with MODBUS TCP server
 - ✅ Initialize PLC Bridge for real-time communication
 - ✅ Create site (`intralogistics.localhost`) with admin user
 - ✅ Configure all networking and dependencies
+
+**First deployment**: ~5-10 minutes  
+**Subsequent deployments**: ~1-2 minutes (using cached images)
 
 ## 🌐 Access Points
 
@@ -88,33 +96,63 @@ After deployment, access the platform:
 
 ## 🔧 Deployment Options
 
-**Training Lab Environment (Recommended for Education)**
+The deployment script includes smart image caching and cross-platform support with automatic retry logic for network issues.
+
+### Training Lab Environment (Recommended for Education)
 ```bash
+# Quick deployment (uses cached images)
 ./deploy.sh lab
-```
-Complete training lab with custom domains and real PLC connectivity.
-- `http://intralogistics.lab` - Main ERP interface
-- `http://openplc.lab` - PLC simulator  
-- `http://traefik.lab` - Network dashboard
-- Port 502 - MODBUS TCP for real PLCs
 
-**Complete Industrial Stack**
+# Force rebuild (rebuilds all images)
+./deploy.sh lab --rebuild
+```
+Complete training lab with custom domains and real PLC connectivity:
+- **ERPNext Interface**: `http://localhost:[port]` (shown in output)
+- **OpenPLC Simulator**: `http://localhost:[port]` (shown in output)  
+- **Traefik Dashboard**: `http://localhost:8080`
+- **MODBUS TCP**: `localhost:502` (for real PLC connections)
+- **PLC Bridge**: `localhost:7654` (real-time events)
+
+### Complete Industrial Stack
 ```bash
+# Smart deployment with caching
 ./deploy.sh with-plc
-```
-Includes ERP, PLC simulator, and all automation features.
 
-**EpiBus Only**
+# Force fresh build
+./deploy.sh with-plc --rebuild
+```
+Includes ERP, PLC simulator, and all automation features with platform-aware optimizations.
+
+### EpiBus Only
 ```bash
 ./deploy.sh with-epibus
 ```
 ERP with automation capabilities, no PLC simulator.
 
-**Basic ERP**
+### Basic ERP
 ```bash
 ./deploy.sh
 ```
 Standard Frappe/ERPNext without industrial features.
+
+### Deployment Features
+
+- ✅ **Smart Image Caching**: Skips rebuilds when images exist (5-10min → 1-2min)
+- ✅ **Cross-Platform Support**: Auto-detects macOS (Intel/ARM) and Linux
+- ✅ **Network Resilience**: 3-attempt retry logic for network timeouts
+- ✅ **Docker Health Checks**: Automatic Docker restart if needed
+- ✅ **Robust EpiBus Installation**: 60-attempt retry with intelligent backoff
+
+### Deployment Flags
+
+```bash
+# View all options and examples
+./deploy.sh --help
+
+# Force rebuild of custom images
+./deploy.sh lab --rebuild
+./deploy.sh with-plc --force-rebuild
+```
 
 ## 🛠️ Development
 
