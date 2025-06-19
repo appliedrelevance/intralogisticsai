@@ -1,7 +1,8 @@
 services:
   create-site:
     image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
-    platform: linux/arm64
+    pull_policy: ${PULL_POLICY:-always}
+    platform: linux/amd64
     networks:
       - frappe_network
     deploy:
