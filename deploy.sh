@@ -21,7 +21,7 @@ show_help() {
 Clean Frappe Docker Deployment Script
 
 USAGE:
-    ./deploy.sh [OPTION]
+    ./deploy.sh [OPTION] [FLAGS]
 
 OPTIONS:
     (no option)         Basic Frappe/ERPNext deployment
@@ -29,6 +29,10 @@ OPTIONS:
     with-plc            Complete industrial automation (recommended)
     lab                 Training lab deployment with custom domains
     --help, -h          Show this help message
+
+FLAGS:
+    --rebuild           Force rebuild of custom images (even if they exist)
+    --force-rebuild     Same as --rebuild
 
 DEPLOYMENT TYPES:
 
@@ -75,14 +79,57 @@ For more information, see CLAUDE.md in the repository root.
 EOF
 }
 
-# Check for help flag
-if [[ "$1" == "--help" || "$1" == "-h" ]]; then
-    show_help
-    exit 0
-fi
+# Parse arguments
+DEPLOY_TYPE=""
+FORCE_REBUILD=false
+
+for arg in "$@"; do
+    case $arg in
+        --help|-h)
+            show_help
+            exit 0
+            ;;
+        --rebuild|--force-rebuild)
+            FORCE_REBUILD=true
+            ;;
+        with-epibus|with-plc|lab)
+            DEPLOY_TYPE="$arg"
+            ;;
+        *)
+            if [[ -z "$DEPLOY_TYPE" && "$arg" != "--rebuild" && "$arg" != "--force-rebuild" ]]; then
+                DEPLOY_TYPE="$arg"
+            fi
+            ;;
+    esac
+done
 
 source .env
 set -e
+
+# Docker health check and recovery
+check_docker() {
+    log "Checking Docker health..."
+    if ! docker ps >/dev/null 2>&1; then
+        log "Docker appears to be unavailable. Attempting to start Docker..."
+        if command -v docker-desktop >/dev/null 2>&1; then
+            docker-desktop --restart
+        elif [[ "$OSTYPE" == "darwin"* ]]; then
+            open -a Docker
+        fi
+        
+        # Wait for Docker to be ready
+        for i in {1..30}; do
+            if docker ps >/dev/null 2>&1; then
+                log "Docker is now available"
+                return 0
+            fi
+            log "Waiting for Docker to start... ($i/30)"
+            sleep 2
+        done
+        error "Docker failed to start after 60 seconds"
+    fi
+    log "Docker is healthy"
+}
 
 log() { echo "[$(date +'%H:%M:%S')] $1"; }
 error() { echo "[ERROR] $1"; exit 1; }
@@ -93,27 +140,110 @@ if [ "$DEPLOY_TYPE" = "with-plc" ]; then
     : ${PULL_POLICY:?Error: PULL_POLICY is not set for with-plc deployment. Please set it.}
 fi
 
-DEPLOY_TYPE=${1:-"basic"}
+DEPLOY_TYPE=${DEPLOY_TYPE:-"basic"}
 log "Starting deployment: $DEPLOY_TYPE"
+if [[ "$FORCE_REBUILD" == "true" ]]; then
+    log "Force rebuild mode enabled"
+fi
+
+# Check Docker health before proceeding
+check_docker
+
+# Detect platform and set compose overrides
+PLATFORM_OVERRIDE=""
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    if [[ $(uname -m) == "arm64" ]]; then
+        log "Detected macOS ARM64 (Apple Silicon) - using Mac M4 optimizations"
+        PLATFORM_OVERRIDE="-f overrides/compose.mac-m4.yaml"
+    else
+        log "Detected macOS Intel - using standard configuration"
+    fi
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    log "Detected Linux - using standard configuration"
+else
+    log "Unknown platform: $OSTYPE - using standard configuration"
+fi
 
 if [ "$DEPLOY_TYPE" = "with-epibus" ]; then
     log "Deploying with EpiBus application"
-    ./development/build-epibus-image.sh || error "EpiBus image build failed. Exiting."
+    build_epibus_if_needed
 fi
 
 # Check directory
 [ ! -f "compose.yaml" ] && error "Must run from frappe_docker directory"
 
-# Complete cleanup
+# Complete cleanup with error handling
 log "Complete cleanup"
 docker compose down --volumes --remove-orphans 2>/dev/null || true
-docker system prune -af --volumes >/dev/null 2>&1
+
+# Safe cleanup with retries
+for i in {1..3}; do
+    if docker system prune -af --volumes >/dev/null 2>&1; then
+        log "Docker cleanup completed"
+        break
+    else
+        log "Docker cleanup attempt $i failed, retrying..."
+        sleep 5
+        if [ $i -eq 3 ]; then
+            log "Warning: Docker cleanup failed, continuing anyway..."
+        fi
+    fi
+done
+
+# Function to check if custom image exists
+check_custom_image() {
+    local image_name="$1"
+    local tag="$2"
+    
+    if docker image inspect "${image_name}:${tag}" >/dev/null 2>&1; then
+        log "Custom image ${image_name}:${tag} already exists - skipping build"
+        return 0
+    else
+        log "Custom image ${image_name}:${tag} not found - building required"
+        return 1
+    fi
+}
+
+# Function to build custom image if needed
+build_epibus_if_needed() {
+    if [[ "$FORCE_REBUILD" == "true" ]]; then
+        log "Force rebuild requested - building frappe-epibus image..."
+        ./development/build-epibus-image.sh || error "EpiBus image build failed. Exiting."
+    elif check_custom_image "frappe-epibus" "latest"; then
+        log "Using existing frappe-epibus:latest image"
+    else
+        log "Building frappe-epibus image..."
+        ./development/build-epibus-image.sh || error "EpiBus image build failed. Exiting."
+    fi
+}
+
+# Function to retry docker compose with network resilience
+retry_compose_up() {
+    local max_attempts=3
+    for attempt in $(seq 1 $max_attempts); do
+        log "Starting deployment attempt $attempt of $max_attempts"
+        
+        if docker compose "$@" up -d; then
+            log "Deployment successful on attempt $attempt"
+            return 0
+        else
+            log "Deployment attempt $attempt failed"
+            if [ $attempt -eq $max_attempts ]; then
+                error "Deployment failed after $max_attempts attempts. Please check your internet connection and try again."
+            else
+                log "Retrying in 30 seconds..."
+                sleep 30
+                # Clean up any partial containers before retry
+                docker compose "$@" down --volumes --remove-orphans 2>/dev/null || true
+            fi
+        fi
+    done
+}
 
 
 if [ "$DEPLOY_TYPE" = "with-plc" ]; then
     log "Setting up PLC integration"
-    # Build EpiBus image
-    ./development/build-epibus-image.sh || error "EpiBus image build failed. Exiting."
+    build_epibus_if_needed
 fi
 
 # Validate required environment variables
@@ -121,45 +251,60 @@ fi
 # Deploy based on type
 if [ "$DEPLOY_TYPE" = "lab" ]; then
     log "Deploying training lab environment with custom domains"
-    ./development/build-epibus-image.sh || error "EpiBus image build failed. Exiting."
-    CUSTOM_IMAGE=frappe-epibus CUSTOM_TAG=latest PULL_POLICY=never docker compose \
+    build_epibus_if_needed
+    
+    # Export environment variables for docker compose
+    export CUSTOM_IMAGE=frappe-epibus
+    export CUSTOM_TAG=latest
+    export PULL_POLICY=never
+    
+    retry_compose_up \
       -f compose.yaml \
       -f overrides/compose.mariadb.yaml \
       -f overrides/compose.redis.yaml \
       -f overrides/compose.openplc.yaml \
       -f overrides/compose.plc-bridge.yaml \
       -f overrides/compose.lab.yaml \
-      -f overrides/compose.create-site.yaml \
-      up -d
+      $PLATFORM_OVERRIDE \
+      -f overrides/compose.create-site.yaml
 elif [ "$DEPLOY_TYPE" = "with-plc" ]; then
     log "Deploying with PLC features using compose.yaml with overrides"
-    CUSTOM_IMAGE=frappe-epibus CUSTOM_TAG=latest PULL_POLICY=never docker compose \
+    
+    # Export environment variables for docker compose
+    export CUSTOM_IMAGE=frappe-epibus
+    export CUSTOM_TAG=latest
+    export PULL_POLICY=never
+    
+    retry_compose_up \
       -f compose.yaml \
       -f overrides/compose.mariadb.yaml \
       -f overrides/compose.redis.yaml \
       -f overrides/compose.openplc.yaml \
       -f overrides/compose.plc-bridge.yaml \
-      -f overrides/compose.mac-m4.yaml \
-      -f overrides/compose.create-site.yaml \
-      up -d
+      $PLATFORM_OVERRIDE \
+      -f overrides/compose.create-site.yaml
 elif [ "$DEPLOY_TYPE" = "with-epibus" ]; then
     log "Deploying with EpiBus application using compose.yaml with overrides"
-    CUSTOM_IMAGE=frappe-epibus CUSTOM_TAG=latest PULL_POLICY=never docker compose \
+    
+    # Export environment variables for docker compose
+    export CUSTOM_IMAGE=frappe-epibus
+    export CUSTOM_TAG=latest
+    export PULL_POLICY=never
+    
+    retry_compose_up \
       -f compose.yaml \
       -f overrides/compose.mariadb.yaml \
       -f overrides/compose.redis.yaml \
-      -f overrides/compose.mac-m4.yaml \
-      -f overrides/compose.create-site.yaml \
-      up -d
+      $PLATFORM_OVERRIDE \
+      -f overrides/compose.create-site.yaml
 else
     log "Deploying basic Frappe using compose.yaml with overrides"
-    docker compose \
+    retry_compose_up \
       -f compose.yaml \
       -f overrides/compose.mariadb.yaml \
       -f overrides/compose.redis.yaml \
-      -f overrides/compose.mac-m4.yaml \
-      -f overrides/compose.create-site.yaml \
-      up -d
+      $PLATFORM_OVERRIDE \
+      -f overrides/compose.create-site.yaml
 fi
 
 # Wait for completion
@@ -182,14 +327,25 @@ done
 PORT=$(docker ps --format "table {{.Names}}\t{{.Ports}}" | grep frontend | sed 's/.*:\([0-9]*\)->8080.*/\1/' || echo "8080")
 
 # Install EpiBus if applicable
-if [ "$DEPLOY_TYPE" = "with-plc" ] || [ "$DEPLOY_TYPE" = "with-epibus" ]; then
+if [ "$DEPLOY_TYPE" = "with-plc" ] || [ "$DEPLOY_TYPE" = "with-epibus" ] || [ "$DEPLOY_TYPE" = "lab" ]; then
     log "Installing EpiBus on site"
     sleep 30 # Give extra time for site creation to complete
-    if docker compose exec backend bench --site intralogistics.localhost install-app epibus; then
-        log "EpiBus installation completed"
-    else
-        log "EpiBus installation may need manual retry after site is fully ready"
-    fi
+    
+    # Wait for site to be fully ready with retry logic
+    for i in {1..60}; do
+        if docker compose exec backend bench --site intralogistics.localhost install-app epibus 2>/dev/null; then
+            log "EpiBus installation completed successfully"
+            break
+        else
+            log "EpiBus installation attempt $i failed, retrying in 10 seconds..."
+            sleep 10
+            if [ $i -eq 60 ]; then
+                log "EpiBus installation failed after 60 attempts. Manual installation may be required:"
+                log "Run: docker compose exec backend bench --site intralogistics.localhost install-app epibus"
+                break
+            fi
+        fi
+    done
 fi
 
 # Test frontend
@@ -202,12 +358,16 @@ if curl -f -s "http://localhost:$PORT" >/dev/null 2>&1; then
     echo "Login: Administrator / admin"
     echo "Deploy Type: $DEPLOY_TYPE"
     if [ "$DEPLOY_TYPE" = "lab" ]; then
+        OPENPLC_PORT=$(docker ps --format "table {{.Names}}\t{{.Ports}}" | grep openplc | sed 's/.*:\([0-9]*\)->8080.*/\1/' || echo "8081")
         echo "Lab Environment URLs:"
-        echo "  - Main Interface: http://intralogistics.lab"
-        echo "  - OpenPLC Simulator: http://openplc.lab"
-        echo "  - Traefik Dashboard: http://traefik.lab"
-        echo "MODBUS TCP: Port 502 (for real PLC connections)"
-        echo "Configure router DNS: intralogistics.lab -> $(hostname -I | awk '{print $1}')"
+        echo "  - ERPNext Interface: http://localhost:$PORT"
+        echo "  - OpenPLC Simulator: http://localhost:$OPENPLC_PORT"
+        echo "  - Traefik Dashboard: http://localhost:8080"
+        echo "  - Lab Domains (configure in /etc/hosts):"
+        echo "    127.0.0.1 intralogistics.lab openplc.lab traefik.lab"
+        echo "MODBUS TCP: localhost:502 (for real PLC connections)"
+        echo "PLC Bridge: localhost:7654 (real-time events)"
+        echo "EpiBus: Installed and integrated"
     elif [ "$DEPLOY_TYPE" = "with-plc" ]; then
         echo "OpenPLC: http://localhost:8081 (openplc/openplc)"
         echo "PLC Bridge: http://localhost:7654"
