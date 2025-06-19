@@ -72,6 +72,12 @@ DEPLOYMENT TYPES:
         - Specify custom domain: ./deploy.sh web mydomain.com
         - Default domain: intralogisticsai.online
 
+    Stop:
+        ./deploy.sh stop
+        - Stop all running services
+        - Remove containers, networks, and volumes
+        - Complete cleanup of the deployment
+
 REQUIREMENTS:
     - Docker and Docker Compose installed
     - .env file configured (copy from example.env)
@@ -101,7 +107,7 @@ for arg in "$@"; do
         --rebuild|--force-rebuild)
             FORCE_REBUILD=true
             ;;
-        with-epibus|with-plc|lab|web)
+        with-epibus|with-plc|lab|web|stop)
             DEPLOY_TYPE="$arg"
             ;;
         *)
@@ -267,6 +273,26 @@ retry_compose_up() {
     done
 }
 
+
+# Handle stop command
+if [ "$DEPLOY_TYPE" = "stop" ]; then
+    log "Stopping all services and cleaning up..."
+    
+    # Stop and remove containers, networks, volumes
+    docker compose down --volumes --remove-orphans 2>/dev/null || true
+    
+    # Clean up any remaining containers
+    docker ps -aq --filter "label=com.docker.compose.project=intralogisticsai" | xargs -r docker rm -f 2>/dev/null || true
+    
+    # Clean up networks
+    docker network ls --filter "name=intralogisticsai" --filter "name=frappe" -q | xargs -r docker network rm 2>/dev/null || true
+    
+    # Clean up volumes
+    docker volume ls --filter "name=intralogisticsai" -q | xargs -r docker volume rm 2>/dev/null || true
+    
+    log "Cleanup completed successfully"
+    exit 0
+fi
 
 # Validate required environment variables
 
