@@ -4,11 +4,11 @@ services:
       - traefik.enable=true
       - traefik.http.services.frontend.loadbalancer.server.port=8080
       - traefik.http.routers.frontend-http.entrypoints=web
-      - traefik.http.routers.frontend-http.rule=Host(`intralogistics.lab`)
+      - traefik.http.routers.frontend-http.rule=Host(`${WEB_DOMAIN:-intralogisticsai.online}`)
       - traefik.http.routers.frontend-http.priority=100
 
   openplc:
-    # Fixed ports for lab environment
+    # Fixed ports for web deployment
     ports:
       - "8081:8080"  # OpenPLC web interface
       - "502:502"    # MODBUS TCP server
@@ -16,7 +16,7 @@ services:
       - traefik.enable=true
       - traefik.http.services.openplc.loadbalancer.server.port=8080
       - traefik.http.routers.openplc-http.entrypoints=web
-      - traefik.http.routers.openplc-http.rule=Host(`openplc.intralogistics.lab`)
+      - traefik.http.routers.openplc-http.rule=Host(`openplc.${WEB_DOMAIN:-intralogisticsai.online}`)
       - traefik.http.routers.openplc-http.priority=100
 
   proxy:
@@ -35,6 +35,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     labels:
       - traefik.enable=true
-      - traefik.http.routers.traefik.rule=Host(`dashboard.intralogistics.lab`)
+      - traefik.http.routers.traefik.rule=Host(`dashboard.${WEB_DOMAIN:-intralogisticsai.online}`)
       - traefik.http.routers.traefik.service=api@internal
     userns_mode: host

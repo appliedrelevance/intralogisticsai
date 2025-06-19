@@ -49,8 +49,11 @@ IntralogisticsAI integrates multiple components:
    # Complete industrial automation platform
    ./deploy.sh with-plc
    
-   # Or training lab environment with custom domains
+   # Training lab environment with custom domains
    ./deploy.sh lab
+   
+   # Web deployment with real domains
+   ./deploy.sh web [yourdomain.com]
    ```
 
 The deployment script will:
@@ -107,11 +110,34 @@ The deployment script includes smart image caching and cross-platform support wi
 ./deploy.sh lab --rebuild
 ```
 Complete training lab with custom domains and real PLC connectivity:
-- **ERPNext Interface**: `http://localhost:[port]` (shown in output)
-- **OpenPLC Simulator**: `http://localhost:[port]` (shown in output)  
-- **Traefik Dashboard**: `http://localhost:8080`
+- **ERPNext Interface**: `http://intralogistics.lab`
+- **OpenPLC Simulator**: `http://openplc.intralogistics.lab`  
+- **Traefik Dashboard**: `http://dashboard.intralogistics.lab`
 - **MODBUS TCP**: `localhost:502` (for real PLC connections)
 - **PLC Bridge**: `localhost:7654` (real-time events)
+
+*Configure local domains in `/etc/hosts`:*
+```
+127.0.0.1 intralogistics.lab openplc.intralogistics.lab dashboard.intralogistics.lab
+```
+
+### Web Deployment (Production)
+```bash
+# Deploy with default domain (intralogisticsai.online)
+./deploy.sh web
+
+# Deploy with custom domain
+./deploy.sh web yourdomain.com
+
+# Force rebuild
+./deploy.sh web yourdomain.com --rebuild
+```
+Production deployment with real domain and subdomains:
+- **ERPNext Interface**: `http://yourdomain.com`
+- **OpenPLC Simulator**: `http://openplc.yourdomain.com`  
+- **Traefik Dashboard**: `http://dashboard.yourdomain.com`
+- **MODBUS TCP**: `yourdomain.com:502` (for real PLC connections)
+- **PLC Bridge**: `yourdomain.com:7654` (real-time events)
 
 ### Complete Industrial Stack
 ```bash

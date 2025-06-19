@@ -63,6 +63,14 @@ DEPLOYMENT TYPES:
         - Custom domain configuration (*.lab)
         - Traefik reverse proxy
         - Optimized for training environments
+        
+    Web:
+        ./deploy.sh web [DOMAIN]
+        - Complete industrial automation setup
+        - Real domain configuration with subdomains
+        - Traefik reverse proxy for web deployment
+        - Specify custom domain: ./deploy.sh web mydomain.com
+        - Default domain: intralogisticsai.online
 
 REQUIREMENTS:
     - Docker and Docker Compose installed
@@ -82,6 +90,7 @@ EOF
 # Parse arguments
 DEPLOY_TYPE=""
 FORCE_REBUILD=false
+WEB_DOMAIN=""
 
 for arg in "$@"; do
     case $arg in
@@ -92,16 +101,23 @@ for arg in "$@"; do
         --rebuild|--force-rebuild)
             FORCE_REBUILD=true
             ;;
-        with-epibus|with-plc|lab)
+        with-epibus|with-plc|lab|web)
             DEPLOY_TYPE="$arg"
             ;;
         *)
             if [[ -z "$DEPLOY_TYPE" && "$arg" != "--rebuild" && "$arg" != "--force-rebuild" ]]; then
                 DEPLOY_TYPE="$arg"
+            elif [[ "$DEPLOY_TYPE" = "web" && -z "$WEB_DOMAIN" && "$arg" != "--rebuild" && "$arg" != "--force-rebuild" ]]; then
+                WEB_DOMAIN="$arg"
             fi
             ;;
     esac
 done
+
+# Set default domain for web deployment
+if [[ "$DEPLOY_TYPE" = "web" && -z "$WEB_DOMAIN" ]]; then
+    WEB_DOMAIN="intralogisticsai.online"
+fi
 
 source .env
 set -e
@@ -250,7 +266,7 @@ retry_compose_up() {
 # Validate required environment variables
 
 # Build EpiBus image if needed for deployments that require it
-if [ "$DEPLOY_TYPE" = "lab" ] || [ "$DEPLOY_TYPE" = "with-plc" ] || [ "$DEPLOY_TYPE" = "with-epibus" ]; then
+if [ "$DEPLOY_TYPE" = "lab" ] || [ "$DEPLOY_TYPE" = "web" ] || [ "$DEPLOY_TYPE" = "with-plc" ] || [ "$DEPLOY_TYPE" = "with-epibus" ]; then
     build_epibus_if_needed
     
     # Export environment variables for docker compose
@@ -258,7 +274,13 @@ if [ "$DEPLOY_TYPE" = "lab" ] || [ "$DEPLOY_TYPE" = "with-plc" ] || [ "$DEPLOY_T
     export CUSTOM_TAG=latest
     export PULL_POLICY=never
     
-    log "Environment variables set: CUSTOM_IMAGE=$CUSTOM_IMAGE, CUSTOM_TAG=$CUSTOM_TAG, PULL_POLICY=$PULL_POLICY"
+    # Export domain for web deployments
+    if [[ "$DEPLOY_TYPE" = "web" ]]; then
+        export WEB_DOMAIN
+        log "Environment variables set: CUSTOM_IMAGE=$CUSTOM_IMAGE, CUSTOM_TAG=$CUSTOM_TAG, PULL_POLICY=$PULL_POLICY, WEB_DOMAIN=$WEB_DOMAIN"
+    else
+        log "Environment variables set: CUSTOM_IMAGE=$CUSTOM_IMAGE, CUSTOM_TAG=$CUSTOM_TAG, PULL_POLICY=$PULL_POLICY"
+    fi
 fi
 
 # Deploy based on type
@@ -272,6 +294,18 @@ if [ "$DEPLOY_TYPE" = "lab" ]; then
       -f overrides/compose.openplc.yaml \
       -f overrides/compose.plc-bridge.yaml \
       -f overrides/compose.lab.yaml \
+      $PLATFORM_OVERRIDE \
+      -f overrides/compose.create-site.yaml
+elif [ "$DEPLOY_TYPE" = "web" ]; then
+    log "Deploying web environment with real domains: $WEB_DOMAIN"
+    
+    retry_compose_up \
+      -f compose.yaml \
+      -f overrides/compose.mariadb.yaml \
+      -f overrides/compose.redis.yaml \
+      -f overrides/compose.openplc.yaml \
+      -f overrides/compose.plc-bridge.yaml \
+      -f overrides/compose.web.yaml \
       $PLATFORM_OVERRIDE \
       -f overrides/compose.create-site.yaml
 elif [ "$DEPLOY_TYPE" = "with-plc" ]; then
@@ -361,9 +395,17 @@ if curl -f -s "http://localhost:$PORT" >/dev/null 2>&1; then
         echo "  - OpenPLC Simulator: http://localhost:$OPENPLC_PORT"
         echo "  - Traefik Dashboard: http://localhost:8080"
         echo "  - Lab Domains (configure in /etc/hosts):"
-        echo "    127.0.0.1 intralogistics.lab openplc.lab traefik.lab"
+        echo "    127.0.0.1 intralogistics.lab openplc.intralogistics.lab dashboard.intralogistics.lab"
         echo "MODBUS TCP: localhost:502 (for real PLC connections)"
         echo "PLC Bridge: localhost:7654 (real-time events)"
+        echo "EpiBus: Installed and integrated"
+    elif [ "$DEPLOY_TYPE" = "web" ]; then
+        echo "Web Environment URLs:"
+        echo "  - ERPNext: http://$WEB_DOMAIN"
+        echo "  - OpenPLC: http://openplc.$WEB_DOMAIN"
+        echo "  - Traefik Dashboard: http://dashboard.$WEB_DOMAIN"
+        echo "MODBUS TCP: $WEB_DOMAIN:502 (for real PLC connections)"
+        echo "PLC Bridge: $WEB_DOMAIN:7654 (real-time events)"
         echo "EpiBus: Installed and integrated"
     elif [ "$DEPLOY_TYPE" = "with-plc" ]; then
         echo "OpenPLC: http://localhost:8081 (openplc/openplc)"
