@@ -119,6 +119,11 @@ if [[ "$DEPLOY_TYPE" = "web" && -z "$WEB_DOMAIN" ]]; then
     WEB_DOMAIN="intralogisticsai.online"
 fi
 
+# Export web domain early if set
+if [[ -n "$WEB_DOMAIN" ]]; then
+    export WEB_DOMAIN
+fi
+
 source .env
 set -e
 
@@ -274,9 +279,8 @@ if [ "$DEPLOY_TYPE" = "lab" ] || [ "$DEPLOY_TYPE" = "web" ] || [ "$DEPLOY_TYPE" 
     export CUSTOM_TAG=latest
     export PULL_POLICY=never
     
-    # Export domain for web deployments
+    # Log environment variables
     if [[ "$DEPLOY_TYPE" = "web" ]]; then
-        export WEB_DOMAIN
         log "Environment variables set: CUSTOM_IMAGE=$CUSTOM_IMAGE, CUSTOM_TAG=$CUSTOM_TAG, PULL_POLICY=$PULL_POLICY, WEB_DOMAIN=$WEB_DOMAIN"
     else
         log "Environment variables set: CUSTOM_IMAGE=$CUSTOM_IMAGE, CUSTOM_TAG=$CUSTOM_TAG, PULL_POLICY=$PULL_POLICY"
