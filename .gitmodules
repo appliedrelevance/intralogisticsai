@@ -1,0 +1,3 @@
+[submodule "epibus"]
+	path = epibus
+	url = https://github.com/appliedrelevance/epibus.git
