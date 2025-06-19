@@ -31,15 +31,36 @@ EOF
 echo "Created apps.json for build:"
 cat apps-epibus-build.json
 
-# Generate base64 encoded apps.json
-export APPS_JSON_BASE64=$(base64 -i apps-epibus-build.json)
+# Generate base64 encoded apps.json - with better cross-platform compatibility
+if command -v base64 >/dev/null 2>&1; then
+    # Try different base64 command formats for different systems
+    if base64 --help 2>&1 | grep -q "\-w"; then
+        # GNU base64 (Linux)
+        export APPS_JSON_BASE64=$(base64 -w 0 apps-epibus-build.json)
+    elif base64 --help 2>&1 | grep -q "\-i"; then
+        # BSD base64 (macOS)
+        export APPS_JSON_BASE64=$(base64 -i apps-epibus-build.json)
+    else
+        # Standard base64
+        export APPS_JSON_BASE64=$(cat apps-epibus-build.json | base64 | tr -d '\n')
+    fi
+else
+    echo "Error: base64 command not found"
+    exit 1
+fi
 
 echo "Base64 encoded apps.json:"
-echo $APPS_JSON_BASE64
+echo "$APPS_JSON_BASE64"
 
-# Test decode
+# Test decode - with better error handling
 echo "Verifying base64 encoding:"
-echo $APPS_JSON_BASE64 | base64 -d
+if echo "$APPS_JSON_BASE64" | base64 -d > /dev/null 2>&1; then
+    echo "Base64 encoding verified successfully"
+    echo "$APPS_JSON_BASE64" | base64 -d
+else
+    echo "Error: Base64 encoding verification failed"
+    exit 1
+fi
 
 # Build custom image using layered approach for faster builds
 echo "Building custom image with EpiBus..."
