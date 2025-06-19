@@ -16,6 +16,71 @@
 # - MODBUS TCP server
 # - PLC Bridge for real-time communication
 
+show_help() {
+    cat << EOF
+Clean Frappe Docker Deployment Script
+
+USAGE:
+    ./deploy.sh [OPTION]
+
+OPTIONS:
+    (no option)         Basic Frappe/ERPNext deployment
+    with-epibus         EpiBus only deployment  
+    with-plc            Complete industrial automation (recommended)
+    lab                 Training lab deployment with custom domains
+    --help, -h          Show this help message
+
+DEPLOYMENT TYPES:
+
+    Basic Deployment:
+        ./deploy.sh
+        - Standard Frappe/ERPNext ERP system
+        - MariaDB database
+        - Redis caching
+        - Web interface at http://localhost:[dynamic-port]
+
+    EpiBus Deployment:
+        ./deploy.sh with-epibus
+        - Includes everything from basic deployment
+        - EpiBus industrial integration app
+        - Custom Frappe app for MODBUS communication
+
+    Complete Industrial Automation:
+        ./deploy.sh with-plc
+        - Includes everything from EpiBus deployment
+        - OpenPLC simulator for PLC programming
+        - MODBUS TCP server (port 502)
+        - PLC Bridge for real-time communication
+        - Web interfaces for both ERPNext and OpenPLC
+
+    Training Lab:
+        ./deploy.sh lab
+        - Complete industrial automation setup
+        - Custom domain configuration (*.lab)
+        - Traefik reverse proxy
+        - Optimized for training environments
+
+REQUIREMENTS:
+    - Docker and Docker Compose installed
+    - .env file configured (copy from example.env)
+    - Required environment variables: DB_PASSWORD, ERPNEXT_VERSION
+    - For with-plc deployments: PULL_POLICY must be set
+
+ACCESS:
+    - ERPNext: http://localhost:[dynamic-port] (use 'docker compose ps' to check port)
+    - OpenPLC: http://localhost:8081 (for with-plc deployments)
+    - Default login: Administrator / admin
+
+For more information, see CLAUDE.md in the repository root.
+EOF
+}
+
+# Check for help flag
+if [[ "$1" == "--help" || "$1" == "-h" ]]; then
+    show_help
+    exit 0
+fi
+
 source .env
 set -e
 
