@@ -337,7 +337,7 @@ elif [ "$DEPLOY_TYPE" = "web" ]; then
       -f overrides/compose.plc-bridge.yaml \
       -f overrides/compose.web.yaml \
       $PLATFORM_OVERRIDE \
-      -f overrides/compose.create-site.yaml
+      -f overrides/compose.create-site-web.yaml
 elif [ "$DEPLOY_TYPE" = "with-plc" ]; then
     log "Deploying with PLC features using compose.yaml with overrides"
     
