@@ -330,8 +330,8 @@ if [ "$DEPLOY_TYPE" = "lab" ]; then
       -f overrides/compose.openplc.yaml \
       -f overrides/compose.plc-bridge.yaml \
       -f overrides/compose.lab.yaml \
-      $PLATFORM_OVERRIDE \
-      -f overrides/compose.create-site.yaml
+      -f overrides/compose.create-site.yaml \
+      $PLATFORM_OVERRIDE
 elif [ "$DEPLOY_TYPE" = "web" ]; then
     log "Deploying web environment with real domains: $WEB_DOMAIN"
     
@@ -342,8 +342,8 @@ elif [ "$DEPLOY_TYPE" = "web" ]; then
       -f overrides/compose.openplc.yaml \
       -f overrides/compose.plc-bridge.yaml \
       -f overrides/compose.web.yaml \
-      $PLATFORM_OVERRIDE \
-      -f overrides/compose.create-site-web.yaml
+      -f overrides/compose.create-site-web.yaml \
+      $PLATFORM_OVERRIDE
 elif [ "$DEPLOY_TYPE" = "with-plc" ]; then
     log "Deploying with PLC features using compose.yaml with overrides"
     
@@ -353,8 +353,8 @@ elif [ "$DEPLOY_TYPE" = "with-plc" ]; then
       -f overrides/compose.redis.yaml \
       -f overrides/compose.openplc.yaml \
       -f overrides/compose.plc-bridge.yaml \
-      $PLATFORM_OVERRIDE \
-      -f overrides/compose.create-site.yaml
+      -f overrides/compose.create-site.yaml \
+      $PLATFORM_OVERRIDE
 elif [ "$DEPLOY_TYPE" = "with-epibus" ]; then
     log "Deploying with EpiBus application using compose.yaml with overrides"
     
@@ -362,16 +362,16 @@ elif [ "$DEPLOY_TYPE" = "with-epibus" ]; then
       -f compose.yaml \
       -f overrides/compose.mariadb.yaml \
       -f overrides/compose.redis.yaml \
-      $PLATFORM_OVERRIDE \
-      -f overrides/compose.create-site.yaml
+      -f overrides/compose.create-site.yaml \
+      $PLATFORM_OVERRIDE
 else
     log "Deploying basic Frappe using compose.yaml with overrides"
     retry_compose_up \
       -f compose.yaml \
       -f overrides/compose.mariadb.yaml \
       -f overrides/compose.redis.yaml \
-      $PLATFORM_OVERRIDE \
-      -f overrides/compose.create-site.yaml
+      -f overrides/compose.create-site.yaml \
+      $PLATFORM_OVERRIDE
 fi
 
 # Wait for completion
