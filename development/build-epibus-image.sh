@@ -67,10 +67,24 @@ echo "Building custom image with EpiBus..."
 
 # Detect architecture and set platform
 ARCH=$(uname -m)
-if [ "$ARCH" = "arm64" ]; then
-    PLATFORM="--platform=linux/arm64"
+echo "Detected architecture: $ARCH"
+
+# Check if frappe base images support ARM64
+echo "Checking Frappe base image platform support..."
+FRAPPE_MANIFEST=$(docker manifest inspect frappe/base:version-15 2>/dev/null | grep -c "arm64" || echo "0")
+
+if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "aarch64" ]; then
+    if [ "$FRAPPE_MANIFEST" -gt 0 ]; then
+        PLATFORM="--platform=linux/arm64"
+        echo "Building for ARM64 architecture (native)"
+    else
+        echo "Warning: Frappe images don't support ARM64, using emulation"
+        PLATFORM="--platform=linux/amd64"
+        echo "Building for AMD64 architecture (emulated)"
+    fi
 else
     PLATFORM="--platform=linux/amd64"
+    echo "Building for AMD64 architecture"
 fi
 
 docker build \

@@ -178,15 +178,21 @@ check_docker
 
 # Detect platform and set compose overrides
 PLATFORM_OVERRIDE=""
+ARCH=$(uname -m)
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    if [[ $(uname -m) == "arm64" ]]; then
-        log "Detected macOS ARM64 (Apple Silicon) - using Mac M4 optimizations"
+    if [[ "$ARCH" == "arm64" ]]; then
+        log "Detected macOS ARM64 (Apple Silicon) - using ARM64 optimizations"
         PLATFORM_OVERRIDE="-f overrides/compose.mac-m4.yaml"
     else
         log "Detected macOS Intel - using standard configuration"
     fi
 elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    log "Detected Linux - using standard configuration"
+    if [[ "$ARCH" == "arm64" ]] || [[ "$ARCH" == "aarch64" ]]; then
+        log "Detected Linux ARM64 - using ARM64 optimizations"
+        PLATFORM_OVERRIDE="-f overrides/compose.mac-m4.yaml"
+    else
+        log "Detected Linux x86_64 - using standard configuration"
+    fi
 else
     log "Unknown platform: $OSTYPE - using standard configuration"
 fi
