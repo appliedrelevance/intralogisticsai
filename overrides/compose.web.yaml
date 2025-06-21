@@ -1,25 +1,49 @@
 services:
   frontend:
+    networks:
+      - frappe_network
     labels:
       - traefik.enable=true
       - traefik.http.services.frontend.loadbalancer.server.port=8080
+      # HTTP router
       - traefik.http.routers.frontend-http.entrypoints=web
       - traefik.http.routers.frontend-http.rule=Host(`${WEB_DOMAIN:-intralogisticsai.online}`)
       - traefik.http.routers.frontend-http.priority=100
       - traefik.http.middlewares.frontend-headers.headers.customrequestheaders.Host=${WEB_DOMAIN:-intralogisticsai.online}
       - traefik.http.routers.frontend-http.middlewares=frontend-headers
+      # HTTPS router
+      - traefik.http.routers.frontend-https.entrypoints=websecure
+      - traefik.http.routers.frontend-https.rule=Host(`${WEB_DOMAIN:-intralogisticsai.online}`)
+      - traefik.http.routers.frontend-https.priority=100
+      - traefik.http.routers.frontend-https.middlewares=frontend-headers
+      - traefik.http.routers.frontend-https.tls=true
+      - traefik.http.routers.frontend-https.tls.certresolver=letsencrypt
+      # HTTP to HTTPS redirect
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+      - traefik.http.routers.frontend-http.middlewares=redirect-to-https
 
   openplc:
     # Fixed ports for web deployment
     ports:
       - "8081:8080"  # OpenPLC web interface
       - "502:502"    # MODBUS TCP server
+    networks:
+      - frappe_network
     labels:
       - traefik.enable=true
       - traefik.http.services.openplc.loadbalancer.server.port=8080
+      # HTTP router
       - traefik.http.routers.openplc-http.entrypoints=web
       - traefik.http.routers.openplc-http.rule=Host(`openplc.${WEB_DOMAIN:-intralogisticsai.online}`)
       - traefik.http.routers.openplc-http.priority=100
+      # HTTPS router
+      - traefik.http.routers.openplc-https.entrypoints=websecure
+      - traefik.http.routers.openplc-https.rule=Host(`openplc.${WEB_DOMAIN:-intralogisticsai.online}`)
+      - traefik.http.routers.openplc-https.priority=100
+      - traefik.http.routers.openplc-https.tls=true
+      - traefik.http.routers.openplc-https.tls.certresolver=letsencrypt
+      # HTTP to HTTPS redirect
+      - traefik.http.routers.openplc-http.middlewares=redirect-to-https
 
   proxy:
     image: traefik:v2.11
@@ -27,14 +51,20 @@ services:
       - --providers.docker
       - --providers.docker.exposedbydefault=false
       - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@${WEB_DOMAIN:-intralogisticsai.online}}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
       - --log.level=INFO
       - --api.dashboard=true
       - --api.insecure=true
     ports:
       - "80:80"      # HTTP
+      - "443:443"    # HTTPS
       - "8080:8080"  # Traefik dashboard
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt:/letsencrypt
     labels:
       - traefik.enable=true
       - traefik.http.routers.traefik.rule=Host(`dashboard.${WEB_DOMAIN:-intralogisticsai.online}`)
@@ -46,3 +76,6 @@ services:
 networks:
   frappe_network:
     name: frappe_network
+
+volumes:
+  letsencrypt:
