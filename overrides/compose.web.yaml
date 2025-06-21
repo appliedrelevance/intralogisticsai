@@ -45,5 +45,4 @@ services:
 
 networks:
   frappe_network:
-    external: true
     name: frappe_network
