@@ -95,7 +95,104 @@ After fixing the Gateway Timeout, you may encounter missing CSS/JS files (unstyl
    curl -I http://your-domain.com/assets/frappe/dist/css/website.bundle.HASH.css
    ```
 
+## EpiBus Installation Issue
+
+After fixing the Gateway Timeout and CSS issues, you may find that the EpiBus application is not installed on the site.
+
+### Symptoms
+- EpiBus application missing from installed apps list
+- EpiBus functionality not available in the system
+
+### Root Cause
+The site creation process was only installing ERPNext but not EpiBus.
+
+### Solution
+Updated both `overrides/compose.create-site-web.yaml` and `overrides/compose.create-site.yaml` to include EpiBus installation:
+
+```yaml
+# Before
+bench new-site --install-app erpnext --set-default ${WEB_DOMAIN} --force;
+
+# After
+bench new-site --install-app erpnext --install-app epibus --set-default ${WEB_DOMAIN} --force;
+```
+
+## SSL/HTTPS Configuration
+
+For production deployments, SSL/HTTPS should be enabled for security.
+
+### Features Added
+- Let's Encrypt automatic SSL certificate generation
+- HTTP to HTTPS redirects for all services
+- SSL support for main domain and OpenPLC subdomain
+- Proper certificate resolver configuration
+
+### Configuration
+Updated `overrides/compose.web.yaml` with:
+
+```yaml
+services:
+  proxy:
+    command:
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+    ports:
+      - "443:443"    # HTTPS
+    volumes:
+      - letsencrypt:/letsencrypt
+
+  frontend:
+    labels:
+      # HTTPS router
+      - traefik.http.routers.frontend-https.entrypoints=websecure
+      - traefik.http.routers.frontend-https.tls=true
+      - traefik.http.routers.frontend-https.tls.certresolver=letsencrypt
+      # HTTP to HTTPS redirect
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+      - traefik.http.routers.frontend-http.middlewares=redirect-to-https
+```
+
+### Environment Variables
+Add to your `.env` file:
+```bash
+ACME_EMAIL=your-email@domain.com
+WEB_DOMAIN=your-domain.com
+```
+
+## OpenPLC Subdomain Resolution
+
+Fixed OpenPLC subdomain routing by ensuring the service is on the correct network.
+
+### Solution
+Added network configuration to OpenPLC service:
+
+```yaml
+services:
+  openplc:
+    networks:
+      - frappe_network
+    labels:
+      # Both HTTP and HTTPS routers configured
+      - traefik.http.routers.openplc-https.rule=Host(`openplc.${WEB_DOMAIN}`)
+```
+
 ## Related Files
 
-- `overrides/compose.web.yaml` - Contains the fix
+- `overrides/compose.web.yaml` - Contains proxy, SSL, and network fixes
+- `overrides/compose.create-site-web.yaml` - Contains EpiBus installation for web deployment
+- `overrides/compose.create-site.yaml` - Contains EpiBus installation for local deployment
+- `example.env` - Contains required environment variables
 - `deploy.sh` - Uses the correct override files for web deployments
+
+## Complete Fix Summary
+
+The complete solution addresses:
+1. ✅ Gateway Timeout (Traefik middleware + network configuration)
+2. ✅ CSS/Asset loading (automatic asset building during site creation)
+3. ✅ EpiBus installation (added to site creation process)
+4. ✅ SSL/HTTPS support (Let's Encrypt integration)
+5. ✅ OpenPLC subdomain resolution (network configuration)
+
+All fixes are now permanent and committed to the repository for repeatable deployments.
