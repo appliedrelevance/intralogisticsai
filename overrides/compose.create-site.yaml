@@ -33,6 +33,9 @@ services:
         done;
         echo "sites/common_site_config.json found";
         bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=${DB_PASSWORD} --install-app erpnext --set-default intralogistics.localhost --force;
+        echo "Building assets for intralogistics.localhost";
+        bench --site intralogistics.localhost build;
+        echo "Assets built successfully";
 
 networks:
   frappe_network: {}
