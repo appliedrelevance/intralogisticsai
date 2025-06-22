@@ -58,4 +58,7 @@ node_modules/
 .DS_Store
 # Task files
 tasks.json
-tasks/ 
+tasks/
+
+# Generated Docker Compose files
+*.generated.yaml
