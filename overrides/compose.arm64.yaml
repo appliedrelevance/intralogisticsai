@@ -1,0 +1,85 @@
+# Docker Compose Override for Mac M4 (ARM64) Architecture
+# This file configures all services for ARM64 compatibility and prevents port conflicts
+
+services:
+  # Configurator service - ARM64 platform
+  configurator:
+    platform: linux/arm64
+    # Use ARM64-compatible base image
+    image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
+    networks:
+      - frappe_network
+
+  # Create-site service - ARM64 platform
+  create-site:
+    platform: linux/arm64
+    # Use ARM64-compatible base image
+    image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
+    networks:
+      - frappe_network
+
+  # Backend service - ARM64 platform
+  backend:
+    platform: linux/arm64
+    # Ensure ARM64 compatibility for the main application backend
+    image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
+    networks:
+      - frappe_network
+
+  # Frontend service - ARM64 platform with ephemeral port assignment
+  frontend:
+    platform: linux/arm64
+    image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
+    networks:
+      - frappe_network
+    ports:
+      # Use ephemeral port assignment to prevent conflicts on Mac
+      # Docker will automatically assign an available port
+      - "${HTTP_PUBLISH_PORT:-0}:8080"
+    environment:
+      # Optimize for Mac M4 performance
+      BACKEND: backend:8000
+      SOCKETIO: websocket:9000
+      FRAPPE_SITE_NAME_HEADER: ${FRAPPE_SITE_NAME_HEADER:-$$host}
+      UPSTREAM_REAL_IP_ADDRESS: ${UPSTREAM_REAL_IP_ADDRESS:-127.0.0.1}
+      UPSTREAM_REAL_IP_HEADER: ${UPSTREAM_REAL_IP_HEADER:-X-Forwarded-For}
+      UPSTREAM_REAL_IP_RECURSIVE: ${UPSTREAM_REAL_IP_RECURSIVE:-off}
+      PROXY_READ_TIMEOUT: ${PROXY_READ_TIMEOUT:-120s}
+      CLIENT_MAX_BODY_SIZE: ${CLIENT_MAX_BODY_SIZE:-50m}
+
+  # WebSocket service - ARM64 platform
+  websocket:
+    platform: linux/arm64
+    image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
+    networks:
+      - frappe_network
+
+  # Queue services - ARM64 platform
+  queue-short:
+    platform: linux/arm64
+    image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
+    networks:
+      - frappe_network
+
+  queue-long:
+    platform: linux/arm64
+    image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
+    networks:
+      - frappe_network
+
+  # Scheduler service - ARM64 platform
+  scheduler:
+    platform: linux/arm64
+    image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
+    networks:
+      - frappe_network
+
+# Volume configuration remains the same
+# ARM64 containers will use the same volume structure
+volumes:
+  sites:
+    driver: local
+
+# Network configuration optimized for Mac M4
+networks:
+  frappe_network: {}
