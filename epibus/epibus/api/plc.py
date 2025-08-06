@@ -258,7 +258,7 @@ def get_all_signals_internal():
         logger.error(f"Error getting all signals: {str(e)}")
         return {"success": False, "message": str(e)}
 
-@frappe.whitelist(allow_guest=False)
+@frappe.whitelist(allow_guest=True)
 def get_all_signals():
     """Get all signals with their connections in a single call"""
     return get_all_signals_internal()
