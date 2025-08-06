@@ -188,9 +188,6 @@ verify_no_images_exist() {
 : ${DB_PASSWORD:?Error: DB_PASSWORD is not set in .env or environment. Please set it.}
 : ${ERPNEXT_VERSION:?Error: ERPNEXT_VERSION is not set in .env or environment. Please set it.}
 
-if [ "$DEPLOY_TYPE" = "with-plc" ]; then
-    : ${PULL_POLICY:?Error: PULL_POLICY is not set for with-plc deployment. Please set it.}
-fi
 
 DEPLOY_TYPE=${DEPLOY_TYPE:-"basic"}
 log "Starting deployment: $DEPLOY_TYPE"
