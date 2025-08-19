@@ -15,7 +15,7 @@ Welcome to the comprehensive documentation for IntralogisticsAI - the industrial
 - **[API Documentation](epibus/api.md)** - Advanced integration reference
 
 ### 🛠️ Development & Maintenance
-- **[Development Setup](development/README.md)** - Contributing and customization
+- **[Development Setup](development/README.md)** - Development and customization
 - **[Troubleshooting](troubleshooting/README.md)** - Common issues and solutions
 
 ## 🎯 Choose Your Path

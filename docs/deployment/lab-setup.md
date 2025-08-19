@@ -2,9 +2,17 @@
 
 ## Network Architecture
 
-### Physical Setup
+### Physical Setup Options
+
+#### Option 1: Ubuntu Server + Windows Clients (Original)
 - **Ubuntu Server**: Docker host running IntralogisticsAI
-- **4 Windows NUCs**: Student workstations
+- **4 Windows NUCs**: Student workstations (clients only)
+- **Wi-Fi Router**: Airgapped network with occasional internet access
+- **MODBUS Devices**: Real PLCs connected via Ethernet
+
+#### Option 2: Windows 11 Host + Windows Clients (New)
+- **Windows 11 NUC**: Docker host running IntralogisticsAI with Docker Desktop + WSL2
+- **3 Additional Windows NUCs**: Student workstations (clients only)
 - **Wi-Fi Router**: Airgapped network with occasional internet access
 - **MODBUS Devices**: Real PLCs connected via Ethernet
 
@@ -21,11 +29,11 @@ traefik.lab         -> 192.168.1.100  (Same server)
 
 #### IP Address Scheme (Example)
 ```
-Ubuntu Server:    192.168.1.100
-Windows NUC 1:    192.168.1.101
-Windows NUC 2:    192.168.1.102
-Windows NUC 3:    192.168.1.103
-Windows NUC 4:    192.168.1.104
+Docker Host:      192.168.1.100  (Ubuntu Server OR Windows 11 NUC)
+Windows NUC 1:    192.168.1.101  (Client workstation)
+Windows NUC 2:    192.168.1.102  (Client workstation)
+Windows NUC 3:    192.168.1.103  (Client workstation)
+Windows NUC 4:    192.168.1.104  (Client workstation, if using Ubuntu host)
 Real PLC 1:       192.168.1.200
 Real PLC 2:       192.168.1.201
 ```
@@ -45,6 +53,43 @@ Real PLC 2:       192.168.1.201
    docker compose ps
    curl -I http://intralogistics.lab
    ```
+
+### On Windows 11 Host
+
+**Prerequisites:** Complete [Windows Setup Guide](windows-setup.md) first.
+
+1. **Open PowerShell as Administrator and enable WSL2:**
+   ```powershell
+   wsl --install
+   # Restart system when prompted
+   ```
+
+2. **Install Docker Desktop with WSL2 backend:**
+   - Download from [Docker Desktop for Windows](https://docs.docker.com/desktop/install/windows-install/)
+   - During installation, ensure "Use WSL 2 instead of Hyper-V" is checked
+   - Restart system after installation
+
+3. **Clone and deploy within WSL2:**
+   ```bash
+   # Open WSL2 terminal (Ubuntu)
+   cd /mnt/c/
+   git clone https://github.com/appliedrelevance/intralogisticsai
+   cd intralogisticsai
+   
+   # Set Windows-specific environment variable
+   export COMPOSE_CONVERT_WINDOWS_PATHS=1
+   
+   # Deploy the lab environment
+   ./deploy.sh lab
+   ```
+
+4. **Verify services:**
+   ```bash
+   docker compose ps
+   curl -I http://intralogistics.lab
+   ```
+
+**Important:** The Docker host IP (192.168.1.100) should be the Windows 11 machine's IP, not the WSL2 internal IP.
 
 ### Router Configuration
 

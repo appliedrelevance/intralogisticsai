@@ -5,6 +5,23 @@
 
 set -e
 
+# Parse arguments
+NO_CACHE=""
+for arg in "$@"; do
+    case $arg in
+        --no-cache)
+            NO_CACHE="--no-cache"
+            echo "Building with --no-cache option"
+            ;;
+        --help|-h)
+            echo "Usage: $0 [--no-cache] [--help]"
+            echo "  --no-cache    Force rebuild without using Docker cache"
+            echo "  --help, -h    Show this help message"
+            exit 0
+            ;;
+    esac
+done
+
 echo "Building custom Frappe Docker image with EpiBus..."
 
 # Check if we're in the right directory 
@@ -89,6 +106,7 @@ fi
 
 docker build \
   $PLATFORM \
+  $NO_CACHE \
   --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
   --build-arg=FRAPPE_BRANCH=version-15 \
   --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \

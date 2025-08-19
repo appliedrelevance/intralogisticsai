@@ -30,6 +30,12 @@ IntralogisticsAI integrates multiple components:
 - [Git](https://docs.github.com/en/get-started/getting-started-with-git/set-up-git)
 - 8GB+ RAM recommended
 
+**Windows Users:**
+- [Docker Desktop for Windows](https://docs.docker.com/desktop/install/windows-install/) with WSL2 backend
+- [Windows Subsystem for Linux 2 (WSL2)](https://docs.microsoft.com/en-us/windows/wsl/install)
+- [Git for Windows](https://gitforwindows.org/) or use Git within WSL2
+- See [Windows Installation Guide](docs/deployment/windows-setup.md) for detailed setup instructions
+
 ### Installation
 
 1. **Clone the repository**
@@ -216,9 +222,6 @@ IntralogisticsAI is designed for educational institutions teaching:
 - MODBUS communication protocols
 - Docker containerization and microservices
 
-## 🤝 Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## 📄 License
 
