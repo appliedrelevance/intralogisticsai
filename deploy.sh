@@ -231,19 +231,22 @@ fi
 log "Complete cleanup"
 docker compose down --volumes --remove-orphans 2>/dev/null || true
 
-# Safe cleanup with retries
-for i in {1..3}; do
-    if docker system prune -af --volumes >/dev/null 2>&1; then
-        log "Docker cleanup completed"
-        break
-    else
-        log "Docker cleanup attempt $i failed, retrying..."
-        sleep 5
-        if [ $i -eq 3 ]; then
-            log "Warning: Docker cleanup failed, continuing anyway..."
-        fi
-    fi
-done
+# Targeted cleanup - only remove intralogistics-related resources
+log "Cleaning up intralogistics containers, networks, and volumes"
+
+# Clean up any remaining intralogistics containers
+docker ps -aq --filter "label=com.docker.compose.project=intralogisticsai" | xargs -r docker rm -f 2>/dev/null || true
+
+# Clean up intralogistics networks
+docker network ls --filter "name=intralogisticsai" --filter "name=frappe" -q | xargs -r docker network rm 2>/dev/null || true
+
+# Clean up intralogistics volumes
+docker volume ls --filter "name=intralogisticsai" -q | xargs -r docker volume rm 2>/dev/null || true
+
+# Clean up intralogistics images
+docker images -q --filter "label=com.docker.compose.project=intralogisticsai" | xargs -r docker rmi -f 2>/dev/null || true
+
+log "Targeted cleanup completed"
 
 # Function to check if custom image exists
 check_custom_image() {
