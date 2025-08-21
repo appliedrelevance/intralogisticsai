@@ -5,7 +5,7 @@ This guide covers installing IntralogisticsAI on Windows 11 systems, including p
 ## Prerequisites
 
 ### Windows 11 System Requirements
-- **Windows 11 Pro/Home** (Windows 10 version 2004+ also supported)
+- **Windows 11 Pro/Home** - **CRITICAL: You *must* have the latest version of Windows 11 installed** for Docker and WSL2 to work properly. Often, new PCs are shipped with outdated versions of Windows. You may have to completely use the Windows Installer to get to the latest version of Windows.
 - **16GB+ RAM** (32GB recommended for full lab deployment)
 - **100GB+ free disk space** for Docker images and containers
 - **Administrator access** for Docker Desktop installation
@@ -108,7 +108,16 @@ sudo apt install git
    cd intralogisticsai
    ```
 
-3. **Set Windows-specific environment:**
+3. **Configure environment files:**
+   ```bash
+   # Copy example environment file
+   cp example.env .env
+   
+   # Edit .env file with your settings (optional for basic deployment)
+   nano .env
+   ```
+
+4. **Set Windows-specific environment:**
    ```bash
    # Required for Windows Docker path handling
    export COMPOSE_CONVERT_WINDOWS_PATHS=1
@@ -117,7 +126,7 @@ sudo apt install git
    echo 'export COMPOSE_CONVERT_WINDOWS_PATHS=1' >> ~/.bashrc
    ```
 
-4. **Deploy the platform:**
+5. **Deploy the platform:**
    ```bash
    # For complete training lab (requires sudo for hosts file)
    sudo ./deploy.sh lab
@@ -129,7 +138,7 @@ sudo apt install git
    ./deploy.sh
    ```
 
-5. **Verify deployment:**
+6. **Verify deployment:**
    ```bash
    docker compose ps
    ```
@@ -156,6 +165,46 @@ Client workstations only need web browsers to access the platform:
 
 ## Troubleshooting
 
+### Lab Domain Access Issues
+
+**Problem:** Cannot access `intralogistics.lab` after successful deployment
+
+This is the most common issue on Windows. The deployment script should automatically update your hosts file, but if it fails:
+
+**Solution 1: Manual Hosts File Update**
+1. Open PowerShell as Administrator
+2. Edit the hosts file:
+   ```powershell
+   notepad C:\Windows\System32\drivers\etc\hosts
+   ```
+3. Add this line at the end:
+   ```
+   127.0.0.1 intralogistics.lab openplc.intralogistics.lab dashboard.intralogistics.lab
+   ```
+4. Save the file and flush DNS:
+   ```powershell
+   ipconfig /flushdns
+   ```
+
+**Solution 2: Use Direct Port Access**
+If hosts file modification isn't working, use the direct localhost ports:
+```bash
+# Check what port the frontend is using
+docker compose ps
+
+# Access via localhost (replace 8080 with actual port)
+http://localhost:8080
+```
+
+**Verification:**
+```bash
+# In WSL2, test if hosts file was updated correctly
+grep "intralogistics.lab" /mnt/c/Windows/System32/drivers/etc/hosts
+
+# Test domain resolution
+curl -I http://intralogistics.lab
+```
+
 ### WSL2 Issues
 
 **Problem:** WSL2 not starting or slow performance
@@ -177,6 +226,23 @@ cd /mnt/c/Users/YourUsername/
 # Open File Explorer → \\wsl$\Ubuntu\home\yourusername\
 ```
 
+**Problem:** WSL2 runs out of memory during deployment
+1. Open `.wslconfig` file in your Windows user directory:
+   ```powershell
+   notepad %USERPROFILE%\.wslconfig
+   ```
+2. Add memory limits:
+   ```ini
+   [wsl2]
+   memory=8GB
+   processors=4
+   ```
+3. Restart WSL2:
+   ```powershell
+   wsl --shutdown
+   wsl
+   ```
+
 ### Docker Issues
 
 **Problem:** Docker commands not found in WSL2
@@ -189,6 +255,52 @@ cd /mnt/c/Users/YourUsername/
 # Add user to docker group
 sudo usermod -aG docker $USER
 # Restart WSL2 terminal
+```
+
+**Problem:** Docker Desktop won't start
+1. Ensure Hyper-V and WSL2 features are enabled:
+   ```powershell
+   # Run as Administrator
+   dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+   dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+   ```
+2. Restart computer
+3. Update WSL kernel: Download from Microsoft WSL2 kernel update page
+
+### Deployment Issues
+
+**Problem:** `./deploy.sh lab` fails with permission errors on hosts file
+```bash
+# Check if WSL2 can access Windows hosts file
+ls -la /mnt/c/Windows/System32/drivers/etc/hosts
+
+# If permission denied, run WSL as Administrator:
+# 1. Right-click Windows Terminal → "Run as Administrator"
+# 2. Open WSL2 and retry deployment
+```
+
+**Problem:** Services fail to start or exit unexpectedly
+```bash
+# Check service logs
+docker compose logs
+
+# Check specific service
+docker compose logs backend
+docker compose logs openplc
+
+# Restart specific service
+docker compose restart backend
+```
+
+**Problem:** `deploy.sh` cannot find compose.yaml
+```bash
+# Ensure you're in the correct directory
+pwd
+# Should show: /mnt/c/path/to/intralogisticsai
+
+# List files to verify
+ls -la
+# Should see compose.yaml file
 ```
 
 ### Network Issues
@@ -208,6 +320,15 @@ sudo usermod -aG docker $USER
 - Configure Docker Desktop memory allocation: Settings → Resources → Advanced
 - Allocate at least 4GB RAM to Docker
 
+**Problem:** MODBUS TCP port 502 not accessible
+```bash
+# Check if port is bound
+netstat -an | grep :502
+
+# Test MODBUS connection
+telnet localhost 502
+```
+
 ### Path Issues
 
 **Problem:** Volume mount errors
@@ -217,6 +338,60 @@ echo $COMPOSE_CONVERT_WINDOWS_PATHS
 
 # If not set:
 export COMPOSE_CONVERT_WINDOWS_PATHS=1
+```
+
+### Windows Defender Issues
+
+**Problem:** Deployment extremely slow due to real-time scanning
+1. Add Docker Desktop directories to Windows Defender exclusions:
+   - `%ProgramData%\Docker`
+   - `%ProgramFiles%\Docker`
+   - WSL2 virtual disks: `%USERPROFILE%\AppData\Local\Docker\wsl`
+2. Add your project directory to exclusions:
+   - `C:\path\to\your\intralogisticsai\project`
+
+### Complete Reset Procedure
+
+If all else fails, perform a complete reset:
+
+```bash
+# 1. Stop everything
+./deploy.sh stop
+
+# 2. Clean Docker completely
+docker system prune -af --volumes
+
+# 3. Restart Docker Desktop
+
+# 4. Restart WSL2
+wsl --shutdown
+wsl
+
+# 5. Verify environment
+docker --version
+docker compose --version
+
+# 6. Re-deploy
+./deploy.sh lab
+```
+
+### Getting Help
+
+If you're still experiencing issues:
+
+1. **Check deployment logs**: Run `docker compose logs` to see detailed error messages
+2. **Test basic connectivity**: Verify `docker ps` shows healthy containers
+3. **Check hosts file**: Ensure `intralogistics.lab` is properly configured
+4. **Verify network**: Test `curl -I http://localhost:8080` works first
+5. **Review Windows version**: Ensure you have the latest Windows 11 updates
+
+**Log Collection for Support:**
+```bash
+# Collect system information
+docker compose ps > debug-containers.txt
+docker compose logs > debug-logs.txt
+docker system info > debug-system.txt
+cat /mnt/c/Windows/System32/drivers/etc/hosts > debug-hosts.txt
 ```
 
 ## Performance Optimization

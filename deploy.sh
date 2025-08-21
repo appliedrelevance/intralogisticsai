@@ -163,7 +163,10 @@ error() { echo "[ERROR] $1"; exit 1; }
 
 # Cross-platform hosts file management
 get_hosts_file() {
-    if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]; then
+    # Check if we're running in WSL2 on Windows
+    if grep -q Microsoft /proc/version 2>/dev/null || grep -q WSL /proc/version 2>/dev/null; then
+        echo "/mnt/c/Windows/System32/drivers/etc/hosts"
+    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]; then
         echo "C:\\Windows\\System32\\drivers\\etc\\hosts"
     else
         echo "/etc/hosts"
@@ -179,7 +182,24 @@ check_lab_privileges() {
         return 0
     fi
     
-    if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]; then
+    # Check if we're running in WSL2 on Windows
+    if grep -q Microsoft /proc/version 2>/dev/null || grep -q WSL /proc/version 2>/dev/null; then
+        # WSL2 on Windows - test if we can write to Windows hosts file
+        if ! touch "$hosts_file.test" 2>/dev/null; then
+            echo ""
+            echo "ERROR: Lab deployment requires permission to modify Windows hosts file."
+            echo "Please ensure WSL2 has access to modify $hosts_file"
+            echo "You may need to:"
+            echo "  1. Run WSL as Administrator, or"
+            echo "  2. Manually add this line to your Windows hosts file:"
+            echo "     127.0.0.1 intralogistics.lab openplc.intralogistics.lab dashboard.intralogistics.lab"
+            echo "  3. Then re-run: ./deploy.sh lab"
+            echo ""
+            exit 1
+        else
+            rm -f "$hosts_file.test" 2>/dev/null
+        fi
+    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]; then
         # Windows - check if running as administrator
         if ! net session >/dev/null 2>&1; then
             echo ""
@@ -220,7 +240,10 @@ add_lab_hosts() {
     fi
     
     # Add entries (we know we have privileges from check_lab_privileges)
-    if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]; then
+    if grep -q Microsoft /proc/version 2>/dev/null || grep -q WSL /proc/version 2>/dev/null; then
+        # WSL2 on Windows - direct file access
+        echo "$lab_entry" >> "$hosts_file"
+    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]; then
         echo "$lab_entry" >> "$hosts_file"
     else
         echo "$lab_entry" | sudo tee -a "$hosts_file" >/dev/null
@@ -243,7 +266,17 @@ remove_lab_hosts() {
     fi
     
     # Try to remove entries with appropriate privileges
-    if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]; then
+    if grep -q Microsoft /proc/version 2>/dev/null || grep -q WSL /proc/version 2>/dev/null; then
+        # WSL2 on Windows - direct file access
+        if ! touch "$hosts_file.test" 2>/dev/null; then
+            log "WARNING: Cannot write to Windows hosts file. Please remove lab domain lines from $hosts_file manually."
+            return 1
+        else
+            rm -f "$hosts_file.test" 2>/dev/null
+            # Create temporary file without lab entries
+            grep -v "intralogistics.lab" "$hosts_file" > "${hosts_file}.tmp" && mv "${hosts_file}.tmp" "$hosts_file"
+        fi
+    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]; then
         # Windows - check if running as administrator
         if ! net session >/dev/null 2>&1; then
             log "WARNING: Not running as Administrator. Please remove lab domain lines from $hosts_file manually."
@@ -702,6 +735,18 @@ test_deployment() {
     # Test 7: Lab domains (if applicable)
     if [ "$DEPLOY_TYPE" = "lab" ]; then
         log "Testing lab domain routing..."
+        
+        # First check hosts file configuration
+        local hosts_file=$(get_hosts_file)
+        if grep -q "intralogistics.lab" "$hosts_file" 2>/dev/null; then
+            test_results+=("✅ Lab domains configured in hosts file")
+        else
+            test_results+=("❌ Lab domains missing from hosts file: $hosts_file")
+            test_results+=("   Manual fix: Add '127.0.0.1 intralogistics.lab openplc.intralogistics.lab dashboard.intralogistics.lab' to hosts file")
+            all_passed=false
+        fi
+        
+        # Test domain resolution
         if curl --max-time 5 -f -s "http://openplc.intralogistics.lab" >/dev/null 2>&1; then
             test_results+=("✅ Lab domain routing working (OpenPLC)")
         else
