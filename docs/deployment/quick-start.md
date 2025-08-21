@@ -20,6 +20,7 @@ cd intralogisticsai
 ```bash
 cp example.env .env
 # The .env file is pre-configured with optimal settings
+# No changes needed for lab deployment
 ```
 
 ### 3. Deploy
@@ -28,18 +29,22 @@ Choose your deployment type:
 
 #### Complete Training Lab (Recommended)
 ```bash
-./deploy.sh lab
+sudo ./deploy.sh lab
 ```
 **Access:** 
 - Main ERP: http://intralogistics.lab
-- OpenPLC: http://openplc.lab  
-- Network Dashboard: http://traefik.lab
+- OpenPLC: http://openplc.intralogistics.lab  
+- Network Dashboard: http://dashboard.intralogistics.lab
 
-#### Complete Industrial Stack
+**Note:** Requires `sudo` for automatic hosts file configuration on lab domains.
+
+#### Complete Industrial Stack (Direct Ports)
 ```bash
 ./deploy.sh with-plc
 ```
 **Access:** http://localhost:[port] (shown in output)
+- OpenPLC: http://localhost:8081
+- Uses `intralogistics.localhost` site
 
 #### Basic ERP Only
 ```bash

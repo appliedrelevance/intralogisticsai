@@ -161,6 +161,114 @@ check_docker() {
 log() { echo "[$(date +'%H:%M:%S')] $1"; }
 error() { echo "[ERROR] $1"; exit 1; }
 
+# Cross-platform hosts file management
+get_hosts_file() {
+    if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]; then
+        echo "C:\\Windows\\System32\\drivers\\etc\\hosts"
+    else
+        echo "/etc/hosts"
+    fi
+}
+
+# Check if we have required privileges for lab deployment
+check_lab_privileges() {
+    local hosts_file=$(get_hosts_file)
+    
+    # Skip check if domains already exist
+    if grep -q "intralogistics.lab" "$hosts_file" 2>/dev/null; then
+        return 0
+    fi
+    
+    if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]; then
+        # Windows - check if running as administrator
+        if ! net session >/dev/null 2>&1; then
+            echo ""
+            echo "ERROR: Lab deployment requires Administrator privileges to modify hosts file."
+            echo "Please run this script as Administrator:"
+            echo "  Right-click Command Prompt or PowerShell → 'Run as Administrator'"
+            echo "  Then run: ./deploy.sh lab"
+            echo ""
+            exit 1
+        fi
+    else
+        # Unix-like systems (macOS, Linux) - check if we can sudo
+        if ! sudo -n true 2>/dev/null; then
+            echo ""
+            echo "ERROR: Lab deployment requires sudo privileges to modify /etc/hosts file."
+            echo "Please run this script with sudo:"
+            echo "  sudo ./deploy.sh lab"
+            echo ""
+            echo "Or manually add this line to /etc/hosts and re-run without sudo:"
+            echo "  127.0.0.1 intralogistics.lab openplc.intralogistics.lab dashboard.intralogistics.lab"
+            echo ""
+            exit 1
+        fi
+    fi
+}
+
+# Add lab domains to hosts file
+add_lab_hosts() {
+    local hosts_file=$(get_hosts_file)
+    local lab_entry="127.0.0.1 intralogistics.lab openplc.intralogistics.lab dashboard.intralogistics.lab"
+    
+    log "Adding lab domains to hosts file: $hosts_file"
+    
+    # Check if entries already exist
+    if grep -q "intralogistics.lab" "$hosts_file" 2>/dev/null; then
+        log "Lab domains already exist in hosts file"
+        return 0
+    fi
+    
+    # Add entries (we know we have privileges from check_lab_privileges)
+    if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]; then
+        echo "$lab_entry" >> "$hosts_file"
+    else
+        echo "$lab_entry" | sudo tee -a "$hosts_file" >/dev/null
+    fi
+    
+    log "Lab domains added successfully to hosts file"
+    return 0
+}
+
+# Remove lab domains from hosts file
+remove_lab_hosts() {
+    local hosts_file=$(get_hosts_file)
+    
+    log "Removing lab domains from hosts file: $hosts_file"
+    
+    # Check if entries exist
+    if ! grep -q "intralogistics.lab" "$hosts_file" 2>/dev/null; then
+        log "No lab domains found in hosts file"
+        return 0
+    fi
+    
+    # Try to remove entries with appropriate privileges
+    if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]; then
+        # Windows - check if running as administrator
+        if ! net session >/dev/null 2>&1; then
+            log "WARNING: Not running as Administrator. Please remove lab domain lines from $hosts_file manually."
+            return 1
+        fi
+        # Create temporary file without lab entries
+        grep -v "intralogistics.lab" "$hosts_file" > "${hosts_file}.tmp" && mv "${hosts_file}.tmp" "$hosts_file"
+    else
+        # Unix-like systems (macOS, Linux)
+        if ! sudo -n true 2>/dev/null; then
+            log "Removing lab domains from hosts file requires sudo privileges..."
+            sudo sed -i.bak '/intralogistics\.lab/d' "$hosts_file" || {
+                log "WARNING: Could not remove lab domains from hosts file. Please remove manually:"
+                log "  sudo sed -i.bak '/intralogistics\.lab/d' $hosts_file"
+                return 1
+            }
+        else
+            sudo sed -i.bak '/intralogistics\.lab/d' "$hosts_file"
+        fi
+    fi
+    
+    log "Lab domains removed successfully from hosts file"
+    return 0
+}
+
 verify_no_containers_exist() {
     if docker ps -aq --filter "label=com.docker.compose.project=intralogisticsai" | grep -q .; then
         error "Failed to stop all intralogisticsai containers."
@@ -309,6 +417,9 @@ retry_compose_up() {
 if [ "$DEPLOY_TYPE" = "stop" ]; then
     log "Stopping all services and cleaning up..."
 
+    # Remove lab domains from hosts file
+    remove_lab_hosts
+
     # Stop and remove containers, networks, volumes
     docker compose down --volumes --remove-orphans 2>/dev/null || true
 
@@ -381,6 +492,12 @@ fi
 if [ "$DEPLOY_TYPE" = "lab" ]; then
     log "Deploying training lab environment with custom domains"
     
+    # Check if we have required privileges for hosts file modification
+    check_lab_privileges
+    
+    # Add lab domains to hosts file
+    add_lab_hosts
+    
     retry_compose_up \
       -f compose.yaml \
       -f overrides/compose.mariadb.yaml \
@@ -388,7 +505,7 @@ if [ "$DEPLOY_TYPE" = "lab" ]; then
       -f overrides/compose.openplc.yaml \
       -f overrides/compose.plc-bridge.yaml \
       -f overrides/compose.lab.yaml \
-      -f overrides/compose.create-site.yaml \
+      -f overrides/compose.create-site-lab.yaml \
       $PLATFORM_OVERRIDE
 elif [ "$DEPLOY_TYPE" = "web" ]; then
     log "Deploying web environment with real domains: $WEB_DOMAIN"
@@ -451,48 +568,183 @@ done
 # Get port and verify
 PORT=$(docker ps --format "table {{.Names}}\t{{.Ports}}" | grep frontend | sed 's/.*:\([0-9]*\)->8080.*/\1/' || echo "8080")
 
-# Install EpiBus if applicable
+# Wait for site creation to complete
+log "Waiting for site creation to complete..."
+sleep 30
+
+# Verify EpiBus installation (already installed during site creation)
 if [ "$DEPLOY_TYPE" = "with-plc" ] || [ "$DEPLOY_TYPE" = "with-epibus" ] || [ "$DEPLOY_TYPE" = "lab" ]; then
-    log "Installing EpiBus on site"
-    sleep 30 # Give extra time for site creation to complete
+    log "Verifying EpiBus installation..."
     
-    # Wait for site to be fully ready with retry logic
-    for i in {1..60}; do
-        if docker compose exec backend bench --site intralogistics.localhost install-app epibus 2>/dev/null; then
-            log "EpiBus installation completed successfully"
-            break
-        else
-            log "EpiBus installation attempt $i failed, retrying in 10 seconds..."
-            sleep 10
-            if [ $i -eq 60 ]; then
-                log "EpiBus installation failed after 60 attempts. Manual installation may be required:"
-                log "Run: docker compose exec backend bench --site intralogistics.localhost install-app epibus"
+    # Determine site name based on deployment type
+    site_name="intralogistics.localhost"
+    if [ "$DEPLOY_TYPE" = "lab" ]; then
+        site_name="intralogistics.lab"
+    fi
+    
+    # Check if EpiBus is already installed (it should be from site creation)
+    if docker compose exec backend bench --site "$site_name" list-apps 2>/dev/null | grep -q epibus; then
+        log "EpiBus already installed during site creation"
+    else
+        log "EpiBus not found, installing now..."
+        for i in {1..30}; do
+            if docker compose exec backend bench --site "$site_name" install-app epibus 2>/dev/null; then
+                log "EpiBus installation completed successfully"
                 break
+            else
+                log "EpiBus installation attempt $i failed, retrying in 10 seconds..."
+                sleep 10
+                if [ $i -eq 30 ]; then
+                    log "EpiBus installation failed after 30 attempts. Manual installation may be required:"
+                    log "Run: docker compose exec backend bench --site $site_name install-app epibus"
+                    break
+                fi
             fi
-        fi
-    done
+        done
+    fi
 fi
 
-# Test frontend
-log "Testing deployment"
-sleep 10
-if curl -f -s "http://localhost:$PORT" >/dev/null 2>&1; then
-    log "SUCCESS! Deployment completed"
+# Comprehensive deployment testing
+test_deployment() {
+    local test_results=()
+    local all_passed=true
+    
+    # Determine site name and test URL based on deployment type
+    local site_name="intralogistics.localhost"
+    local test_host_header="Host: intralogistics.localhost"
+    local test_url="http://localhost:$PORT"
+    
+    if [ "$DEPLOY_TYPE" = "lab" ]; then
+        site_name="intralogistics.lab"
+        test_host_header="Host: intralogistics.lab"
+        test_url="http://intralogistics.lab"
+    fi
+    
+    log "Running comprehensive deployment tests for $DEPLOY_TYPE environment..."
+    log "Testing site: $site_name"
+    
+    # Test 1: Container health
+    log "Testing container health..."
+    local unhealthy_containers=$(docker compose ps --format "table {{.Name}}\t{{.Status}}" | grep -v "Up" | grep -v "Exited (0)" | tail -n +2)
+    if [ -n "$unhealthy_containers" ]; then
+        test_results+=("❌ Unhealthy containers found:")
+        test_results+=("$unhealthy_containers")
+        all_passed=false
+    else
+        test_results+=("✅ All containers are healthy")
+    fi
+    
+    # Test 2: Basic HTTP connectivity
+    log "Testing HTTP connectivity..."
+    if curl --max-time 5 -f -s "$test_url" >/dev/null 2>&1; then
+        test_results+=("✅ Frontend HTTP responding at $test_url")
+    else
+        test_results+=("❌ Frontend HTTP not responding at $test_url")
+        all_passed=false
+    fi
+    
+    # Test 3: ERPNext login page (with correct hostname)
+    log "Testing ERPNext application..."
+    local login_test
+    if [ "$DEPLOY_TYPE" = "lab" ]; then
+        login_test=$(curl --max-time 5 -s "$test_url" | grep -i "login\|erpnext" | head -1)
+    else
+        login_test=$(curl --max-time 5 -s -H "$test_host_header" "http://localhost:$PORT" | grep -i "login\|erpnext" | head -1)
+    fi
+    
+    if [ -n "$login_test" ]; then
+        test_results+=("✅ ERPNext application responding correctly")
+    else
+        test_results+=("❌ ERPNext application not responding correctly")
+        all_passed=false
+    fi
+    
+    # Test 4: Database connectivity
+    log "Testing database connectivity..."
+    if docker compose exec backend bench --site "$site_name" list-apps >/dev/null 2>&1; then
+        test_results+=("✅ Database connectivity working")
+    else
+        test_results+=("❌ Database connectivity failed")
+        all_passed=false
+    fi
+    
+    # Test 5: EpiBus availability (if applicable)
+    if [ "$DEPLOY_TYPE" = "with-plc" ] || [ "$DEPLOY_TYPE" = "with-epibus" ] || [ "$DEPLOY_TYPE" = "lab" ]; then
+        log "Testing EpiBus installation..."
+        local epibus_test=$(docker compose exec backend bench --site "$site_name" list-apps 2>/dev/null | grep epibus)
+        if [ -n "$epibus_test" ]; then
+            test_results+=("✅ EpiBus app installed and available")
+        else
+            test_results+=("❌ EpiBus app not found")
+            all_passed=false
+        fi
+    fi
+    
+    # Test 6: OpenPLC connectivity (if applicable)
+    if [ "$DEPLOY_TYPE" = "with-plc" ] || [ "$DEPLOY_TYPE" = "lab" ]; then
+        log "Testing OpenPLC connectivity..."
+        if curl --max-time 5 -f -s "http://localhost:8081" >/dev/null 2>&1; then
+            test_results+=("✅ OpenPLC web interface responding")
+        else
+            test_results+=("❌ OpenPLC web interface not responding")
+            all_passed=false
+        fi
+        
+        # Test MODBUS TCP port
+        if timeout 3 bash -c "</dev/tcp/localhost/502" 2>/dev/null; then
+            test_results+=("✅ MODBUS TCP port 502 accessible")
+        else
+            test_results+=("❌ MODBUS TCP port 502 not accessible")
+            all_passed=false
+        fi
+    fi
+    
+    # Test 7: Lab domains (if applicable)
+    if [ "$DEPLOY_TYPE" = "lab" ]; then
+        log "Testing lab domain routing..."
+        if curl --max-time 5 -f -s "http://openplc.intralogistics.lab" >/dev/null 2>&1; then
+            test_results+=("✅ Lab domain routing working (OpenPLC)")
+        else
+            test_results+=("❌ Lab domain routing failed (OpenPLC)")
+            all_passed=false
+        fi
+    fi
+    
+    # Display results
+    echo ""
+    echo "🧪 DEPLOYMENT TEST RESULTS"
     echo "=================================="
-    echo "Access: http://localhost:$PORT"
+    for result in "${test_results[@]}"; do
+        echo "$result"
+    done
+    echo "=================================="
+    
+    return $( [ "$all_passed" = true ] && echo 0 || echo 1 )
+}
+
+# Run deployment tests
+if test_deployment; then
+    log "🎉 SUCCESS! All deployment tests passed"
+    echo ""
+    echo "🚀 DEPLOYMENT COMPLETED SUCCESSFULLY"
+    echo "=================================="
     echo "Login: Administrator / admin"
     echo "Deploy Type: $DEPLOY_TYPE"
     if [ "$DEPLOY_TYPE" = "lab" ]; then
-        OPENPLC_PORT=$(docker ps --format "table {{.Names}}\t{{.Ports}}" | grep openplc | sed 's/.*:\([0-9]*\)->8080.*/\1/' || echo "8081")
-        echo "Lab Environment URLs:"
-        echo "  - ERPNext Interface: http://localhost:$PORT"
-        echo "  - OpenPLC Simulator: http://localhost:$OPENPLC_PORT"
-        echo "  - Traefik Dashboard: http://localhost:8080"
-        echo "  - Lab Domains (configure in /etc/hosts):"
-        echo "    127.0.0.1 intralogistics.lab openplc.intralogistics.lab dashboard.intralogistics.lab"
-        echo "MODBUS TCP: localhost:502 (for real PLC connections)"
-        echo "PLC Bridge: localhost:7654 (real-time events)"
-        echo "EpiBus: Installed and integrated"
+        echo "Lab Environment URLs (with automatic hosts file configuration):"
+        echo "  🌐 ERPNext Interface: http://intralogistics.lab"
+        echo "  🏭 OpenPLC Simulator: http://openplc.intralogistics.lab"  
+        echo "  📊 Traefik Dashboard: http://dashboard.intralogistics.lab"
+        echo ""
+        echo "Alternative direct access (if hosts file update failed):"
+        echo "  - ERPNext: http://localhost:$PORT (with Host: intralogistics.localhost header)"
+        echo "  - OpenPLC: http://localhost:8081"
+        echo "  - Traefik: http://localhost:8080"
+        echo ""
+        echo "Industrial Connections:"
+        echo "  - MODBUS TCP: localhost:502 (for real PLC connections)"
+        echo "  - PLC Bridge: localhost:7654 (real-time events)"
+        echo "  - EpiBus: Installed and integrated"
     elif [ "$DEPLOY_TYPE" = "web" ]; then
         echo "Web Environment URLs:"
         echo "  - ERPNext: http://$WEB_DOMAIN"
@@ -510,7 +762,17 @@ if curl -f -s "http://localhost:$PORT" >/dev/null 2>&1; then
     fi
     echo "=================================="
 else
-    log "Frontend may still be starting. Check http://localhost:$PORT in a moment."
+    log "❌ DEPLOYMENT FAILED - Some tests did not pass"
+    echo ""
+    echo "🔧 TROUBLESHOOTING STEPS:"
+    echo "1. Check container logs: docker compose logs"
+    echo "2. Check container status: docker compose ps"
+    echo "3. Try accessing directly: http://localhost:$PORT"
+    echo "4. Verify hosts file entries (for lab deployment)"
+    echo "5. Restart deployment: ./deploy.sh stop && ./deploy.sh $DEPLOY_TYPE"
+    echo ""
+    echo "If issues persist, check the troubleshooting guide in docs/"
+    exit 1
 fi
 
 # Cleanup

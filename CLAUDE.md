@@ -41,6 +41,26 @@ overrides/compose.plc-bridge.yaml
 overrides/compose.mac-m4.yaml  # ARM64 optimization
 ```
 
+## ⚠️ CRITICAL: Always Use deploy.sh Script
+
+**NEVER use `docker compose` commands directly!** This project requires specific environment variables and orchestration that only the deploy.sh script handles correctly.
+
+### Container Management Rules
+- ✅ **START/DEPLOY**: `./deploy.sh lab` (or other deploy options)
+- ✅ **STOP**: `./deploy.sh stop` 
+- ✅ **RESTART**: `./deploy.sh stop` followed by `./deploy.sh lab`
+- ❌ **NEVER**: `docker compose up`, `docker compose down`, `docker compose restart`
+
+### Why deploy.sh is Required
+The deploy script handles:
+- Custom image environment variables (`CUSTOM_IMAGE`, `CUSTOM_TAG`, `PULL_POLICY`)
+- Complex Docker Compose override file orchestration
+- Platform-specific configurations (ARM64 vs x86_64)
+- EpiBus installation and site configuration
+- Network and dependency management
+
+**Manual docker compose commands WILL FAIL** because they don't have the required environment context.
+
 ## Essential Commands
 
 ### Complete Industrial Automation Setup (Mac M-series ARM64)

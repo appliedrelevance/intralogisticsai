@@ -5,11 +5,12 @@ This guide covers installing IntralogisticsAI on Windows 11 systems, including p
 ## Prerequisites
 
 ### Windows 11 System Requirements
-- **Windows 11** (Windows 10 version 2004+ also supported)
-- **8GB+ RAM** (16GB recommended for Docker host)
-- **50GB+ free disk space** for Docker images and containers
+- **Windows 11 Pro/Home** (Windows 10 version 2004+ also supported)
+- **16GB+ RAM** (32GB recommended for full lab deployment)
+- **100GB+ free disk space** for Docker images and containers
 - **Administrator access** for Docker Desktop installation
 - **Virtualization enabled** in BIOS/UEFI (required for WSL2)
+- **AMD Ryzen 7 or Intel Core i7+** recommended for lab deployment
 
 ### Required Software
 1. **Windows Subsystem for Linux 2 (WSL2)**
@@ -118,10 +119,10 @@ sudo apt install git
 
 4. **Deploy the platform:**
    ```bash
-   # For complete training lab
-   ./deploy.sh lab
+   # For complete training lab (requires sudo for hosts file)
+   sudo ./deploy.sh lab
    
-   # For industrial automation features
+   # For industrial automation features (direct ports)
    ./deploy.sh with-plc
    
    # For basic ERP only
@@ -150,6 +151,8 @@ Client workstations only need web browsers to access the platform:
    - **IntralogisticsAI**: `http://intralogistics.lab`
    - **OpenPLC**: `http://openplc.intralogistics.lab`
    - **Traefik Dashboard**: `http://dashboard.intralogistics.lab`
+   - **MODBUS TCP**: `192.168.1.100:502` (for PLC connections)
+   - **PLC Bridge API**: `http://192.168.1.100:7654`
 
 ## Troubleshooting
 
@@ -273,6 +276,21 @@ wsl --export Ubuntu C:\Backup\ubuntu-backup.tar
 # Import WSL2 distribution
 wsl --import Ubuntu C:\WSL\Ubuntu C:\Backup\ubuntu-backup.tar
 ```
+
+## Beelink NUC Specific Notes
+
+### Beelink SER5 Pro 5825U Optimization
+- **Hardware**: AMD Ryzen 7 5825U (8 cores, 4.5GHz), 16GB DDR4, 500GB PCIe SSD
+- **Performance**: Excellent for full lab deployment with all services
+- **Recommended Docker Settings**:
+  - Memory: 8GB allocation to Docker Desktop
+  - CPU: 6 cores allocation
+  - Storage: 200GB+ for container images
+
+### Windows 11 Pro Features
+- Hyper-V enabled by default (required for WSL2)
+- Built-in virtualization support
+- Professional network management tools
 
 ## Additional Resources
 
