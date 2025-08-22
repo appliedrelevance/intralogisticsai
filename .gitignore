@@ -60,3 +60,6 @@ tasks/
 
 # Generated Docker Compose files
 *.generated.yaml
+
+# MCP Configuration (contains API keys)
+.mcp.json
