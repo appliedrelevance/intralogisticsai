@@ -1,8 +1,6 @@
 # Environment Variables
 .env
-
-# MCP Configuration (contains API keys)
-.roo/
+.claude.json
 
 # mounted volume
 sites
