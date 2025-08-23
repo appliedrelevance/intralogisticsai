@@ -14,8 +14,54 @@ logger.addHandler(handler)
 def after_install():
     """
     This function is called after the epibus app is installed.
-    It configures supervisor to manage the PLC bridge process.
+    It configures supervisor to manage the PLC bridge process and completes setup wizard.
     """
+    logger.info("EpiBus post-installation setup...")
+    
+    # First, complete the setup wizard
+    complete_setup_wizard()
+    
+    # Then configure supervisor
+    configure_supervisor()
+
+def complete_setup_wizard():
+    """Complete ERPNext setup wizard automatically"""
+    try:
+        # Check if setup is already complete
+        if frappe.db.get_single_value("System Settings", "setup_complete"):
+            logger.info("Setup wizard already completed")
+            return
+            
+        logger.info("Completing setup wizard automatically...")
+        
+        # Import setup complete function
+        from frappe.desk.page.setup_wizard.setup_wizard import setup_complete
+        
+        # Setup wizard data
+        setup_data = {
+            "language": "en",
+            "country": "United States",
+            "timezone": "America/New_York", 
+            "currency": "USD",
+            "first_name": "Administrator",
+            "last_name": "User",
+            "email": "admin@localhost",
+            "company_name": "Roots Intralogistics",
+            "company_abbr": "RL",
+            "domains": ["Manufacturing"],
+        }
+        
+        # Complete setup
+        setup_complete(setup_data)
+        frappe.db.commit()
+        logger.info("Setup wizard completed automatically")
+        
+    except Exception as e:
+        logger.error(f"Failed to complete setup wizard: {str(e)}")
+        # Don't fail installation if setup wizard fails
+
+def configure_supervisor():
+    """Configure supervisor for PLC Bridge"""
     logger.info("Configuring supervisor for PLC Bridge...")
 
     bench_path = frappe.utils.get_bench_path()

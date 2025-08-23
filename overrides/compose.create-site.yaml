@@ -33,6 +33,8 @@ services:
         done;
         echo "sites/common_site_config.json found";
         bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=${DB_PASSWORD} --install-app erpnext --install-app epibus --set-default intralogistics.localhost --force;
+        echo "Completing setup wizard for intralogistics.localhost";
+        bench --site intralogistics.localhost execute frappe.desk.page.setup_wizard.setup_wizard.setup_complete --args '{"language":"en","country":"United States","timezone":"America/New_York","currency":"USD","first_name":"Administrator","last_name":"User","email":"admin@intralogistics.localhost","company_name":"Roots Intralogistics","company_abbr":"RL","domains":["Manufacturing"],"bank_account":"Cash - RL"}' || echo "Setup wizard completion failed, but site should still work";
         echo "Building assets for intralogistics.localhost";
         bench --site intralogistics.localhost build;
         echo "Assets built successfully";

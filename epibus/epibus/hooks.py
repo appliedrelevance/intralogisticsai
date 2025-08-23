@@ -46,7 +46,7 @@ web_include_css = [
 
 # Scheduler configuration for signal monitoring
 
-# Setup signal monitor on app install/update
-# after_install = "epibus.epibus.install.after_install"
+# Setup signal monitor on app install/update  
+after_install = "epibus.epibus.install.after_install"
 
 # API methods are whitelisted using @frappe.whitelist() decorators in the respective modules
