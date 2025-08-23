@@ -33,8 +33,10 @@ services:
         done;
         echo "sites/common_site_config.json found";
         bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=${DB_PASSWORD} --install-app erpnext --install-app epibus --set-default intralogistics.localhost --force;
-        echo "Completing setup wizard for intralogistics.localhost";
-        bench --site intralogistics.localhost execute "from frappe.desk.page.setup_wizard.setup_wizard import setup_complete; setup_complete({'language': 'en', 'country': 'United States', 'timezone': 'America/New_York', 'currency': 'USD', 'first_name': 'Administrator', 'last_name': 'User', 'email': 'admin@intralogistics.localhost', 'company_name': 'Roots Intralogistics', 'company_abbr': 'RL', 'domains': ['Manufacturing']})" || echo "Setup wizard completion failed, but site should still work";
+        echo "Configuring site to skip setup wizard";
+        bench --site intralogistics.localhost set-config skip_setup_wizard 1;
+        echo "Running ERPNext setup programmatically";
+        bench --site intralogistics.localhost execute erpnext.setup.setup_wizard.operations.install_fixtures.setup_erpnext --args "{'language': 'en', 'country': 'United States', 'timezone': 'America/New_York', 'currency': 'USD', 'company_name': 'Roots Intralogistics', 'company_abbr': 'RL', 'email': 'admin@intralogistics.localhost', 'first_name': 'Administrator', 'last_name': 'User'}" || echo "ERPNext setup failed, but site should still work";
         echo "Building assets for intralogistics.localhost";
         bench --site intralogistics.localhost build;
         echo "Assets built successfully";
