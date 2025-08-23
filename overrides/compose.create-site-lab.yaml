@@ -36,7 +36,7 @@ services:
         echo "Configuring site to skip setup wizard";
         bench --site intralogistics.lab set-config skip_setup_wizard 1;
         echo "Running ERPNext setup programmatically";
-        python3 -c "import frappe; frappe.init('intralogistics.lab'); frappe.connect(); from erpnext.setup.setup_wizard.setup_wizard import setup_complete; setup_complete({'language': 'en', 'country': 'United States', 'timezone': 'America/New_York', 'currency': 'USD', 'company_name': 'Roots Intralogistics', 'company_abbr': 'RL', 'email': 'admin@rootseducation.co', 'first_name': 'Administrator', 'last_name': 'User'}); frappe.db.commit()" || echo "ERPNext setup failed, but site should still work";
+        ./env/bin/python -c "import frappe; frappe.init('intralogistics.lab'); frappe.connect(); from erpnext.setup.setup_wizard.setup_wizard import setup_complete; setup_complete({'language': 'en', 'country': 'United States', 'timezone': 'America/New_York', 'currency': 'USD', 'company_name': 'Roots Intralogistics', 'company_abbr': 'RL', 'email': 'admin@rootseducation.co', 'first_name': 'Administrator', 'last_name': 'User'}); frappe.db.commit()" || echo "ERPNext setup failed, but site should still work";
         echo "Building assets for intralogistics.lab";
         bench --site intralogistics.lab build;
         echo "Assets built successfully";
