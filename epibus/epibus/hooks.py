@@ -24,12 +24,8 @@ fixtures = [
     {"dt": "Workspace", "filters": [["name", "in", ["EpiBus"]]]},
     {"dt": "Server Script", "filters": [["module", "in", ["EpiBus"]]]},
     {"dt": "Custom Field", "filters": [["module", "in", ["EpiBus"]]]},
-]
-
-# epi_bus/hooks.py
-
-fixtures = [
-
+    {"dt": "Modbus Connection", "filters": [
+        ["name", "in", ["Roots Intralogistics Learning Lab"]]]},
 ]
 
 export_python_type_annotations = True
@@ -53,12 +49,4 @@ web_include_css = [
 # Setup signal monitor on app install/update
 # after_install = "epibus.epibus.install.after_install"
 
-# Whitelisted methods
-api_methods = {
-    "epibus.www.warehouse_dashboard.get_modbus_data": ["GET"],
-    "epibus.www.warehouse_dashboard.set_signal_value": ["POST"],
-    "epibus.api.plc.get_signals": ["GET"],
-    "epibus.api.plc.update_signal": ["POST"],
-    "epibus.api.plc.get_plc_status": ["GET"],
-    "epibus.api.plc.reload_signals": ["POST"]
-}
+# API methods are whitelisted using @frappe.whitelist() decorators in the respective modules
