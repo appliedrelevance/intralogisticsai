@@ -35,7 +35,32 @@ services:
         bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=${DB_PASSWORD} --install-app erpnext --install-app epibus --set-default intralogistics.lab --force;
         echo "Configuring site to skip setup wizard";
         bench --site intralogistics.lab set-config skip_setup_wizard 1;
-        echo "Trying simple setup completion approach";
+        echo "Running ERPNext setup wizard completion with all required parameters";
+        ./env/bin/python -c "
+import frappe
+frappe.init('intralogistics.lab')
+frappe.connect()
+from frappe.desk.page.setup_wizard.setup_wizard import setup_complete
+args = {
+    'language': 'en',
+    'country': 'United States',
+    'timezone': 'America/New_York', 
+    'currency': 'USD',
+    'full_name': 'Administrator User',
+    'email': 'admin@rootseducation.co',
+    'password': 'admin',
+    'company_name': 'Roots Intralogistics',
+    'company_abbr': 'RL',
+    'chart_of_accounts': 'Standard',
+    'fy_start_date': '2025-01-01',
+    'fy_end_date': '2025-12-31',
+    'setup_demo': 0,
+    'enable_telemetry': 0
+}
+setup_status = setup_complete(args=args)
+frappe.db.commit()
+print('Setup completed successfully:', setup_status)
+" || echo "ERPNext setup failed, but site should still work";
         echo "Building assets for intralogistics.lab";
         bench --site intralogistics.lab build;
         echo "Assets built successfully";
