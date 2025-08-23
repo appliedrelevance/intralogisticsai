@@ -16,6 +16,18 @@ from frappe.desk.page.setup_wizard.setup_wizard import setup_complete
 def main():
     site_name = sys.argv[1] if len(sys.argv) > 1 else 'intralogistics.lab'
     
+    print(f"Current working directory: {os.getcwd()}")
+    print(f"Sites directory contents: {os.listdir('sites')}")
+    print(f"Looking for site: {site_name}")
+    
+    if os.path.exists(f'sites/{site_name}'):
+        print(f"Site directory exists: sites/{site_name}")
+        site_contents = os.listdir(f'sites/{site_name}')
+        print(f"Site contents: {site_contents}")
+    else:
+        print(f"ERROR: Site directory does not exist: sites/{site_name}")
+        return 1
+    
     print(f"Initializing Frappe for site: {site_name}")
     frappe.init(site=site_name)
     frappe.connect()

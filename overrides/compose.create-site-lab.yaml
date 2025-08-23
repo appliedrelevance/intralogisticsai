@@ -36,11 +36,11 @@ services:
         bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=${DB_PASSWORD} --install-app erpnext --install-app epibus --set-default intralogistics.lab --force;
         echo "Configuring site to skip setup wizard";
         bench --site intralogistics.lab set-config skip_setup_wizard 1;
-        echo "Running ERPNext setup wizard completion with all required parameters";
-        ./env/bin/python /tmp/complete_setup_wizard.py intralogistics.lab || echo "ERPNext setup failed, but site should still work";
         echo "Building assets for intralogistics.lab";
         bench --site intralogistics.lab build;
         echo "Assets built successfully";
+        echo "Running ERPNext setup wizard completion with all required parameters";
+        ./env/bin/python /tmp/complete_setup_wizard.py intralogistics.lab || echo "ERPNext setup failed, but site should still work";
 
 networks:
   frappe_network: {}
