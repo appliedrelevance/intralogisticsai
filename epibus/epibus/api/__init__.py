@@ -9,6 +9,7 @@ from typing import Dict, List, Any, Optional
 
 # Import API modules
 from .auth import get_csrf_token
+from . import plc
 
 # List of all API methods for documentation
 __all__ = [

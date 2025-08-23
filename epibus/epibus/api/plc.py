@@ -161,8 +161,8 @@ def get_plc_status():
         logger.error(f"❌ Error getting PLC status: {str(e)}")
         return {"success": False, "message": str(e)}
 
-@frappe.whitelist()
-def reload_signals(allow_guest=True):
+@frappe.whitelist(allow_guest=True)
+def reload_signals():
     """Reload signals in the PLC bridge"""
     try:
         # Clear any caches
@@ -263,7 +263,7 @@ def get_all_signals():
     """Get all signals with their connections in a single call"""
     return get_all_signals_internal()
 
-@frappe.whitelist(allow_guest=False)
+@frappe.whitelist(allow_guest=True)
 def signal_update():
     """Handle a signal update from the PLC Bridge"""
     try:

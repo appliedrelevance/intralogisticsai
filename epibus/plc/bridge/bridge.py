@@ -409,16 +409,12 @@ class PLCBridge:
     
     def __init__(self, 
                  frappe_url: str, 
-                 api_key: str, 
-                 api_secret: str, 
                  poll_interval: float = 1.0):
         # Load configuration
         config_data = config.load_config()
         
         # Override with provided values
         self.frappe_url = frappe_url
-        self.api_key = api_key
-        self.api_secret = api_secret
         self.poll_interval = poll_interval or config_data["poll_interval"]
         
         # Logging setup
@@ -443,7 +439,7 @@ class PLCBridge:
         self.logger.addHandler(console_handler)
         
         # Session for API calls
-        self.session = self._create_authenticated_session()
+        self.session = self._create_session()
         
         # Signal management
         self.signals: Dict[str, ModbusSignal] = {}
@@ -522,12 +518,12 @@ class PLCBridge:
         if len(self.event_history) > self.max_events:
             self.event_history = self.event_history[:self.max_events]
     
-    def _create_authenticated_session(self):
-        """Create an authenticated session for API calls"""
+    def _create_session(self):
+        """Create a session for guest API calls"""
         session = requests.Session()
         session.headers.update({
-            'Authorization': f'token {self.api_key}:{self.api_secret}',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Host': 'intralogistics.lab'
         })
         return session
     
@@ -1307,16 +1303,12 @@ def main():
     """Entry point for PLC Bridge"""
     parser = argparse.ArgumentParser(description="Standalone PLC Bridge")
     parser.add_argument("--frappe-url", required=True, help="Frappe server URL")
-    parser.add_argument("--api-key", required=True, help="Frappe API key")
-    parser.add_argument("--api-secret", required=True, help="Frappe API secret")
     parser.add_argument("--poll-interval", type=float, default=1.0, help="Signal polling interval")
     
     args = parser.parse_args()
     
     bridge = PLCBridge(
         frappe_url=args.frappe_url,
-        api_key=args.api_key,
-        api_secret=args.api_secret,
         poll_interval=args.poll_interval
     )
     
