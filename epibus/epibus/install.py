@@ -45,7 +45,7 @@ def complete_setup_wizard():
             "currency": "USD",
             "first_name": "Administrator",
             "last_name": "User",
-            "email": "admin@localhost",
+            "email": "admin@rootseducation.co",
             "company_name": "Roots Intralogistics",
             "company_abbr": "RL",
             "domains": ["Manufacturing"],
