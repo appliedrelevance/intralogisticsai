@@ -22,7 +22,7 @@ def get_signals():
         if not connections_data.get("success", False):
             return {"success": False, "message": connections_data.get("message", "Unknown error")}
             
-        return connections_data.get("data", [])
+        return connections_data
 
     except Exception as e:
         logger.error(f"❌ Error getting signals: {str(e)}")

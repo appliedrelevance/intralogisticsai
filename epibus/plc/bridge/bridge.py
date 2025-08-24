@@ -532,7 +532,7 @@ class PLCBridge:
         try:
             self.logger.info("Loading signals from Frappe API...")
             response = self.session.get(
-                f"{self.frappe_url}/api/method/epibus.api.plc.get_all_signals",
+                f"{self.frappe_url}/api/method/epibus.api.plc.get_signals",
                 timeout=10
             )
             response.raise_for_status()

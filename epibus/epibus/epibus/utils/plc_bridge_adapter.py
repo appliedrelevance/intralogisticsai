@@ -24,7 +24,7 @@ def get_signals_from_plc_bridge() -> List[Dict[str, Any]]:
         logger.info("Fetching signals from PLC Bridge via adapter...")
         
         # Use the API endpoint to get all signals
-        response = frappe.call("epibus.epibus.api.plc.get_all_signals")
+        response = frappe.call("epibus.epibus.api.plc.get_signals")
         
         if not response or not response.get("success", False):
             error_msg = response.get("message", "Unknown error") if response else "No response from PLC Bridge"
