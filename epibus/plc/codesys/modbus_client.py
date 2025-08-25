@@ -13,12 +13,12 @@ def print_help():
     print("exit - Exit the client\n")
 
 def main():
-    client = ModbusTcpClient('openplc', port=502)
+    client = ModbusTcpClient('codesys', port=502)
     if not client.connect():
         print("Failed to connect!")
         return
 
-    print("\nConnected to OpenPLC at openplc:502")
+    print("\nConnected to CODESYS at codesys:502")
     print_help()
 
     try:

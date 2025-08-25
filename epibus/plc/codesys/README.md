@@ -1,6 +1,6 @@
-# OpenPLC Simulator and Examples
+# CODESYS Simulator and Examples
 
-This directory contains simulator files and examples for working with OpenPLC in the Epibus application. These files serve as reference implementations and resources for developers.
+This directory contains simulator files and examples for working with CODESYS in the Epibus application. These files serve as reference implementations and resources for developers.
 
 ## Contents
 
@@ -26,10 +26,10 @@ This directory contains simulator files and examples for working with OpenPLC in
 
 These files are primarily for reference and testing purposes. They demonstrate how to:
 
-1. Implement Python SubModules for OpenPLC
+1. Implement Python SubModules for CODESYS
 2. Test Modbus TCP connections
 3. Simulate PLC behavior for development and testing
 
 ## Deployment
 
-In a production environment, PSM files would typically be deployed to the OpenPLC server. The `modbus_client.py` tool can be used for diagnostics in any environment.
+In a production environment, PSM files would typically be deployed to the CODESYS server. The `modbus_client.py` tool can be used for diagnostics in any environment.

@@ -18,7 +18,7 @@ The easiest way to deploy with proper HTTPS is to use the built-in `web` deploym
 
 This automatically configures:
 - ✅ Let's Encrypt SSL certificates
-- ✅ Multiple subdomains (root, dashboard, openplc)
+- ✅ Multiple subdomains (root, dashboard, codesys)
 - ✅ HTTP to HTTPS redirects
 - ✅ Proper Traefik configuration
 
@@ -39,7 +39,7 @@ LETSENCRYPT_EMAIL=admin@intralogisticsai.online
 ACME_EMAIL=admin@intralogisticsai.online
 
 # Configure sites (for multi-domain certificates)
-SITES="`intralogisticsai.online`,`dashboard.intralogisticsai.online`,`openplc.intralogisticsai.online`"
+SITES="`intralogisticsai.online`,`dashboard.intralogisticsai.online`,`codesys.intralogisticsai.online`"
 ```
 
 ### 2. Deploy with HTTPS Override
@@ -59,7 +59,7 @@ docker compose \
   -f compose.yaml \
   -f overrides/compose.mariadb.yaml \
   -f overrides/compose.redis.yaml \
-  -f overrides/compose.openplc.yaml \
+  -f overrides/compose.codesys.yaml \
   -f overrides/compose.plc-bridge.yaml \
   -f overrides/compose.web.yaml \
   -f overrides/compose.create-site-web.yaml \
@@ -76,7 +76,7 @@ docker compose \
 ```bash
 nslookup intralogisticsai.online
 nslookup dashboard.intralogisticsai.online
-nslookup openplc.intralogisticsai.online
+nslookup codesys.intralogisticsai.online
 ```
 
 **Solution**: Update your DNS records to point all subdomains to your server's public IP.
@@ -173,7 +173,7 @@ After successful HTTPS deployment, your application will be available at:
 
 - **Main Dashboard**: https://dashboard.intralogisticsai.online
 - **Root Domain**: https://intralogisticsai.online
-- **OpenPLC Interface**: https://openplc.intralogisticsai.online
+- **CODESYS Interface**: https://codesys.intralogisticsai.online
 
 ## Troubleshooting Commands
 

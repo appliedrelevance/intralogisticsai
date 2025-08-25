@@ -9,7 +9,7 @@
     "device_name": "US15-B10-B1-PLC",
     "device_type": "PLC",
     "enabled": 1,
-    "host": "openplc",
+    "host": "codesys",
     "port": 502,
     "doctype": "Modbus Connection",
     "signals": [

@@ -131,18 +131,18 @@ cat /etc/hosts | grep intralogistics.lab
 
 ### MODBUS Connection Issues
 ```bash
-# Test OpenPLC container
-docker compose exec openplc netstat -tlnp | grep 502
+# Test CODESYS container
+docker compose exec codesys netstat -tlnp | grep 502
 
 # Test from backend
 docker compose exec backend python3 -c "
 from pymodbus.client import ModbusTcpClient
-client = ModbusTcpClient('openplc', 502)
+client = ModbusTcpClient('codesys', 502)
 print('Connected:', client.connect())
 "
 
 # Check MODBUS logs
-docker compose logs openplc | grep -i modbus
+docker compose logs codesys | grep -i modbus
 ```
 
 ### Lab Domain Resolution
@@ -152,7 +152,7 @@ nslookup intralogistics.lab
 
 # Manual hosts file entry (temporary fix)
 sudo echo "192.168.1.100 intralogistics.lab" >> /etc/hosts
-sudo echo "192.168.1.100 openplc.lab" >> /etc/hosts
+sudo echo "192.168.1.100 codesys.lab" >> /etc/hosts
 
 # Router DNS configuration needed for permanent fix
 ```
@@ -189,19 +189,19 @@ docker compose restart queue-long queue-short scheduler
 docker compose exec backend bench --site intralogistics.localhost doctor
 ```
 
-### OpenPLC Problems
+### CODESYS Problems
 ```bash
-# Check OpenPLC web interface
-curl -I http://localhost:$(docker compose port openplc 8080 | cut -d: -f2)
+# Check CODESYS web interface
+curl -I http://localhost:$(docker compose port codesys 8080 | cut -d: -f2)
 
-# View OpenPLC logs
-docker compose logs openplc
+# View CODESYS logs
+docker compose logs codesys
 
-# Restart OpenPLC
-docker compose restart openplc
+# Restart CODESYS
+docker compose restart codesys
 
-# Rebuild OpenPLC image
-docker compose build openplc
+# Rebuild CODESYS image
+docker compose build codesys
 ```
 
 ### PLC Bridge Issues
@@ -212,8 +212,8 @@ curl http://localhost:7654/signals
 # View bridge logs
 docker compose logs plc-bridge
 
-# Test bridge to OpenPLC connection
-docker compose exec plc-bridge telnet openplc 502
+# Test bridge to CODESYS connection
+docker compose exec plc-bridge telnet codesys 502
 
 # Restart bridge
 docker compose restart plc-bridge
@@ -279,7 +279,7 @@ docker compose exec backend python3 -c "
 import frappe
 from pymodbus.client import ModbusTcpClient
 frappe.init(site='intralogistics.localhost')
-client = ModbusTcpClient('openplc', 502)
+client = ModbusTcpClient('codesys', 502)
 client.connect()
 result = client.read_discrete_inputs(0, 1)  # Address 0, count 1
 print('Result:', result.bits if not result.isError() else 'Error')

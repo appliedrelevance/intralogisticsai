@@ -1,5 +1,5 @@
 # EpiBus Integration Override
-# Complete setup including MariaDB, Redis, OpenPLC, PLC Bridge, and EpiBus integration
+# Complete setup including MariaDB, Redis, CODESYS, PLC Bridge, and EpiBus integration
 
 services:
   # Configurator with EpiBus integration
@@ -82,7 +82,7 @@ services:
     environment:
       PLC_BRIDGE_HOST: plc-bridge
       PLC_BRIDGE_PORT: 7654
-      OPENPLC_HOST: openplc
+      OPENPLC_HOST: codesys
       OPENPLC_MODBUS_PORT: 502
 
   # Frontend with EpiBus integration
@@ -117,10 +117,10 @@ services:
       PLC_BRIDGE_HOST: plc-bridge
       PLC_BRIDGE_PORT: 7654
 
-  # OpenPLC Service
-  openplc:
+  # CODESYS Service
+  codesys:
     build:
-      context: ./openplc
+      context: ./codesys
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
@@ -144,14 +144,14 @@ services:
     restart: unless-stopped
     environment:
       FRAPPE_URL: http://backend:8000
-      OPENPLC_HOST: openplc
+      OPENPLC_HOST: codesys
       OPENPLC_PORT: 502
       PLC_POLL_INTERVAL: ${PLC_POLL_INTERVAL:-1.0}
       LOG_LEVEL: ${PLC_LOG_LEVEL:-INFO}
     ports:
       - "7654:7654"  # SSE server for real-time events
     depends_on:
-      openplc:
+      codesys:
         condition: service_healthy
       backend:
         condition: service_started

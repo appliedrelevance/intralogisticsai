@@ -22,7 +22,7 @@ def test_dns_resolution(host):
 
 def test_modbus_connection():
     # Use the Docker service name as hostname
-    host = 'openplc'
+    host = 'codesys'
     port = 502
 
     print(f"🔌 Testing MODBUS TCP connection to {host}:{port}...")

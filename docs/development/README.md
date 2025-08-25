@@ -43,7 +43,7 @@ intralogisticsai/
 ├── compose.yaml                 # Base Docker Compose
 ├── overrides/                   # Deployment configurations
 │   ├── compose.lab.yaml        # Training lab setup
-│   ├── compose.openplc.yaml    # OpenPLC integration
+│   ├── compose.codesys.yaml    # CODESYS integration
 │   └── compose.plc-bridge.yaml # PLC Bridge service
 ├── epibus/                      # EpiBus app source
 │   ├── epibus/                 # Core app code
@@ -146,7 +146,7 @@ python -m coverage report
 # Test MODBUS connectivity
 python -c "
 from pymodbus.client import ModbusTcpClient
-client = ModbusTcpClient('openplc', 502)
+client = ModbusTcpClient('codesys', 502)
 print('MODBUS Connected:', client.connect())
 "
 
@@ -241,8 +241,8 @@ curl -X GET http://localhost:8000/api/method/epibus.api.plc.get_signals \
 ### Network Debugging
 ```bash
 # Test container networking
-docker compose exec backend ping openplc
-docker compose exec backend telnet openplc 502
+docker compose exec backend ping codesys
+docker compose exec backend telnet codesys 502
 
 # Check port mappings
 docker compose ps
@@ -251,27 +251,26 @@ docker compose ps
 docker compose exec backend tcpdump -i eth0 port 502
 ```
 
-## Contributing Guidelines
+## Development Guidelines
 
-### Code Contributions
-1. **Fork** the repository
-2. **Create feature branch**: `git checkout -b feature/new-feature`
+### Code Style
+1. **Follow existing patterns** in the codebase
+2. **Use meaningful variable names** and comments
 3. **Follow code style** guidelines above
 4. **Add tests** for new functionality
 5. **Update documentation** as needed
-6. **Submit pull request** with clear description
 
-### Documentation Contributions
+### Documentation Standards
 1. **Update relevant docs** in `docs/` folder
 2. **Follow Markdown standards**
 3. **Include code examples** where helpful
 4. **Test documentation** by following your own instructions
 
-### Bug Reports
-1. **Use GitHub Issues** with bug report template
+### Debugging Issues
+1. **Check service logs** with `docker compose logs [service]`
 2. **Include system information** (OS, Docker version, etc.)
-3. **Provide reproduction steps**
-4. **Include relevant logs** from `docker compose logs`
+3. **Provide reproduction steps** for issues
+4. **Use debugging tools** described in this guide
 
 ## Release Process
 

@@ -1,8 +1,8 @@
-# OpenPLC Configuration Guide for Intralogistics Simulator
+# CODESYS Configuration Guide for Intralogistics Simulator
 
 ## Overview
 
-This guide covers the configuration and setup of OpenPLC webserver for use with the Intralogistics Simulator, including structured text variable definitions, Python SubModule (PSM) integration, and Modbus connection setup.
+This guide covers the configuration and setup of CODESYS webserver for use with the Intralogistics Simulator, including structured text variable definitions, Python SubModule (PSM) integration, and Modbus connection setup.
 
 ## Table of Contents
 
@@ -14,13 +14,13 @@ This guide covers the configuration and setup of OpenPLC webserver for use with 
 
 ## Initial Setup
 
-1. Access the OpenPLC webserver interface
+1. Access the CODESYS webserver interface
 2. Navigate to the Programs section
 3. Ensure you have the following files ready:
    - Intralogistics Variables structured text file
    - PSM hardware layer script
 
-![OpenPLC Programs Interface](img/programs.png)
+![CODESYS Programs Interface](img/programs.png)
 
 ## Structured Text Configuration
 
@@ -49,17 +49,17 @@ PROGRAM prog0
 END_PROGRAM
 ```
 
-These variable definitions map directly to Modbus addresses and are monitored in the OpenPLC interface:
+These variable definitions map directly to Modbus addresses and are monitored in the CODESYS interface:
 
-![OpenPLC Monitoring Interface](img/monitoring.png)
+![CODESYS Monitoring Interface](img/monitoring.png)
 
 ## PSM Hardware Layer
 
-1. Navigate to the Hardware section in OpenPLC
+1. Navigate to the Hardware section in CODESYS
 2. Select "Python on Linux (PSM)" from the hardware layer dropdown
 3. Configure the PSM script that handles I/O operations:
 
-![OpenPLC Hardware Configuration](img/hardware.png)
+![CODESYS Hardware Configuration](img/hardware.png)
 
 The PSM script provides:
 
@@ -73,7 +73,7 @@ The PSM script provides:
 1. Access the EpiBus interface
 2. Create a new Modbus Connection with these settings:
    - Device Type: PLC
-   - Host: openplc
+   - Host: codesys
    - Port: 502
 
 ![Modbus Connection Configuration](img/connection.png)
@@ -104,14 +104,14 @@ Key features:
 
 ## Testing the Configuration
 
-1. Start the OpenPLC runtime
+1. Start the CODESYS runtime
 2. Monitor the signal dashboard for activity
 3. Test basic operations:
    - Bin selection
    - Station movement commands
    - Status feedback
 
-Look for the green "Running" indicator in the OpenPLC interface to confirm proper operation.
+Look for the green "Running" indicator in the CODESYS interface to confirm proper operation.
 
 ## Troubleshooting
 
@@ -119,7 +119,7 @@ Common issues and solutions:
 
 1. Connection Errors
    
-   - Verify openplc hostname resolution
+   - Verify codesys hostname resolution
    - Check port 502 accessibility
    - Confirm network configuration
 
@@ -132,11 +132,11 @@ Common issues and solutions:
 3. Runtime Errors
    
    - Monitor PSM script logs
-   - Check OpenPLC error messages
+   - Check CODESYS error messages
    - Verify hardware layer selection
 
 ## Additional Resources
 
-- OpenPLC Documentation: [http://www.openplcproject.com/docs](http://www.openplcproject.com/docs)
+- CODESYS Documentation: [http://www.codesysproject.com/docs](http://www.codesysproject.com/docs)
 - EpiBus Documentation: https://github.com/appliedrelevance/epibus 
 - Reference Implementation: View the example configuration files in the project repository

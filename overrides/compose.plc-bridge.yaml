@@ -32,7 +32,7 @@ services:
     depends_on:
       backend:
         condition: service_started
-      openplc:
+      codesys:
         condition: service_healthy
 
 volumes:

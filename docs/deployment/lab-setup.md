@@ -15,7 +15,7 @@ Configure your router to resolve lab domains to the Ubuntu server:
 
 ```
 intralogistics.lab  -> 192.168.1.100  (Ubuntu server IP)
-openplc.lab         -> 192.168.1.100  (Same server)
+codesys.lab         -> 192.168.1.100  (Same server)
 traefik.lab         -> 192.168.1.100  (Same server)
 ```
 
@@ -60,19 +60,19 @@ Real PLC 2:       192.168.1.201
 
 ### Web Interfaces
 - **Main ERP**: http://intralogistics.lab
-- **PLC Simulator**: http://openplc.lab  
+- **PLC Simulator**: http://codesys.lab  
 - **Network Status**: http://traefik.lab
 
 ### Login Credentials
 - **IntralogisticsAI**: Username `Administrator`, Password `admin`
-- **OpenPLC**: Username `openplc`, Password `openplc`
+- **CODESYS**: Username `codesys`, Password `codesys`
 
 ## MODBUS Configuration
 
 ### Simulator Mode (Default)
-- **Host**: `openplc` (internal Docker network)
+- **Host**: `codesys` (internal Docker network)
 - **Port**: `502`
-- **Access**: http://openplc.lab
+- **Access**: http://codesys.lab
 
 ### Real PLC Mode
 Configure EpiBus to connect to real devices:
@@ -137,7 +137,7 @@ docker load < traefik.tar
 ## Lab Exercise Ideas
 
 1. **ERP Basics**: Create items, customers, sales orders
-2. **PLC Programming**: Ladder logic in OpenPLC
+2. **PLC Programming**: Ladder logic in CODESYS
 3. **MODBUS Communication**: Connect ERP to PLC signals
 4. **Automation**: Trigger PLC actions from ERP events
 5. **Real Hardware**: Connect to actual conveyor/robot systems

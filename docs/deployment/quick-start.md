@@ -32,7 +32,7 @@ Choose your deployment type:
 ```
 **Access:** 
 - Main ERP: http://intralogistics.lab
-- OpenPLC: http://openplc.lab  
+- CODESYS: http://codesys.lab  
 - Network Dashboard: http://traefik.lab
 
 #### Complete Industrial Stack
@@ -51,7 +51,7 @@ Choose your deployment type:
 **Credentials:**
 - **Username:** `Administrator`  
 - **Password:** `admin`
-- **OpenPLC:** `openplc` / `openplc`
+- **CODESYS:** `codesys` / `codesys`
 
 ## Getting Started
 
@@ -69,7 +69,7 @@ docker compose ps
 
 # View logs
 docker compose logs backend
-docker compose logs openplc
+docker compose logs codesys
 
 # Test PLC connectivity
 curl http://localhost:7654/signals  # PLC Bridge API

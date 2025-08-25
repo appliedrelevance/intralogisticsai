@@ -1,0 +1,43 @@
+services:
+  configurator:
+    environment:
+      CODESYS_HOST: codesys
+      CODESYS_PORT: 502
+      CODESYS_WEB_PORT: 8080
+      CODESYS_PROGRAMMING_PORT: 1217
+    depends_on:
+      codesys:
+        condition: service_healthy
+
+  codesys:
+    image: hilschernetiotedge/codesys_control_sl_linux:4.7.0.0-amd64
+    ports:
+      - "8080"                              # Web interface (auto-generated port)
+      - "502:502"                           # Modbus TCP (fixed port for protocol compliance)
+      - "1217:1217"                         # CODESYS programming port
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "1217"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    restart: ${RESTART_POLICY:-unless-stopped}
+    environment:
+      CODESYS_RUNTIME_PORT: 502
+      CODESYS_WEB_PORT: 8080
+      CODESYS_PROGRAMMING_PORT: 1217
+      CODESYS_LOG_LEVEL: ${CODESYS_LOG_LEVEL:-INFO}
+      CODESYS_DEMO_MODE: "true"
+    volumes:
+      - codesys-data:/opt/codesys/projects
+      - codesys-config:/opt/codesys/config
+    networks:
+      - frappe_network
+    privileged: true                        # Required for CODESYS Virtual Control SL
+
+volumes:
+  codesys-data:
+  codesys-config:
+
+networks:
+  frappe_network: {}

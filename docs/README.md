@@ -11,11 +11,11 @@ Welcome to the comprehensive documentation for IntralogisticsAI - the industrial
 
 ### 🏭 Industrial Integration
 - **[EpiBus Integration](epibus/README.md)** - MODBUS TCP and ERP automation
-- **[OpenPLC Programming](openplc/README.md)** - PLC simulation and programming
+- **[CODESYS Programming](codesys/README.md)** - PLC simulation and programming
 - **[API Documentation](epibus/api.md)** - Advanced integration reference
 
 ### 🛠️ Development & Maintenance
-- **[Development Setup](development/README.md)** - Contributing and customization
+- **[Development Setup](development/README.md)** - Development and customization
 - **[Troubleshooting](troubleshooting/README.md)** - Common issues and solutions
 
 ## 🎯 Choose Your Path
@@ -23,12 +23,12 @@ Welcome to the comprehensive documentation for IntralogisticsAI - the industrial
 ### For Educators
 1. **[Lab Setup Guide](deployment/lab-setup.md)** - Configure training environment
 2. **[EpiBus Integration](epibus/README.md)** - Connect ERP to industrial devices  
-3. **[OpenPLC Programming](openplc/README.md)** - Teach PLC programming concepts
+3. **[CODESYS Programming](codesys/README.md)** - Teach PLC programming concepts
 
 ### For Students
 1. **[Quick Start Guide](deployment/quick-start.md)** - Basic deployment
 2. **[EpiBus Integration](epibus/README.md)** - Learn industrial automation
-3. **[OpenPLC Programming](openplc/README.md)** - Practice ladder logic
+3. **[CODESYS Programming](codesys/README.md)** - Practice ladder logic
 
 ### For Developers
 1. **[Development Setup](development/README.md)** - Local development environment
@@ -41,7 +41,7 @@ IntralogisticsAI combines multiple technologies:
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   ERPNext ERP   │◄──►│     EpiBus      │◄──►│   OpenPLC PLC   │
+│   ERPNext ERP   │◄──►│     EpiBus      │◄──►│   CODESYS PLC   │
 │   Business      │    │   Integration   │    │   Simulator     │
 │   Management    │    │     Layer       │    │                 │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
@@ -61,7 +61,7 @@ IntralogisticsAI combines multiple technologies:
 ```bash
 ./deploy.sh lab
 ```
-- Custom domains: `intralogistics.lab`, `openplc.lab`
+- Custom domains: `intralogistics.lab`, `codesys.lab`
 - Multi-workstation support
 - Real hardware integration
 
@@ -70,7 +70,7 @@ IntralogisticsAI combines multiple technologies:
 ./deploy.sh with-plc
 ```
 - Full automation features
-- OpenPLC simulator included
+- CODESYS simulator included
 - PLC Bridge for real-time communication
 
 ### Basic ERP
@@ -109,7 +109,7 @@ docker compose ps
 
 # View service logs
 docker compose logs backend
-docker compose logs openplc
+docker compose logs codesys
 
 # Restart services
 docker compose restart
