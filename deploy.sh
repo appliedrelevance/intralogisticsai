@@ -192,7 +192,7 @@ check_lab_privileges() {
             echo "You may need to:"
             echo "  1. Run WSL as Administrator, or"
             echo "  2. Manually add this line to your Windows hosts file:"
-            echo "     127.0.0.1 intralogistics.lab openplc.intralogistics.lab dashboard.intralogistics.lab"
+            echo "     127.0.0.1 intralogistics.lab codesys.intralogistics.lab dashboard.intralogistics.lab"
             echo "  3. Then re-run: ./deploy.sh lab"
             echo ""
             exit 1
@@ -219,7 +219,7 @@ check_lab_privileges() {
             echo "  sudo ./deploy.sh lab"
             echo ""
             echo "Or manually add this line to /etc/hosts and re-run without sudo:"
-            echo "  127.0.0.1 intralogistics.lab openplc.intralogistics.lab dashboard.intralogistics.lab"
+            echo "  127.0.0.1 intralogistics.lab codesys.intralogistics.lab dashboard.intralogistics.lab"
             echo ""
             exit 1
         fi
@@ -229,7 +229,7 @@ check_lab_privileges() {
 # Add lab domains to hosts file
 add_lab_hosts() {
     local hosts_file=$(get_hosts_file)
-    local lab_entry="127.0.0.1 intralogistics.lab openplc.intralogistics.lab dashboard.intralogistics.lab"
+    local lab_entry="127.0.0.1 intralogistics.lab codesys.intralogistics.lab dashboard.intralogistics.lab"
     
     log "Adding lab domains to hosts file: $hosts_file"
     
@@ -763,13 +763,13 @@ print('ADMIN_USER=' + str(frappe.db.exists('User', 'Administrator') or 0))
         fi
     fi
     
-    # Test 7: OpenPLC connectivity (if applicable)
+    # Test 7: CODESYS connectivity (if applicable)
     if [ "$DEPLOY_TYPE" = "with-plc" ] || [ "$DEPLOY_TYPE" = "lab" ]; then
-        log "Testing OpenPLC connectivity..."
+        log "Testing CODESYS connectivity..."
         if curl --max-time 5 -f -s "http://localhost:8081" >/dev/null 2>&1; then
-            test_results+=("✅ OpenPLC web interface responding")
+            test_results+=("✅ CODESYS web interface responding")
         else
-            test_results+=("❌ OpenPLC web interface not responding")
+            test_results+=("❌ CODESYS web interface not responding")
             all_passed=false
         fi
         
@@ -792,15 +792,15 @@ print('ADMIN_USER=' + str(frappe.db.exists('User', 'Administrator') or 0))
             test_results+=("✅ Lab domains configured in hosts file")
         else
             test_results+=("❌ Lab domains missing from hosts file: $hosts_file")
-            test_results+=("   Manual fix: Add '127.0.0.1 intralogistics.lab openplc.intralogistics.lab dashboard.intralogistics.lab' to hosts file")
+            test_results+=("   Manual fix: Add '127.0.0.1 intralogistics.lab codesys.intralogistics.lab dashboard.intralogistics.lab' to hosts file")
             all_passed=false
         fi
         
         # Test domain resolution
-        if curl --max-time 5 -f -s "http://openplc.intralogistics.lab" >/dev/null 2>&1; then
-            test_results+=("✅ Lab domain routing working (OpenPLC)")
+        if curl --max-time 5 -f -s "http://codesys.intralogistics.lab" >/dev/null 2>&1; then
+            test_results+=("✅ Lab domain routing working (CODESYS)")
         else
-            test_results+=("❌ Lab domain routing failed (OpenPLC)")
+            test_results+=("❌ Lab domain routing failed (CODESYS)")
             all_passed=false
         fi
     fi
@@ -826,10 +826,10 @@ if test_deployment; then
     echo "Login: Administrator / admin"
     echo "Deploy Type: $DEPLOY_TYPE"
     if [ "$DEPLOY_TYPE" = "lab" ]; then
-        OPENPLC_PORT=$(docker ps --format "table {{.Names}}\t{{.Ports}}" | grep codesys | sed 's/.*:\([0-9]*\)->8080.*/\1/' || echo "8081")
+        CODESYS_PORT=$(docker ps --format "table {{.Names}}\t{{.Ports}}" | grep codesys | sed 's/.*:\([0-9]*\)->8080.*/\1/' || echo "8081")
         echo "Lab Environment URLs:"
         echo "  - ERPNext Interface: http://localhost:$PORT"
-        echo "  - CODESYS Simulator: http://localhost:$OPENPLC_PORT"
+        echo "  - CODESYS Simulator: http://localhost:$CODESYS_PORT"
         echo "  - Traefik Dashboard: http://localhost:8080"
         echo "  - Lab Domains (configure in /etc/hosts):"
         echo "    127.0.0.1 intralogistics.lab codesys.intralogistics.lab dashboard.intralogistics.lab"
