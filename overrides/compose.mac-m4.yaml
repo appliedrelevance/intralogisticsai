@@ -74,11 +74,21 @@ services:
     networks:
       - frappe_network
 
+  # CODESYS service - ARM64 platform
+  codesys:
+    platform: linux/arm64
+    image: jugaadtech/codesyscontrol_virtuallinuxarm64_v13:latest
+    volumes:
+      - codesys-conf:/conf/codesyscontrol
+      - codesys-data:/data/codesyscontrol
+
 # Volume configuration remains the same
 # ARM64 containers will use the same volume structure
 volumes:
   sites:
     driver: local
+  codesys-conf:
+  codesys-data:
 
 # Network configuration optimized for Mac M4
 networks:
