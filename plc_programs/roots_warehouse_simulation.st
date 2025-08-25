@@ -1,5 +1,6 @@
 PROGRAM RootsWarehouseSimulation
   VAR
+    (* Physical I/O *)
     emergency_stop AT %IX0.0 : BOOL;
     manual_reset AT %IX0.1 : BOOL;
     
@@ -42,35 +43,27 @@ PROGRAM RootsWarehouseSimulation
     warehouse_picks AT %MW104 : INT;
     error_count AT %MW105 : INT;
     uptime_seconds AT %MW106 : INT;
-  END_VAR
-  
-  VAR
-    (* Simple operation timers - 20 seconds = 200 cycles at 100ms *)
-    assembly_timer : INT := 0;
-    receiving_timer : INT := 0;
-    warehouse_timer : INT := 0;
-    
-    (* Complete signal auto-reset timers - 5 seconds = 50 cycles *)
-    assembly_complete_timer : INT := 0;
-    receiving_complete_timer : INT := 0;
-    warehouse_complete_timer : INT := 0;
-    
-    (* ERP command detection *)
-    any_bin_selected : BOOL := FALSE;
-    assembly_requested : BOOL := FALSE;
-    receiving_requested : BOOL := FALSE;
-    warehouse_requested : BOOL := FALSE;
-    
-    (* Operation state tracking *)
-    assembly_in_progress : BOOL := FALSE;
-    receiving_in_progress : BOOL := FALSE;
-    warehouse_in_progress : BOOL := FALSE;
-    
-    (* Uptime calculation *)
-    uptime_timer : INT := 0;
-  END_VAR
+END_VAR
 
-  (* Perfect world system - always running, never errors *)
+VAR
+    (* Internal Variables - No direct addressing *)
+    assembly_timer : INT;
+    receiving_timer : INT;
+    warehouse_timer : INT;
+    assembly_complete_timer : INT;
+    receiving_complete_timer : INT;
+    warehouse_complete_timer : INT;
+    any_bin_selected : BOOL;
+    assembly_requested : BOOL;
+    receiving_requested : BOOL;
+    warehouse_requested : BOOL;
+    assembly_in_progress : BOOL;
+    receiving_in_progress : BOOL;
+    warehouse_in_progress : BOOL;
+    uptime_timer : INT;
+END_VAR
+
+(* Perfect world system - always running, never errors *)
   plc_cycle_running := TRUE;
   plc_cycle_stopped := FALSE;
   pick_error := FALSE;
@@ -86,9 +79,7 @@ PROGRAM RootsWarehouseSimulation
   END_IF;
   
   (* ERP Command Detection *)
-  any_bin_selected := pick_bin_01 OR pick_bin_02 OR pick_bin_03 OR pick_bin_04 OR 
-                      pick_bin_05 OR pick_bin_06 OR pick_bin_07 OR pick_bin_08 OR
-                      pick_bin_09 OR pick_bin_10 OR pick_bin_11 OR pick_bin_12;
+  any_bin_selected := pick_bin_01 OR pick_bin_02 OR pick_bin_03 OR pick_bin_04 OR pick_bin_05 OR pick_bin_06 OR pick_bin_07 OR pick_bin_08 OR pick_bin_09 OR pick_bin_10 OR pick_bin_11 OR pick_bin_12;
   
   assembly_requested := any_bin_selected AND to_assembly_sta_2;
   receiving_requested := any_bin_selected AND to_receiving_sta_1;

@@ -32,9 +32,10 @@ Your core responsibilities include:
 
 **Critical I/O Mapping Rules**: ST programs are written from the PLC's perspective:
 - **Inputs (%IX)**: Read-only contacts representing physical hardware inputs. Cannot be programmatically set by ST code or external MODBUS writes. These represent actual field devices like sensors, switches, and buttons connected to PLC input terminals.
-- **Outputs (%QX)**: Read/write coils that can be controlled by ST program logic AND written via MODBUS. These represent both internal logic states and physical outputs to actuators, lights, etc.
+- **Outputs (%QX)**: Read/write coils that can be controlled by ST program logic AND written via MODBUS. These represent both internal logic states and physical outputs to actuators, lights, etc. OpenPLC supports high-numbered addresses like %QX125.0, %QX250.0 for MODBUS mapping.
 - **Memory Words (%MW)**: Read/write registers for numerical data, counters, and parameters accessible via MODBUS.
 - **For MODBUS Integration**: Only use %QX (coils) and %MW (registers) for signals that need external read/write access. %IX inputs are hardware-only and cannot be controlled remotely.
+- **Address Ranges**: OpenPLC supports wide address ranges. High-numbered addresses like %QX125.x, %QX250.x are valid and commonly used for MODBUS integration with specific register mappings.
 
 **Quality Assurance**: Every program you generate must:
 - Include comprehensive error handling and safety interlocks
