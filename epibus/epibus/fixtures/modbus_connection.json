@@ -19,7 +19,7 @@
    "modbus_address": 1000,
    "plc_address": null,
    "signal_name": "PLC_CYCLE_STOPPED",
-   "signal_type": "Digital Input Contact"
+   "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
@@ -27,7 +27,7 @@
    "modbus_address": 1001,
    "plc_address": null,
    "signal_name": "PLC_CYCLE_RUNNING",
-   "signal_type": "Digital Input Contact"
+   "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
@@ -35,7 +35,7 @@
    "modbus_address": 1002,
    "plc_address": null,
    "signal_name": "PICK_ERROR",
-   "signal_type": "Digital Input Contact"
+   "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
@@ -43,7 +43,7 @@
    "modbus_address": 1003,
    "plc_address": null,
    "signal_name": "PICK_TO_ASSEMBLY_IN_PROCESS",
-   "signal_type": "Digital Input Contact"
+   "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
@@ -51,7 +51,7 @@
    "modbus_address": 1004,
    "plc_address": null,
    "signal_name": "PICK_TO_ASSEMBLY_COMPLETE",
-   "signal_type": "Digital Input Contact"
+   "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
@@ -59,7 +59,7 @@
    "modbus_address": 1005,
    "plc_address": null,
    "signal_name": "PICK_TO_RECEIVING_IN_PROCESS",
-   "signal_type": "Digital Input Contact"
+   "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
@@ -67,7 +67,7 @@
    "modbus_address": 1006,
    "plc_address": null,
    "signal_name": "PICK_TO_RECEIVING_COMPLETE",
-   "signal_type": "Digital Input Contact"
+   "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
@@ -75,7 +75,7 @@
    "modbus_address": 1007,
    "plc_address": null,
    "signal_name": "PICK_TO_WAREHOUSE_IN_PROCESS",
-   "signal_type": "Digital Input Contact"
+   "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
@@ -83,7 +83,7 @@
    "modbus_address": 1008,
    "plc_address": null,
    "signal_name": "PICK_TO_WAREHOUSE_COMPLETE",
-   "signal_type": "Digital Input Contact"
+   "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
