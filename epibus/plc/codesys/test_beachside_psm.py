@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Test script for the Beachside PSM (Programmable State Machine) using Pymodbus.
-This script connects to the OpenPLC simulator and tests that it is operating properly.
+This script connects to the CODESYS simulator and tests that it is operating properly.
 """
 
 from pymodbus.client import ModbusTcpClient
@@ -14,7 +14,7 @@ logging.basicConfig()
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 
-# OpenPLC uses a specific addressing scheme for Modbus:
+# CODESYS uses a specific addressing scheme for Modbus:
 # For coils (digital outputs):
 # %QX0.0 = address 0, %QX0.1 = address 1, etc.
 # For discrete inputs (digital inputs):
@@ -22,7 +22,7 @@ log.setLevel(logging.DEBUG)
 # For holding registers (analog outputs):
 # %QW0 = address 0, %QW1 = address 1, etc.
 
-# Constants from beachside_psm.py - converted to OpenPLC Modbus addresses
+# Constants from beachside_psm.py - converted to CODESYS Modbus addresses
 BIN_ADDRESSES = {
     1: 11,  # QX1.3 - PICK_BIN_01 (8 bits per byte, so 1*8+3 = 11)
     2: 12,  # QX1.4 - PICK_BIN_02 (8 bits per byte, so 1*8+4 = 12)
@@ -38,7 +38,7 @@ BIN_ADDRESSES = {
     12: 22  # QX2.6 - PICK_BIN_12 (8 bits per byte, so 2*8+6 = 22)
 }
 
-# MODBUS Signal Addresses (converted from beachside_psm.py to OpenPLC Modbus addresses)
+# MODBUS Signal Addresses (converted from beachside_psm.py to CODESYS Modbus addresses)
 SIGNALS = {
     # Input signals (IX) - From PLC to ERP
     "PLC_CYCLE_RUNNING": 1,      # IX0.1 (0*8+1 = 1)
@@ -68,7 +68,7 @@ CMD_STOP_CYCLE = 2
 CMD_CLEAR_ERROR = 3
 
 # Test configuration
-HOST = 'openplc'  # OpenPLC simulator hostname
+HOST = 'codesys'  # CODESYS simulator hostname
 PORT = 502        # Default Modbus TCP port
 TIMEOUT = 10      # Default timeout for operations (seconds)
 
@@ -88,7 +88,7 @@ def test_dns_resolution(host):
 
 def connect_to_plc():
     """Connect to the PLC and return the client"""
-    print(f"🔌 Connecting to OpenPLC at {HOST}:{PORT}...")
+    print(f"🔌 Connecting to CODESYS at {HOST}:{PORT}...")
 
     # Test DNS resolution first
     if not test_dns_resolution(HOST):
@@ -111,7 +111,7 @@ def connect_to_plc():
 
             connection = client.connect()
             if connection:
-                print("✅ Connected to OpenPLC")
+                print("✅ Connected to CODESYS")
                 # Test the connection with a simple read
                 result = client.read_coils(address=0, count=1)
                 if hasattr(result, 'bits'):
@@ -122,7 +122,7 @@ def connect_to_plc():
                     print(f"⚠️ Connected but test read failed: {result}")
                     client.close()
             else:
-                print("❌ Failed to connect to OpenPLC")
+                print("❌ Failed to connect to CODESYS")
 
             # Wait before retrying
             if attempt < 2:  # Don't wait after the last attempt

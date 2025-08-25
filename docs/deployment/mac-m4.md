@@ -53,12 +53,12 @@ docker compose ps
 
 # Services will show:
 # frontend: 0.0.0.0:32768->8080/tcp (example)
-# openplc:  0.0.0.0:32769->8080/tcp (example)
+# codesys:  0.0.0.0:32769->8080/tcp (example)
 ```
 
 **Access URLs:**
 - **Main Interface**: http://localhost:[frontend-port]
-- **OpenPLC**: http://localhost:[openplc-port]
+- **CODESYS**: http://localhost:[codesys-port]
 
 ## Troubleshooting
 
@@ -121,7 +121,7 @@ Perfect for instructor laptops running training labs:
 
 # Configure local DNS
 sudo echo "127.0.0.1 intralogistics.lab" >> /etc/hosts
-sudo echo "127.0.0.1 openplc.lab" >> /etc/hosts
+sudo echo "127.0.0.1 codesys.lab" >> /etc/hosts
 sudo echo "127.0.0.1 traefik.lab" >> /etc/hosts
 ```
 

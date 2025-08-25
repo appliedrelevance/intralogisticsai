@@ -15,7 +15,7 @@ This repository implements a sophisticated containerized Frappe/ERPNext deployme
 
 ### Industrial Automation Integration
 - **EpiBus**: Custom Frappe app providing MODBUS/TCP communication capabilities
-- **OpenPLC**: PLC simulator for development and testing
+- **CODESYS**: PLC simulator for development and testing
 - **PLC Bridge**: Real-time communication service between Frappe and PLCs
 - **React Dashboard**: Modern frontend for monitoring industrial processes
 
@@ -34,7 +34,7 @@ overrides/compose.postgres.yaml
 overrides/compose.redis.yaml
 
 # Industrial automation
-overrides/compose.openplc.yaml
+overrides/compose.codesys.yaml
 overrides/compose.plc-bridge.yaml
 
 # Platform-specific
@@ -78,7 +78,7 @@ docker compose \
   -f compose.yaml \
   -f overrides/compose.mariadb.yaml \
   -f overrides/compose.redis.yaml \
-  -f overrides/compose.openplc.yaml \
+  -f overrides/compose.codesys.yaml \
   -f overrides/compose.plc-bridge.yaml \
   -f overrides/compose.create-site.yaml \
   -f overrides/compose.mac-m4.yaml \
@@ -111,7 +111,7 @@ docker compose \
   -f compose.yaml \
   -f overrides/compose.mariadb.yaml \
   -f overrides/compose.redis.yaml \
-  -f overrides/compose.openplc.yaml \
+  -f overrides/compose.codesys.yaml \
   -f overrides/compose.plc-bridge.yaml \
   -f overrides/compose.create-site.yaml \
   up -d
@@ -126,7 +126,7 @@ The above commands deploy a **complete industrial automation stack** including:
 
 ✅ **Frappe/ERPNext ERP System** - Business platform with web interface  
 ✅ **EpiBus Industrial App** - Custom Frappe app for industrial integration  
-✅ **OpenPLC Simulator** - Industrial PLC programming environment  
+✅ **CODESYS Simulator** - Industrial PLC programming environment  
 ✅ **MODBUS TCP Server** - Industrial communication protocol (port 502)  
 ✅ **PLC Bridge Service** - Real-time data exchange between PLC and ERP  
 ✅ **MariaDB Database** - Persistent data storage  
@@ -145,8 +145,8 @@ docker compose ps
 curl -I http://localhost:$(docker ps | grep frontend | sed 's/.*:\([0-9]*\)->8080.*/\1/')/ 
 # Should return HTTP 200 OK
 
-# Test OpenPLC web interface  
-curl -I http://localhost:$(docker ps | grep openplc | sed 's/.*:\([0-9]*\)->8080.*/\1/')/ 
+# Test CODESYS web interface  
+curl -I http://localhost:$(docker ps | grep codesys | sed 's/.*:\([0-9]*\)->8080.*/\1/')/ 
 # Should return HTTP 302 (redirect to login)
 
 # Test EpiBus API integration
@@ -157,7 +157,7 @@ curl http://localhost:$(docker ps | grep frontend | sed 's/.*:\([0-9]*\)->8080.*
 ### Access Points
 
 - **ERPNext Web Interface**: `http://localhost:[dynamic-port]` (check port with `docker compose ps`)
-- **OpenPLC Web Interface**: `http://localhost:[dynamic-port]` (check port with `docker compose ps`)  
+- **CODESYS Web Interface**: `http://localhost:[dynamic-port]` (check port with `docker compose ps`)  
 - **MODBUS TCP**: `localhost:502` (industrial communication)
 - **PLC Bridge SSE**: `localhost:7654` (real-time events)
 - **Login Credentials**: Username `Administrator`, Password `admin`
@@ -177,7 +177,7 @@ docker compose exec backend bash
 docker compose ps
 ```
 
-### OpenPLC Operations
+### CODESYS Operations
 ```bash
 
 
@@ -223,13 +223,13 @@ The project uses a modular override system allowing flexible service combination
 - **Base**: Core Frappe/ERPNext services (compose.yaml)
 - **Database**: Choose MariaDB or PostgreSQL
 - **Caching**: Redis services for performance
-- **Industrial**: OpenPLC and PLC Bridge for automation
+- **Industrial**: CODESYS and PLC Bridge for automation
 - **Platform**: ARM64 optimizations for Mac M-series
 
 ### Dynamic Port Assignment
 Services use dynamic port mapping to prevent conflicts:
 - Frontend: Auto-assigned port (check with `docker compose ps`)
-- OpenPLC Web: Auto-assigned port (use `get-openplc-port.sh`)
+- CODESYS Web: Auto-assigned port (use `get-codesys-port.sh`)
 - MODBUS TCP: Fixed port 502
 - PLC Bridge SSE: Port 7654
 
@@ -263,7 +263,7 @@ docker compose logs backend
 docker compose logs plc-bridge
 
 # Test MODBUS connectivity
-docker compose exec plc-bridge python -c "from pymodbus.client import ModbusTcpClient; client = ModbusTcpClient('openplc', 502); print(client.connect())"
+docker compose exec plc-bridge python -c "from pymodbus.client import ModbusTcpClient; client = ModbusTcpClient('codesys', 502); print(client.connect())"
 ```
 
 ### Database Operations
@@ -288,8 +288,8 @@ Services start in specific order managed by health checks:
 3. Configurator (initial setup)
 4. Backend, Queue Workers, Scheduler
 5. Frontend (Nginx proxy)
-6. OpenPLC (if using industrial features)
-7. PLC Bridge (depends on OpenPLC and Backend)
+6. CODESYS (if using industrial features)
+7. PLC Bridge (depends on CODESYS and Backend)
 
 ### Volume Management
 - **sites**: Persistent Frappe sites data
@@ -326,12 +326,12 @@ docker volume prune
 # PLC Bridge connection errors
 docker compose logs plc-bridge
 
-# OpenPLC not accessible
-./get-openplc-port.sh
+# CODESYS not accessible
+./get-codesys-port.sh
 # Check if port is properly mapped
 
 # MODBUS communication failures
-docker compose exec plc-bridge telnet openplc 502
+docker compose exec plc-bridge telnet codesys 502
 ```
 
 This architecture represents a unique integration of enterprise business software with industrial automation capabilities, requiring careful attention to service orchestration and multi-protocol communication.

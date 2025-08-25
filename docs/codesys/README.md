@@ -1,10 +1,10 @@
-# OpenPLC Integration Guide
+# CODESYS Integration Guide
 
-OpenPLC is integrated as a containerized PLC simulator providing MODBUS TCP connectivity for industrial automation training and testing.
+CODESYS is integrated as a containerized PLC simulator providing MODBUS TCP connectivity for industrial automation training and testing.
 
 ## Overview
 
-OpenPLC provides:
+CODESYS provides:
 - **PLC Simulator**: Full ladder logic programming environment
 - **MODBUS TCP Server**: Port 502 for industrial communication
 - **Web Interface**: Programming and monitoring interface
@@ -14,16 +14,16 @@ OpenPLC provides:
 
 ### With Complete Stack
 ```bash
-# Training lab with OpenPLC
+# Training lab with CODESYS
 ./deploy.sh lab
-# Access: http://openplc.lab
+# Access: http://codesys.lab
 
 # Or complete PLC stack
 ./deploy.sh with-plc
 # Access: http://localhost:[port] (shown in output)
 ```
 
-### OpenPLC Only
+### CODESYS Only
 ```bash
 # If you only need PLC simulation
 ./deploy.sh with-epibus
@@ -33,21 +33,21 @@ OpenPLC provides:
 ## Access Points
 
 ### Lab Environment
-- **Web Interface**: http://openplc.lab
-- **MODBUS TCP**: openplc:502 (from containers) or localhost:502
+- **Web Interface**: http://codesys.lab
+- **MODBUS TCP**: codesys:502 (from containers) or localhost:502
 
 ### Standard Deployment
 - **Web Interface**: http://localhost:[port] (check `docker compose ps`)
 - **MODBUS TCP**: localhost:502
 
 ### Default Credentials
-- **Username**: `openplc`
-- **Password**: `openplc`
+- **Username**: `codesys`
+- **Password**: `codesys`
 
-## Programming OpenPLC
+## Programming CODESYS
 
 ### 1. Access Web Interface
-Login to the OpenPLC web interface using the credentials above.
+Login to the CODESYS web interface using the credentials above.
 
 ### 2. Create Ladder Logic Program
 ```
@@ -71,8 +71,8 @@ Click "Start PLC" to activate the MODBUS TCP server on port 502.
 In IntralogisticsAI, navigate to EpiBus → MODBUS Connections:
 
 1. **Create New Connection**:
-   - **Name**: OpenPLC Simulator
-   - **Host**: `openplc` (internal) or `localhost` (external)
+   - **Name**: CODESYS Simulator
+   - **Host**: `codesys` (internal) or `localhost` (external)
    - **Port**: `502`
    - **Unit ID**: `1`
 
@@ -88,8 +88,8 @@ In IntralogisticsAI, navigate to EpiBus → MODBUS Connections:
 from pymodbus.client import ModbusTcpClient
 
 def read_plc_sensors():
-    """Read sensor data from OpenPLC"""
-    client = ModbusTcpClient('openplc', 502)
+    """Read sensor data from CODESYS"""
+    client = ModbusTcpClient('codesys', 502)
     
     if client.connect():
         # Read digital inputs (discrete inputs)
@@ -108,8 +108,8 @@ def read_plc_sensors():
     return None
 
 def control_plc_outputs(outputs):
-    """Write output data to OpenPLC"""
-    client = ModbusTcpClient('openplc', 502)
+    """Write output data to CODESYS"""
+    client = ModbusTcpClient('codesys', 502)
     
     if client.connect():
         # Write digital outputs (coils)
@@ -126,8 +126,8 @@ def control_plc_outputs(outputs):
 
 ## MODBUS Address Mapping
 
-### OpenPLC to MODBUS Mapping
-| OpenPLC Variable | MODBUS Address | Function Code | Description |
+### CODESYS to MODBUS Mapping
+| CODESYS Variable | MODBUS Address | Function Code | Description |
 |------------------|----------------|---------------|-------------|
 | %IX0.0 | 0 | 2 | Digital Input 0 |
 | %QX0.0 | 0 | 1 | Digital Output 0 |
@@ -142,7 +142,7 @@ def control_plc_outputs(outputs):
 
 ## Real Hardware Integration
 
-For connecting to real PLCs instead of OpenPLC:
+For connecting to real PLCs instead of CODESYS:
 
 ### 1. Configure Real PLC Connection
 In EpiBus → MODBUS Connections:
@@ -152,21 +152,21 @@ In EpiBus → MODBUS Connections:
 
 ### 2. Switch Between Simulator and Real
 Use EpiBus connection management to easily switch between:
-- **Development**: OpenPLC simulator
+- **Development**: CODESYS simulator
 - **Production**: Real PLC hardware
 
 ## Troubleshooting
 
 ### Service Issues
 ```bash
-# Check OpenPLC status
-docker compose ps openplc
+# Check CODESYS status
+docker compose ps codesys
 
 # View logs
-docker compose logs openplc
+docker compose logs codesys
 
-# Restart OpenPLC
-docker compose restart openplc
+# Restart CODESYS
+docker compose restart codesys
 ```
 
 ### MODBUS Connectivity
@@ -190,35 +190,35 @@ client.close()
 - Verify container is healthy: look for "healthy" status
 
 **MODBUS connection refused:**
-- Ensure PLC runtime is started in OpenPLC web interface
+- Ensure PLC runtime is started in CODESYS web interface
 - Check firewall settings
 - Verify port 502 is not blocked
 
 **Program not running:**
 - Upload and compile ladder logic program first
 - Click "Start PLC" to begin runtime execution
-- Check OpenPLC logs for compilation errors
+- Check CODESYS logs for compilation errors
 
 ## Advanced Configuration
 
 ### Persistent Data
-OpenPLC programs and settings are stored in Docker volumes:
+CODESYS programs and settings are stored in Docker volumes:
 ```bash
-# Backup OpenPLC data
-docker run --rm -v intralogisticsai_openplc-data:/data \
+# Backup CODESYS data
+docker run --rm -v intralogisticsai_codesys-data:/data \
   -v $(pwd):/backup alpine \
-  tar czf /backup/openplc-backup.tar.gz -C /data .
+  tar czf /backup/codesys-backup.tar.gz -C /data .
 
-# Restore OpenPLC data
-docker run --rm -v intralogisticsai_openplc-data:/data \
+# Restore CODESYS data
+docker run --rm -v intralogisticsai_codesys-data:/data \
   -v $(pwd):/backup alpine \
-  tar xzf /backup/openplc-backup.tar.gz -C /data
+  tar xzf /backup/codesys-backup.tar.gz -C /data
 ```
 
 ### Environment Variables
 Configure in `.env` file:
 ```bash
-# OpenPLC settings
+# CODESYS settings
 OPENPLC_WEB_PORT=8081
 OPENPLC_MODBUS_PORT=502
 OPENPLC_LOG_LEVEL=INFO
@@ -226,7 +226,7 @@ OPENPLC_LOG_LEVEL=INFO
 
 ## Learning Resources
 
-### OpenPLC Programming
+### CODESYS Programming
 1. **Ladder Logic Basics**: Learn standard ladder logic programming
 2. **I/O Configuration**: Understand input/output addressing
 3. **Timer/Counter Functions**: Use built-in timer and counter blocks
@@ -240,4 +240,4 @@ OPENPLC_LOG_LEVEL=INFO
 
 ---
 
-**Next Steps**: See [Lab Setup Guide](../deployment/lab-setup.md) for multi-workstation configuration with OpenPLC integration.
+**Next Steps**: See [Lab Setup Guide](../deployment/lab-setup.md) for multi-workstation configuration with CODESYS integration.

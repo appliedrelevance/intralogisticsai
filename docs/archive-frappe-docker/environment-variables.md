@@ -79,20 +79,20 @@ Email that used to register https certificate. This one is required only if you 
 
 This environment variable is not required. Default value is `$$host` which resolves site by host. For example, if your host is `example.com`, site's name should be `example.com`, or if host is `127.0.0.1` (local debugging), it should be `127.0.0.1` This variable allows to override described behavior. Let's say you create site named `mysite` and do want to access it by `127.0.0.1` host. Than you would set this variable to `mysite`.
 
-### OpenPLC Configuration Variables
+### CODESYS Configuration Variables
 
-These variables configure the OpenPLC simulator when using the OpenPLC override:
+These variables configure the CODESYS simulator when using the CODESYS override:
 
 ### `OPENPLC_WEB_PORT`
 
-Port for OpenPLC web interface. Defaults to `8081`. The web interface provides programming, monitoring, and configuration capabilities for the PLC simulator.
+Port for CODESYS web interface. Defaults to `8081`. The web interface provides programming, monitoring, and configuration capabilities for the PLC simulator.
 
 ### `OPENPLC_MODBUS_PORT`
 
-Port for OpenPLC MODBUS TCP server. Defaults to `502`. This is the standard MODBUS port used for communication with external systems and the EpiBus module.
+Port for CODESYS MODBUS TCP server. Defaults to `502`. This is the standard MODBUS port used for communication with external systems and the EpiBus module.
 
 ### `OPENPLC_LOG_LEVEL`
 
-Logging level for OpenPLC runtime. Allowed values are `INFO`, `DEBUG`, `WARNING`, `ERROR`. Defaults to `INFO`. Use `DEBUG` for troubleshooting and `WARNING` or `ERROR` for production to reduce log volume.
+Logging level for CODESYS runtime. Allowed values are `INFO`, `DEBUG`, `WARNING`, `ERROR`. Defaults to `INFO`. Use `DEBUG` for troubleshooting and `WARNING` or `ERROR` for production to reduce log volume.
 
 There is other variables not mentioned here. They're somewhat internal and you don't have to worry about them except you want to change main compose file.

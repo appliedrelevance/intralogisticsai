@@ -12,7 +12,7 @@
 # The 'with-plc' option deploys the complete stack:
 # - Frappe/ERPNext ERP system
 # - EpiBus industrial integration app (automatically installed)
-# - OpenPLC simulator
+# - CODESYS simulator
 # - MODBUS TCP server
 # - PLC Bridge for real-time communication
 
@@ -52,10 +52,10 @@ DEPLOYMENT TYPES:
     Complete Industrial Automation:
         ./deploy.sh with-plc
         - Includes everything from EpiBus deployment
-        - OpenPLC simulator for PLC programming
+        - CODESYS simulator for PLC programming
         - MODBUS TCP server (port 502)
         - PLC Bridge for real-time communication
-        - Web interfaces for both ERPNext and OpenPLC
+        - Web interfaces for both ERPNext and CODESYS
 
     Training Lab:
         ./deploy.sh lab
@@ -86,7 +86,7 @@ REQUIREMENTS:
 
 ACCESS:
     - ERPNext: http://localhost:[dynamic-port] (use 'docker compose ps' to check port)
-    - OpenPLC: http://localhost:8081 (for with-plc deployments)
+    - CODESYS: http://localhost:8081 (for with-plc deployments)
     - Default login: Administrator / admin
 
 For more information, see CLAUDE.md in the repository root.
@@ -535,7 +535,7 @@ if [ "$DEPLOY_TYPE" = "lab" ]; then
       -f compose.yaml \
       -f overrides/compose.mariadb.yaml \
       -f overrides/compose.redis.yaml \
-      -f overrides/compose.openplc.yaml \
+      -f overrides/compose.codesys.yaml \
       -f overrides/compose.plc-bridge.yaml \
       -f overrides/compose.lab.yaml \
       -f overrides/compose.create-site-lab.yaml \
@@ -547,7 +547,7 @@ elif [ "$DEPLOY_TYPE" = "web" ]; then
       -f compose.yaml \
       -f overrides/compose.mariadb.yaml \
       -f overrides/compose.redis.yaml \
-      -f overrides/compose.openplc.yaml \
+      -f overrides/compose.codesys.yaml \
       -f overrides/compose.plc-bridge.yaml \
       -f overrides/compose.web.yaml \
       -f overrides/compose.create-site-web.yaml \
@@ -559,7 +559,7 @@ elif [ "$DEPLOY_TYPE" = "with-plc" ]; then
       -f compose.yaml \
       -f overrides/compose.mariadb.yaml \
       -f overrides/compose.redis.yaml \
-      -f overrides/compose.openplc.yaml \
+      -f overrides/compose.codesys.yaml \
       -f overrides/compose.plc-bridge.yaml \
       -f overrides/compose.create-site.yaml \
       $PLATFORM_OVERRIDE
@@ -826,30 +826,26 @@ if test_deployment; then
     echo "Login: Administrator / admin"
     echo "Deploy Type: $DEPLOY_TYPE"
     if [ "$DEPLOY_TYPE" = "lab" ]; then
-        echo "Lab Environment URLs (with automatic hosts file configuration):"
-        echo "  🌐 ERPNext Interface: http://intralogistics.lab"
-        echo "  🏭 OpenPLC Simulator: http://openplc.intralogistics.lab"  
-        echo "  📊 Traefik Dashboard: http://dashboard.intralogistics.lab"
-        echo ""
-        echo "Alternative direct access (if hosts file update failed):"
-        echo "  - ERPNext: http://localhost:$PORT (with Host: intralogistics.localhost header)"
-        echo "  - OpenPLC: http://localhost:8081"
-        echo "  - Traefik: http://localhost:8080"
-        echo ""
-        echo "Industrial Connections:"
-        echo "  - MODBUS TCP: localhost:502 (for real PLC connections)"
-        echo "  - PLC Bridge: localhost:7654 (real-time events)"
-        echo "  - EpiBus: Installed and integrated"
+        OPENPLC_PORT=$(docker ps --format "table {{.Names}}\t{{.Ports}}" | grep codesys | sed 's/.*:\([0-9]*\)->8080.*/\1/' || echo "8081")
+        echo "Lab Environment URLs:"
+        echo "  - ERPNext Interface: http://localhost:$PORT"
+        echo "  - CODESYS Simulator: http://localhost:$OPENPLC_PORT"
+        echo "  - Traefik Dashboard: http://localhost:8080"
+        echo "  - Lab Domains (configure in /etc/hosts):"
+        echo "    127.0.0.1 intralogistics.lab codesys.intralogistics.lab dashboard.intralogistics.lab"
+        echo "MODBUS TCP: localhost:502 (for real PLC connections)"
+        echo "PLC Bridge: localhost:7654 (real-time events)"
+        echo "EpiBus: Installed and integrated"
     elif [ "$DEPLOY_TYPE" = "web" ]; then
         echo "Web Environment URLs:"
         echo "  - ERPNext: http://$WEB_DOMAIN"
-        echo "  - OpenPLC: http://openplc.$WEB_DOMAIN"
+        echo "  - CODESYS: http://codesys.$WEB_DOMAIN"
         echo "  - Traefik Dashboard: http://dashboard.$WEB_DOMAIN"
         echo "MODBUS TCP: $WEB_DOMAIN:502 (for real PLC connections)"
         echo "PLC Bridge: $WEB_DOMAIN:7654 (real-time events)"
         echo "EpiBus: Installed and integrated"
     elif [ "$DEPLOY_TYPE" = "with-plc" ]; then
-        echo "OpenPLC: http://localhost:8081 (openplc/openplc)"
+        echo "CODESYS: http://localhost:8081 (codesys/codesys)"
         echo "PLC Bridge: http://localhost:7654"
         echo "EpiBus: Installed and integrated"
     elif [ "$DEPLOY_TYPE" = "with-epibus" ]; then

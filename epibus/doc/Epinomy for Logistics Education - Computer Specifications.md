@@ -58,7 +58,7 @@
 
 - ERPNext
 - EpiBus Modbus Interface Application
-- OpenPLC Software PLC Simulator and Editor
+- CODESYS Software PLC Simulator and Editor
 
 ## Pre-Configured Accounts
 

@@ -65,15 +65,15 @@ After logging into IntralogisticsAI:
 **Create New Connection:**
 1. Go to **MODBUS Connection** → **New**
 2. Fill in connection details:
-   - **Device Name**: `OpenPLC Simulator` or `Production Line PLC`
-   - **Host**: `openplc` (simulator) or `192.168.1.200` (real PLC)
+   - **Device Name**: `CODESYS Simulator` or `Production Line PLC`
+   - **Host**: `codesys` (simulator) or `192.168.1.200` (real PLC)
    - **Port**: `502` (standard MODBUS TCP port)
    - **Unit**: `1` (device unit ID)
 
 **Test Connection:**
 ```python
 # Test connectivity in EpiBus
-connection = frappe.get_doc("Modbus Connection", "OpenPLC Simulator")
+connection = frappe.get_doc("Modbus Connection", "CODESYS Simulator")
 result = connection.test_connection()
 print(f"Connection status: {result}")
 ```
@@ -104,7 +104,7 @@ print(f"Connection status: {result}")
 1. Go to **MODBUS Action** → **New**
 2. Configure action:
    - **Action Name**: `Activate Bin 001 Conveyor`
-   - **Connection**: `OpenPLC Simulator`
+   - **Connection**: `CODESYS Simulator`
    - **Signal**: `Conveyor_Motor_01`
    - **Action**: `Write`
    - **Bit Value**: `1` (turn on)
@@ -126,7 +126,7 @@ This action will activate the conveyor motor when items are moved from Bin 001.
 
 ### Address Mapping
 ```
-OpenPLC Variable → MODBUS Address
+CODESYS Variable → MODBUS Address
 %IX0.0           → Address 0 (Digital Input)
 %QX0.0           → Address 0 (Digital Output)  
 %IW0             → Address 0 (Analog Input)
@@ -140,7 +140,7 @@ OpenPLC Variable → MODBUS Address
 # In a Frappe script or method
 def read_conveyor_status():
     \"\"\"Read conveyor sensor status\"\"\"
-    connection = frappe.get_doc("Modbus Connection", "OpenPLC Simulator")
+    connection = frappe.get_doc("Modbus Connection", "CODESYS Simulator")
     signal = frappe.get_doc("Modbus Signal", "Conveyor_Sensor_01")
     
     # Read digital input
@@ -160,7 +160,7 @@ def on_stock_entry_submit(doc, method):
     for item in doc.items:
         if item.s_warehouse == "Bin 001":
             # Activate conveyor for items leaving Bin 001
-            connection = frappe.get_doc("Modbus Connection", "OpenPLC Simulator")
+            connection = frappe.get_doc("Modbus Connection", "CODESYS Simulator")
             signal = frappe.get_doc("Modbus Signal", "Conveyor_Motor_01")
             
             # Write to PLC
@@ -228,7 +228,7 @@ telnet localhost 502
 # Check from container
 docker compose exec backend python3 -c "
 from pymodbus.client import ModbusTcpClient
-client = ModbusTcpClient('openplc', 502)
+client = ModbusTcpClient('codesys', 502)
 print('Connected:', client.connect())
 "
 ```
@@ -300,6 +300,6 @@ signal.toggle_location_pin()
 ---
 
 **Next Steps**: 
-- See [OpenPLC Guide](../openplc/README.md) for PLC programming
+- See [CODESYS Guide](../codesys/README.md) for PLC programming
 - Check [Lab Setup](../deployment/lab-setup.md) for multi-device configuration
 - Review [API Documentation](api.md) for advanced integration

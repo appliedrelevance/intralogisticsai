@@ -124,7 +124,7 @@ For production deployments, SSL/HTTPS should be enabled for security.
 ### Features Added
 - Let's Encrypt automatic SSL certificate generation
 - HTTP to HTTPS redirects for all services
-- SSL support for main domain and OpenPLC subdomain
+- SSL support for main domain and CODESYS subdomain
 - Proper certificate resolver configuration
 
 ### Configuration
@@ -161,21 +161,21 @@ ACME_EMAIL=your-email@domain.com
 WEB_DOMAIN=your-domain.com
 ```
 
-## OpenPLC Subdomain Resolution
+## CODESYS Subdomain Resolution
 
-Fixed OpenPLC subdomain routing by ensuring the service is on the correct network.
+Fixed CODESYS subdomain routing by ensuring the service is on the correct network.
 
 ### Solution
-Added network configuration to OpenPLC service:
+Added network configuration to CODESYS service:
 
 ```yaml
 services:
-  openplc:
+  codesys:
     networks:
       - frappe_network
     labels:
       # Both HTTP and HTTPS routers configured
-      - traefik.http.routers.openplc-https.rule=Host(`openplc.${WEB_DOMAIN}`)
+      - traefik.http.routers.codesys-https.rule=Host(`codesys.${WEB_DOMAIN}`)
 ```
 
 ## Related Files
@@ -193,6 +193,6 @@ The complete solution addresses:
 2. ✅ CSS/Asset loading (automatic asset building during site creation)
 3. ✅ EpiBus installation (added to site creation process)
 4. ✅ SSL/HTTPS support (Let's Encrypt integration)
-5. ✅ OpenPLC subdomain resolution (network configuration)
+5. ✅ CODESYS subdomain resolution (network configuration)
 
 All fixes are now permanent and committed to the repository for repeatable deployments.

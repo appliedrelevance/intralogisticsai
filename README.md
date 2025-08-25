@@ -8,7 +8,7 @@ IntralogisticsAI is a comprehensive industrial automation platform that combines
 
 - **Enterprise ERP**: Complete business management with Frappe/ERPNext
 - **Industrial Integration**: Real-time PLC communication via MODBUS TCP
-- **Visual Programming**: OpenPLC environment for ladder logic development
+- **Visual Programming**: CODESYS environment for ladder logic development
 - **Real-time Monitoring**: Live dashboard for industrial signals and processes
 - **Containerized Deployment**: Docker-based architecture for easy scaling
 - **Educational Ready**: Perfect for logistics and automation education
@@ -18,7 +18,7 @@ IntralogisticsAI is a comprehensive industrial automation platform that combines
 IntralogisticsAI integrates multiple components:
 
 - **EpiBus**: Custom Frappe app providing MODBUS/TCP communication
-- **OpenPLC**: Industrial programming environment with MODBUS TCP server
+- **CODESYS**: Industrial programming environment with MODBUS TCP server
 - **PLC Bridge**: Real-time communication service between ERP and PLCs
 - **React Dashboard**: Modern frontend for monitoring industrial processes
 
@@ -67,7 +67,7 @@ The deployment script will:
 - ✅ Build custom Docker images with EpiBus integration (with smart caching)
 - ✅ Deploy Frappe/ERPNext ERP system with network resilience
 - ✅ Install and configure EpiBus automation app (with retry logic)
-- ✅ Start OpenPLC simulator with MODBUS TCP server
+- ✅ Start CODESYS simulator with MODBUS TCP server
 - ✅ Initialize PLC Bridge for real-time communication
 - ✅ Create site (`intralogistics.localhost`) with admin user
 - ✅ Configure all networking and dependencies
@@ -80,9 +80,9 @@ The deployment script will:
 After deployment, access the platform:
 
 - **IntralogisticsAI Web Interface**: `http://localhost:[port]` (shown in deployment output)
-- **OpenPLC Programming Environment**: `http://localhost:[port]` (shown in deployment output)
+- **CODESYS Programming Environment**: `http://localhost:[port]` (shown in deployment output)
 - **Login Credentials**: Username `Administrator`, Password `admin`
-- **OpenPLC Credentials**: Username `openplc`, Password `openplc`
+- **CODESYS Credentials**: Username `codesys`, Password `codesys`
 
 ## 📊 Using the Platform
 
@@ -92,7 +92,7 @@ After deployment, access the platform:
 3. Use the **EpiBus** module for industrial automation features
 
 ### PLC Programming
-1. Access OpenPLC web interface
+1. Access CODESYS web interface
 2. Create ladder logic programs
 3. Upload and start programs to activate MODBUS TCP server
 4. Monitor real-time I/O through the web interface
@@ -117,14 +117,14 @@ The deployment script includes smart image caching and cross-platform support wi
 ```
 Complete training lab with custom domains and real PLC connectivity:
 - **ERPNext Interface**: `http://intralogistics.lab`
-- **OpenPLC Simulator**: `http://openplc.intralogistics.lab`  
+- **CODESYS Simulator**: `http://codesys.intralogistics.lab`  
 - **Traefik Dashboard**: `http://dashboard.intralogistics.lab`
 - **MODBUS TCP**: `localhost:502` (for real PLC connections)
 - **PLC Bridge**: `localhost:7654` (real-time events)
 
 *Configure local domains in `/etc/hosts`:*
 ```
-127.0.0.1 intralogistics.lab openplc.intralogistics.lab dashboard.intralogistics.lab
+127.0.0.1 intralogistics.lab codesys.intralogistics.lab dashboard.intralogistics.lab
 ```
 
 ### Web Deployment (Production)
@@ -140,7 +140,7 @@ Complete training lab with custom domains and real PLC connectivity:
 ```
 Production deployment with real domain and subdomains:
 - **ERPNext Interface**: `http://yourdomain.com`
-- **OpenPLC Simulator**: `http://openplc.yourdomain.com`  
+- **CODESYS Simulator**: `http://codesys.yourdomain.com`  
 - **Traefik Dashboard**: `http://dashboard.yourdomain.com`
 - **MODBUS TCP**: `yourdomain.com:502` (for real PLC connections)
 - **PLC Bridge**: `yourdomain.com:7654` (real-time events)
@@ -194,7 +194,7 @@ For development and customization:
 # View service logs
 docker compose logs -f backend
 docker compose logs -f plc-bridge
-docker compose logs -f openplc
+docker compose logs -f codesys
 
 # Access backend container
 docker compose exec backend bash
@@ -210,7 +210,7 @@ docker compose down --volumes
 - **[Quick Start Guide](docs/deployment/quick-start.md)** - Get running in minutes
 - **[Training Lab Setup](docs/deployment/lab-setup.md)** - Multi-workstation configuration
 - **[EpiBus Integration](docs/epibus/README.md)** - Industrial automation guide
-- **[OpenPLC Programming](docs/openplc/README.md)** - PLC simulation and programming
+- **[CODESYS Programming](docs/codesys/README.md)** - PLC simulation and programming
 - **[Troubleshooting](docs/troubleshooting/README.md)** - Common issues and solutions
 
 ## 🎓 Educational Use
@@ -228,7 +228,7 @@ IntralogisticsAI is designed for educational institutions teaching:
 This project builds upon several open-source components:
 - [Frappe Framework](https://github.com/frappe/frappe) (MIT License)
 - [ERPNext](https://github.com/frappe/erpnext) (GPL v3)
-- [OpenPLC](https://openplcproject.com/) (GPL v3)
+- [CODESYS](https://codesysproject.com/) (GPL v3)
 
 See [LICENSE](LICENSE) for complete license information.
 

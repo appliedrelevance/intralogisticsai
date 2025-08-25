@@ -43,7 +43,7 @@ intralogisticsai/
 ├── compose.yaml                 # Base Docker Compose
 ├── overrides/                   # Deployment configurations
 │   ├── compose.lab.yaml        # Training lab setup
-│   ├── compose.openplc.yaml    # OpenPLC integration
+│   ├── compose.codesys.yaml    # CODESYS integration
 │   └── compose.plc-bridge.yaml # PLC Bridge service
 ├── epibus/                      # EpiBus app source
 │   ├── epibus/                 # Core app code
@@ -146,7 +146,7 @@ python -m coverage report
 # Test MODBUS connectivity
 python -c "
 from pymodbus.client import ModbusTcpClient
-client = ModbusTcpClient('openplc', 502)
+client = ModbusTcpClient('codesys', 502)
 print('MODBUS Connected:', client.connect())
 "
 
@@ -241,8 +241,8 @@ curl -X GET http://localhost:8000/api/method/epibus.api.plc.get_signals \
 ### Network Debugging
 ```bash
 # Test container networking
-docker compose exec backend ping openplc
-docker compose exec backend telnet openplc 502
+docker compose exec backend ping codesys
+docker compose exec backend telnet codesys 502
 
 # Check port mappings
 docker compose ps

@@ -22,28 +22,28 @@ services:
       - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
       - traefik.http.routers.frontend-http.middlewares=redirect-to-https
 
-  openplc:
+  codesys:
     # Fixed ports for web deployment
     ports:
-      - "8081:8080"  # OpenPLC web interface
+      - "8081:8080"  # CODESYS web interface
       - "502:502"    # MODBUS TCP server
     networks:
       - frappe_network
     labels:
       - traefik.enable=true
-      - traefik.http.services.openplc.loadbalancer.server.port=8080
+      - traefik.http.services.codesys.loadbalancer.server.port=8080
       # HTTP router
-      - traefik.http.routers.openplc-http.entrypoints=web
-      - traefik.http.routers.openplc-http.rule=Host(`openplc.${WEB_DOMAIN:-intralogisticsai.online}`)
-      - traefik.http.routers.openplc-http.priority=100
+      - traefik.http.routers.codesys-http.entrypoints=web
+      - traefik.http.routers.codesys-http.rule=Host(`codesys.${WEB_DOMAIN:-intralogisticsai.online}`)
+      - traefik.http.routers.codesys-http.priority=100
       # HTTPS router
-      - traefik.http.routers.openplc-https.entrypoints=websecure
-      - traefik.http.routers.openplc-https.rule=Host(`openplc.${WEB_DOMAIN:-intralogisticsai.online}`)
-      - traefik.http.routers.openplc-https.priority=100
-      - traefik.http.routers.openplc-https.tls=true
-      - traefik.http.routers.openplc-https.tls.certresolver=letsencrypt
+      - traefik.http.routers.codesys-https.entrypoints=websecure
+      - traefik.http.routers.codesys-https.rule=Host(`codesys.${WEB_DOMAIN:-intralogisticsai.online}`)
+      - traefik.http.routers.codesys-https.priority=100
+      - traefik.http.routers.codesys-https.tls=true
+      - traefik.http.routers.codesys-https.tls.certresolver=letsencrypt
       # HTTP to HTTPS redirect
-      - traefik.http.routers.openplc-http.middlewares=redirect-to-https
+      - traefik.http.routers.codesys-http.middlewares=redirect-to-https
 
   proxy:
     image: traefik:v2.11
