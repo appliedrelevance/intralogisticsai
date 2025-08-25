@@ -8,6 +8,6 @@ if [ -d "/app/built-in-scripts" ]; then
     cp -n /app/built-in-scripts/* /app/scripts/ 2>/dev/null || true
 fi
 
-# Start the PLC bridge service (no API keys needed for guest endpoints)
-echo "🚀 Starting PLC Bridge with guest API access"
-python bridge.py --frappe-url "$FRAPPE_URL" --poll-interval "${PLC_POLL_INTERVAL:-1.0}"
+# Start the SIMPLE PLC bridge service (no API keys needed for guest endpoints)
+echo "🚀 Starting Simple PLC Bridge with guest API access"
+python simple_bridge.py --frappe-url "$FRAPPE_URL" --poll-interval "${PLC_POLL_INTERVAL:-3.0}"

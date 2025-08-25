@@ -49,6 +49,7 @@ class SSEServer:
         CORS(self.app)
         
         # Set up routes
+        self.app.route('/')(self.dashboard)
         self.app.route('/events')(self.sse_stream)
         self.app.route('/signals')(self.get_signals)
         self.app.route('/write_signal', methods=['POST'])(self.write_signal)
@@ -176,6 +177,570 @@ class SSEServer:
                     self.logger.info(f"SSE client disconnected (ID: {client_id}). Remaining clients: {len(self.clients)}")
                 
         return Response(event_stream(), mimetype="text/event-stream")
+    
+    def dashboard(self):
+        """Simple web dashboard for PLC Bridge status"""
+        html = '''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PLC Bridge Dashboard</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .panel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+        .panel h3 {
+            margin: 0 0 20px 0;
+            color: #2c3e50;
+            font-size: 1.3em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .connection {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 12px 0;
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .connection-name {
+            font-weight: 500;
+            color: #495057;
+        }
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+        .status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .status.connected { background: #28a745; }
+        .status.disconnected { background: #dc3545; }
+        .status.unknown { background: #ffc107; }
+        .system-info {
+            display: grid;
+            gap: 12px;
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .info-label {
+            color: #6c757d;
+            font-weight: 500;
+        }
+        .info-value {
+            font-weight: 600;
+            color: #495057;
+        }
+        .signals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        .signals-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+        .signals-grid::-webkit-scrollbar-track {
+            background: #f1f3f4;
+            border-radius: 3px;
+        }
+        .signals-grid::-webkit-scrollbar-thumb {
+            background: #c1c8cd;
+            border-radius: 3px;
+        }
+        .signal {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            transition: all 0.2s ease;
+            min-height: 60px;
+        }
+        .signal:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .signal.digital-true { 
+            border-left: 4px solid #28a745;
+            background: linear-gradient(90deg, rgba(40,167,69,0.05) 0%, white 10%);
+        }
+        .signal.digital-false { 
+            border-left: 4px solid #dc3545;
+            background: linear-gradient(90deg, rgba(220,53,69,0.05) 0%, white 10%);
+        }
+        .signal.analog { 
+            border-left: 4px solid #007bff;
+            background: linear-gradient(90deg, rgba(0,123,255,0.05) 0%, white 10%);
+        }
+        .signal-name {
+            font-weight: 600;
+            color: #2c3e50;
+            flex: 1;
+            margin-right: 15px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            line-height: 1.4;
+        }
+        .signal-value {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            background: #f8f9fa;
+            color: #495057;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            font-weight: 600;
+            min-width: 80px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .signal.digital-true .signal-value {
+            background: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        .signal.digital-false .signal-value {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        .events {
+            height: 250px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 13px;
+        }
+        .events::-webkit-scrollbar {
+            width: 6px;
+        }
+        .events::-webkit-scrollbar-track {
+            background: #e9ecef;
+            border-radius: 3px;
+        }
+        .events::-webkit-scrollbar-thumb {
+            background: #adb5bd;
+            border-radius: 3px;
+        }
+        .event {
+            margin: 8px 0;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border-left: 3px solid #dee2e6;
+            background: white;
+        }
+        .event.error { 
+            border-left-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .event.success { 
+            border-left-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+        }
+        .event.info { 
+            border-left-color: #17a2b8;
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        .controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        .control-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        input, select, button {
+            padding: 10px 15px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        input, select {
+            background: white;
+            color: #495057;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        button:hover {
+            background: #0056b3;
+            border-color: #0056b3;
+            transform: translateY(-1px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .timestamp {
+            font-size: 11px;
+            color: #6c757d;
+            margin-right: 8px;
+        }
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .status-grid { grid-template-columns: 1fr; }
+            .signals-grid { grid-template-columns: 1fr; }
+            .control-group { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 PLC Bridge Status Dashboard</h1>
+            <p>Real-time MODBUS Communication Monitor</p>
+        </div>
+
+        <div class="status-grid">
+            <div class="panel">
+                <h3>📡 Connection Status</h3>
+                <div id="connections"></div>
+            </div>
+            
+            <div class="panel">
+                <h3>📊 System Info</h3>
+                <div class="system-info" id="system-info">
+                    <div class="info-item">
+                        <span class="info-label">SSE Clients</span>
+                        <span class="info-value" id="client-count">0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Signals</span>
+                        <span class="info-value" id="signal-count">0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Last Update</span>
+                        <span class="info-value" id="last-update">Never</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>⚡ Live Signals</h3>
+            <div class="signals-grid" id="signals"></div>
+        </div>
+
+        <div class="panel">
+            <h3>🎛️ Manual Control</h3>
+            <div class="controls">
+                <div class="control-group">
+                    <select id="signal-select">
+                        <option value="">Select Signal</option>
+                    </select>
+                    <input type="text" id="signal-value" placeholder="Value (true/false or number)">
+                    <button onclick="writeSignal()">Write Signal</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>📝 Event Log</h3>
+            <div class="events" id="events"></div>
+        </div>
+    </div>
+
+    <script>
+        let eventSource;
+        let signals = {};
+        let connections = {};
+        
+        function connectEventSource() {
+            if (eventSource) {
+                eventSource.close();
+            }
+            
+            eventSource = new EventSource('/events');
+            
+            eventSource.onopen = function() {
+                addEvent('Connected to PLC Bridge SSE stream', 'success');
+            };
+            
+            eventSource.onerror = function() {
+                addEvent('Lost connection to PLC Bridge', 'error');
+                setTimeout(connectEventSource, 5000);
+            };
+            
+            eventSource.addEventListener('signal_update', function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    updateSignal(data);
+                } catch (e) {
+                    console.error('Error parsing signal update:', e);
+                }
+            });
+            
+            eventSource.addEventListener('signal_updates_batch', function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    data.updates.forEach(update => updateSignal(update));
+                } catch (e) {
+                    console.error('Error parsing batch update:', e);
+                }
+            });
+            
+            eventSource.addEventListener('status_update', function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    updateConnections(data);
+                } catch (e) {
+                    console.error('Error parsing status update:', e);
+                }
+            });
+            
+            eventSource.addEventListener('event_log', function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    addEvent(data.message, data.status.toLowerCase());
+                } catch (e) {
+                    console.error('Error parsing event log:', e);
+                }
+            });
+        }
+        
+        function updateSignal(data) {
+            signals[data.name] = data;
+            refreshSignalsDisplay();
+            updateSignalSelect();
+            document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+        }
+        
+        function updateConnections(data) {
+            connections = data.connections || [];
+            refreshConnectionsDisplay();
+        }
+        
+        function refreshSignalsDisplay() {
+            const container = document.getElementById('signals');
+            const signalEntries = Object.values(signals).sort((a, b) => a.signal_name.localeCompare(b.signal_name));
+            
+            container.innerHTML = signalEntries.map(signal => {
+                const isDigital = signal.signal_name && (signal.signal_name.includes('PICK') || signal.signal_name.includes('PLC_') || typeof signal.value === 'boolean');
+                const cssClass = isDigital ? (signal.value ? 'digital-true' : 'digital-false') : 'analog';
+                const displayValue = isDigital ? (signal.value ? 'TRUE' : 'FALSE') : signal.value;
+                
+                return `
+                    <div class="signal ${cssClass}">
+                        <div class="signal-name" title="${signal.name}">${signal.signal_name || signal.name}</div>
+                        <div class="signal-value">${displayValue}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('signal-count').textContent = signalEntries.length;
+        }
+        
+        function updateSignalSelect() {
+            const select = document.getElementById('signal-select');
+            const writableSignals = Object.values(signals).filter(s => 
+                s.signal_name && (s.signal_name.includes('PICK') || s.signal_name.includes('OUTPUT'))
+            );
+            
+            select.innerHTML = '<option value="">Select Signal</option>' +
+                writableSignals.sort((a, b) => a.signal_name.localeCompare(b.signal_name))
+                .map(signal => `<option value="${signal.name}">${signal.signal_name}</option>`)
+                .join('');
+        }
+        
+        function refreshConnectionsDisplay() {
+            const container = document.getElementById('connections');
+            
+            if (connections.length === 0) {
+                container.innerHTML = '<div class="connection"><span class="connection-name">No connections</span></div>';
+                return;
+            }
+            
+            container.innerHTML = connections.map(conn => {
+                const statusClass = conn.connected ? 'connected' : 'disconnected';
+                const statusText = conn.connected ? 'Connected' : 'Disconnected';
+                
+                return `
+                    <div class="connection">
+                        <span class="connection-name">${conn.name}</span>
+                        <span class="connection-status">
+                            <span class="status ${statusClass}"></span>
+                            ${statusText}
+                        </span>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function addEvent(message, type = 'info') {
+            const container = document.getElementById('events');
+            const timestamp = new Date().toLocaleTimeString();
+            const event = document.createElement('div');
+            event.className = `event ${type}`;
+            event.innerHTML = `<span class="timestamp">${timestamp}</span> ${message}`;
+            
+            container.insertBefore(event, container.firstChild);
+            
+            // Keep only last 50 events
+            while (container.children.length > 50) {
+                container.removeChild(container.lastChild);
+            }
+        }
+        
+        function writeSignal() {
+            const signalId = document.getElementById('signal-select').value;
+            const value = document.getElementById('signal-value').value.trim();
+            
+            if (!signalId || !value) {
+                addEvent('Please select signal and enter value', 'error');
+                return;
+            }
+            
+            // Parse value
+            let parsedValue;
+            if (value.toLowerCase() === 'true' || value === '1') {
+                parsedValue = true;
+            } else if (value.toLowerCase() === 'false' || value === '0') {
+                parsedValue = false;
+            } else if (!isNaN(value)) {
+                parsedValue = parseFloat(value);
+            } else {
+                addEvent('Invalid value format', 'error');
+                return;
+            }
+            
+            fetch('/write_signal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    signal_id: signalId,
+                    value: parsedValue
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    addEvent(`Successfully wrote ${parsedValue} to ${signalId}`, 'success');
+                    document.getElementById('signal-value').value = '';
+                } else {
+                    addEvent(`Failed to write signal: ${data.message}`, 'error');
+                }
+            })
+            .catch(error => {
+                addEvent(`Write error: ${error.message}`, 'error');
+            });
+        }
+        
+        // Initialize
+        function init() {
+            addEvent('PLC Bridge Dashboard loaded', 'info');
+            connectEventSource();
+            
+            // Load initial signals
+            fetch('/signals')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.signals) {
+                        data.signals.forEach(signal => {
+                            signals[signal.name] = signal;
+                        });
+                        refreshSignalsDisplay();
+                        updateSignalSelect();
+                    }
+                })
+                .catch(error => {
+                    addEvent(`Failed to load initial signals: ${error.message}`, 'error');
+                });
+        }
+        
+        // Start everything
+        init();
+    </script>
+</body>
+</html>'''
+        return html
     
     def get_signals(self):
         """API endpoint to get all signals"""
