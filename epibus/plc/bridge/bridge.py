@@ -42,6 +42,9 @@ class SimplePLCBridge:
         # MODBUS connections - just store what we need
         self.connections = {}
         
+        # Connection status tracking
+        self.connection_status = {}
+        
         # Simple Flask app for the dashboard
         self.app = Flask(__name__)
         CORS(self.app)
@@ -49,6 +52,7 @@ class SimplePLCBridge:
         # Set up routes
         self.app.route('/')(self.dashboard)
         self.app.route('/signals')(self.get_signals) 
+        self.app.route('/connections')(self.get_connections)
         self.app.route('/write_signal', methods=['POST'])(self.write_signal)
         
         # Control flags
@@ -86,6 +90,7 @@ class SimplePLCBridge:
             # Process connections and signals
             self.connections = {}
             self.current_signals = {}
+            self.connection_status = {}
             
             for conn_data in connections_data:
                 conn_name = conn_data['name']
@@ -96,6 +101,15 @@ class SimplePLCBridge:
                     'host': host,
                     'port': port,
                     'client': None
+                }
+                
+                # Initialize connection status
+                self.connection_status[conn_name] = {
+                    'status': 'Unknown',
+                    'last_success': None,
+                    'last_error': None,
+                    'error_count': 0,
+                    'success_count': 0
                 }
                 
                 # Process signals for this connection
@@ -328,6 +342,25 @@ class SimplePLCBridge:
         
         return jsonify({'signals': signals_list})
     
+    def get_connections(self):
+        """API endpoint to get connection status details"""
+        connections_list = []
+        
+        for conn_name, conn_data in self.connections.items():
+            status = self.connection_status.get(conn_name, {})
+            connections_list.append({
+                'name': conn_name,
+                'host': conn_data['host'],
+                'port': conn_data['port'],
+                'status': status.get('status', 'Unknown'),
+                'last_success': status.get('last_success'),
+                'last_error': status.get('last_error'),
+                'error_count': status.get('error_count', 0),
+                'success_count': status.get('success_count', 0)
+            })
+        
+        return jsonify({'connections': connections_list})
+    
     def write_signal(self):
         """API endpoint to write a signal value"""
         try:
@@ -447,6 +480,11 @@ class SimplePLCBridge:
         </div>
 
         <div class="info">
+            <h3>🔗 PLC Connections</h3>
+            <div id="connections">Loading connection details...</div>
+        </div>
+
+        <div class="info">
             <h3>⚡ Live Signals</h3>
             <table class="signals-table">
                 <thead>
@@ -518,9 +556,42 @@ class SimplePLCBridge:
                 });
         }
         
+        function updateConnections() {
+            fetch('/connections')
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('connections');
+                    const connections = data.connections || [];
+                    
+                    container.innerHTML = connections.map(conn => {
+                        const statusClass = conn.status === 'Connected' ? 'value-true' : 
+                                           conn.status.includes('Failed') ? 'value-false' : 'value-null';
+                        
+                        return `
+                            <div style="margin-bottom: 15px; padding: 10px; border-left: 3px solid #007bff;">
+                                <strong>${conn.name}</strong><br>
+                                <strong>Target:</strong> ${conn.host}:${conn.port}<br>
+                                <strong>Status:</strong> <span class="signal-value ${statusClass}">${conn.status}</span><br>
+                                <strong>Success:</strong> ${conn.success_count} | <strong>Errors:</strong> ${conn.error_count}
+                                ${conn.last_error ? `<br><span style="color: #dc3545; font-size: 0.9em;">Last Error: ${conn.last_error}</span>` : ''}
+                            </div>
+                        `;
+                    }).join('');
+                })
+                .catch(error => {
+                    document.getElementById('connections').innerHTML = '<div style="color: #dc3545;">Error loading connections</div>';
+                    console.error('Connections error:', error);
+                });
+        }
+        
+        function updateAll() {
+            updateSignals();
+            updateConnections();
+        }
+        
         // Update immediately and then every 3 seconds
-        updateSignals();
-        setInterval(updateSignals, 3000);
+        updateAll();
+        setInterval(updateAll, 3000);
     </script>
 </body>
 </html>'''

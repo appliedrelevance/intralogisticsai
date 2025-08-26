@@ -1,0 +1,10 @@
+TYPE DUT_SystemState :
+(
+    SYSTEM_STOPPED := 0,        // System is stopped
+    SYSTEM_STARTING := 1,       // System is starting up
+    SYSTEM_RUNNING := 2,        // System is running normally
+    SYSTEM_STOPPING := 3,       // System is stopping
+    SYSTEM_ERROR := 4,          // System is in error state
+    SYSTEM_MANUAL := 5          // System is in manual mode
+);
+END_TYPE

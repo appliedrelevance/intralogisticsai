@@ -1,0 +1,71 @@
+# Development Override - Enables live editing from host
+# Use with: docker compose -f compose.yaml -f overrides/compose.development.yaml up
+
+services:
+  # PLC Bridge with development volume mount
+  plc-bridge:
+    build:
+      context: ./epibus/plc/bridge
+      dockerfile: Dockerfile
+    volumes:
+      - ./epibus/plc/bridge:/app:rw  # Live editing for PLC Bridge
+      - plc-bridge-logs:/app/logs    # Keep logs persistent
+    command: ["python", "/app/bridge.py"]  # Direct command instead of entrypoint
+    ports:
+      - "7654:7654"
+    environment:
+      FRAPPE_URL: ${FRAPPE_URL:-http://backend:8000}
+      FRAPPE_API_KEY: ${FRAPPE_API_KEY}
+      FRAPPE_API_SECRET: ${FRAPPE_API_SECRET}
+      PLC_POLL_INTERVAL: ${PLC_POLL_INTERVAL:-1.0}
+      PLC_LOG_LEVEL: ${PLC_LOG_LEVEL:-DEBUG}  # More verbose logging for dev
+      SSE_HOST: 0.0.0.0
+      SSE_PORT: 7654
+    networks:
+      - frappe_network
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_started
+      codesys:
+        condition: service_healthy
+
+  # CODESYS with project files mounted
+  codesys:
+    image: jugaadtech/codesyscontrol_virtuallinuxarm64_v13:latest
+    platform: linux/arm64
+    volumes:
+      - ./plc_programs:/plc_programs:rw  # Live editing for PLC programs
+    ports:
+      - "502:502"    # MODBUS TCP
+      - "1217:1217"  # CODESYS Gateway for development
+    environment:
+      OPENPLC_LOG_LEVEL: ${OPENPLC_LOG_LEVEL:-DEBUG}
+    networks:
+      - frappe_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "test", "-f", "/opt/codesys/bin/codesyscontrol.bin"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # All EpiBus services already have volume mounts in compose.epibus.yaml
+  # Add any development-specific environment variables here if needed
+  
+  backend:
+    environment:
+      # Development-specific settings
+      DEVELOPER_MODE: "1"
+      LOG_LEVEL: DEBUG
+      
+  configurator:
+    environment:
+      # Development-specific settings
+      DEVELOPER_MODE: "1"
+
+volumes:
+  plc-bridge-logs:
+
+networks:
+  frappe_network: {}

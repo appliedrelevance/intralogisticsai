@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DeviceDescription xmlns="http://www.3s-software.com/ProjectManager"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Device>
+    <DeviceIdentification>
+      <TypeName>CODESYS Control for Linux SL</TypeName>
+      <DeviceType>Linux SoftPLC</DeviceType>
+      <DeviceName>IntralogisticsLab_PLC</DeviceName>
+      <DeviceVersion>4.11.0.0</DeviceVersion>
+      <VendorName>3S-Smart Software Solutions GmbH</VendorName>
+    </DeviceIdentification>
+    
+    <DeviceConfiguration>
+      <Parameter>
+        <Name>CommunicationSettings</Name>
+        <Gateway>192.168.1.1</Gateway>
+        <NetworkAdapter>eth0</NetworkAdapter>
+        <UpdateRate>100</UpdateRate>
+        <CommCycle>10</CommCycle>
+      </Parameter>
+      
+      <Parameter>
+        <Name>ModbusSettings</Name>
+        <ModbusTCP_Port>502</ModbusTCP_Port>
+        <ModbusRTU_Port>/dev/ttyS0</ModbusRTU_Port>
+        <ModbusTimeout>5000</ModbusTimeout>
+        <MaxConnections>5</MaxConnections>
+      </Parameter>
+      
+      <Parameter>
+        <Name>TaskConfiguration</Name>
+        <MainTask>
+          <Name>Main</Name>
+          <Type>Cyclic</Type>
+          <CycleTime>100ms</CycleTime>
+          <Priority>0</Priority>
+          <Watchdog>500ms</Watchdog>
+        </MainTask>
+      </Parameter>
+      
+      <Parameter>
+        <Name>MemoryConfiguration</Name>
+        <ApplicationMemory>50MB</ApplicationMemory>
+        <RetainMemory>1MB</RetainMemory>
+        <CodeMemory>10MB</CodeMemory>
+        <DataMemory>40MB</DataMemory>
+      </Parameter>
+      
+      <Parameter>
+        <Name>IOConfiguration</Name>
+        <DigitalInputs>32</DigitalInputs>
+        <DigitalOutputs>32</DigitalOutputs>
+        <AnalogInputs>8</AnalogInputs>
+        <AnalogOutputs>4</AnalogOutputs>
+      </Parameter>
+    </DeviceConfiguration>
+    
+    <IOMapping>
+      <!-- Digital Input Mappings -->
+      <IOPoint>
+        <Address>%IX0.0</Address>
+        <Name>Emergency_Stop</Name>
+        <Type>BOOL</Type>
+        <Description>Emergency stop button (NC contact)</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%IX0.1</Address>
+        <Name>Manual_Reset</Name>
+        <Type>BOOL</Type>
+        <Description>Manual reset button</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%IX0.2</Address>
+        <Name>Start_Button</Name>
+        <Type>BOOL</Type>
+        <Description>System start button</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%IX0.3</Address>
+        <Name>Stop_Button</Name>
+        <Type>BOOL</Type>
+        <Description>System stop button</Description>
+      </IOPoint>
+      
+      <!-- Conveyor Photo-Electric Sensors -->
+      <IOPoint>
+        <Address>%IX1.0</Address>
+        <Name>PE_Sensor_Conv1_Entry</Name>
+        <Type>BOOL</Type>
+        <Description>Conveyor 1 entry photo-eye sensor</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%IX1.1</Address>
+        <Name>PE_Sensor_Conv1_Exit</Name>
+        <Type>BOOL</Type>
+        <Description>Conveyor 1 exit photo-eye sensor</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%IX1.2</Address>
+        <Name>PE_Sensor_Conv2_Entry</Name>
+        <Type>BOOL</Type>
+        <Description>Conveyor 2 entry photo-eye sensor</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%IX1.3</Address>
+        <Name>PE_Sensor_Conv2_Exit</Name>
+        <Type>BOOL</Type>
+        <Description>Conveyor 2 exit photo-eye sensor</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%IX1.4</Address>
+        <Name>PE_Sensor_Conv3_Entry</Name>
+        <Type>BOOL</Type>
+        <Description>Conveyor 3 entry photo-eye sensor</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%IX1.5</Address>
+        <Name>PE_Sensor_Conv3_Exit</Name>
+        <Type>BOOL</Type>
+        <Description>Conveyor 3 exit photo-eye sensor</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%IX1.6</Address>
+        <Name>PE_Sensor_Conv4_Entry</Name>
+        <Type>BOOL</Type>
+        <Description>Conveyor 4 entry photo-eye sensor</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%IX1.7</Address>
+        <Name>PE_Sensor_Conv4_Exit</Name>
+        <Type>BOOL</Type>
+        <Description>Conveyor 4 exit photo-eye sensor</Description>
+      </IOPoint>
+      
+      <!-- Robot Status Inputs -->
+      <IOPoint>
+        <Address>%IX2.0</Address>
+        <Name>Robot_Home_Position</Name>
+        <Type>BOOL</Type>
+        <Description>Robot at home position feedback</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%IX2.1</Address>
+        <Name>Robot_Moving</Name>
+        <Type>BOOL</Type>
+        <Description>Robot in motion feedback</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%IX2.2</Address>
+        <Name>Robot_At_Conveyor</Name>
+        <Type>BOOL</Type>
+        <Description>Robot at conveyor position feedback</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%IX2.3</Address>
+        <Name>Robot_Gripper_Open</Name>
+        <Type>BOOL</Type>
+        <Description>Gripper open feedback</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%IX2.4</Address>
+        <Name>Robot_Gripper_Closed</Name>
+        <Type>BOOL</Type>
+        <Description>Gripper closed feedback</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%IX2.5</Address>
+        <Name>Robot_Error_Status</Name>
+        <Type>BOOL</Type>
+        <Description>Robot error status</Description>
+      </IOPoint>
+      
+      <!-- RFID Reader Status -->
+      <IOPoint>
+        <Address>%IX3.0</Address>
+        <Name>RFID_Reader1_Ready</Name>
+        <Type>BOOL</Type>
+        <Description>RFID reader 1 ready status</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%IX3.1</Address>
+        <Name>RFID_Reader2_Ready</Name>
+        <Type>BOOL</Type>
+        <Description>RFID reader 2 ready status</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%IX3.2</Address>
+        <Name>RFID_Reader1_Tag_Present</Name>
+        <Type>BOOL</Type>
+        <Description>Tag detected on RFID reader 1</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%IX3.3</Address>
+        <Name>RFID_Reader2_Tag_Present</Name>
+        <Type>BOOL</Type>
+        <Description>Tag detected on RFID reader 2</Description>
+      </IOPoint>
+      
+      <!-- Digital Output Mappings -->
+      <IOPoint>
+        <Address>%QX0.0</Address>
+        <Name>System_Running</Name>
+        <Type>BOOL</Type>
+        <Description>System running indicator</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%QX0.1</Address>
+        <Name>System_Error</Name>
+        <Type>BOOL</Type>
+        <Description>System error indicator</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%QX0.2</Address>
+        <Name>Safety_OK</Name>
+        <Type>BOOL</Type>
+        <Description>Safety system OK indicator</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%QX0.3</Address>
+        <Name>Manual_Mode</Name>
+        <Type>BOOL</Type>
+        <Description>Manual mode active indicator</Description>
+      </IOPoint>
+      
+      <!-- Conveyor Motor Outputs -->
+      <IOPoint>
+        <Address>%QX1.0</Address>
+        <Name>Conveyor1_Motor</Name>
+        <Type>BOOL</Type>
+        <Description>Conveyor 1 motor control</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%QX1.1</Address>
+        <Name>Conveyor2_Motor</Name>
+        <Type>BOOL</Type>
+        <Description>Conveyor 2 motor control</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%QX1.2</Address>
+        <Name>Conveyor3_Motor</Name>
+        <Type>BOOL</Type>
+        <Description>Conveyor 3 motor control</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%QX1.3</Address>
+        <Name>Conveyor4_Motor</Name>
+        <Type>BOOL</Type>
+        <Description>Conveyor 4 motor control</Description>
+      </IOPoint>
+      
+      <!-- Robot Control Outputs -->
+      <IOPoint>
+        <Address>%QX2.0</Address>
+        <Name>Robot_Enable</Name>
+        <Type>BOOL</Type>
+        <Description>Robot enable signal</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%QX2.1</Address>
+        <Name>Robot_Move_To_Bin</Name>
+        <Type>BOOL</Type>
+        <Description>Move robot to bin position</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%QX2.2</Address>
+        <Name>Robot_Move_To_Station</Name>
+        <Type>BOOL</Type>
+        <Description>Move robot to station position</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%QX2.3</Address>
+        <Name>Robot_Move_Home</Name>
+        <Type>BOOL</Type>
+        <Description>Move robot to home position</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%QX2.4</Address>
+        <Name>Robot_Gripper_Open_Cmd</Name>
+        <Type>BOOL</Type>
+        <Description>Open gripper command</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%QX2.5</Address>
+        <Name>Robot_Gripper_Close_Cmd</Name>
+        <Type>BOOL</Type>
+        <Description>Close gripper command</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%QX2.6</Address>
+        <Name>Robot_Reset</Name>
+        <Type>BOOL</Type>
+        <Description>Robot reset command</Description>
+      </IOPoint>
+      
+      <!-- Visual/Audio Indicators -->
+      <IOPoint>
+        <Address>%QX3.0</Address>
+        <Name>Green_Beacon</Name>
+        <Type>BOOL</Type>
+        <Description>Green status beacon</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%QX3.1</Address>
+        <Name>Yellow_Beacon</Name>
+        <Type>BOOL</Type>
+        <Description>Yellow warning beacon</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%QX3.2</Address>
+        <Name>Red_Beacon</Name>
+        <Type>BOOL</Type>
+        <Description>Red alarm beacon</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%QX3.3</Address>
+        <Name>Buzzer</Name>
+        <Type>BOOL</Type>
+        <Description>Audio alarm buzzer</Description>
+      </IOPoint>
+      
+      <!-- RFID Reader Controls -->
+      <IOPoint>
+        <Address>%QX4.0</Address>
+        <Name>RFID_Reader1_Enable</Name>
+        <Type>BOOL</Type>
+        <Description>Enable RFID reader 1</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%QX4.1</Address>
+        <Name>RFID_Reader2_Enable</Name>
+        <Type>BOOL</Type>
+        <Description>Enable RFID reader 2</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%QX4.2</Address>
+        <Name>RFID_Reader1_Read</Name>
+        <Type>BOOL</Type>
+        <Description>Trigger read on RFID reader 1</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%QX4.3</Address>
+        <Name>RFID_Reader2_Read</Name>
+        <Type>BOOL</Type>
+        <Description>Trigger read on RFID reader 2</Description>
+      </IOPoint>
+      
+      <!-- MODBUS Coil Mappings for ERP Integration -->
+      <IOPoint>
+        <Address>%QX125.0</Address>
+        <Name>PLC_Cycle_Stopped</Name>
+        <Type>BOOL</Type>
+        <ModbusAddress>1000</ModbusAddress>
+        <Description>PLC cycle stopped - MODBUS coil 1000</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%QX125.1</Address>
+        <Name>PLC_Cycle_Running</Name>
+        <Type>BOOL</Type>
+        <ModbusAddress>1001</ModbusAddress>
+        <Description>PLC cycle running - MODBUS coil 1001</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%QX125.2</Address>
+        <Name>Pick_Error</Name>
+        <Type>BOOL</Type>
+        <ModbusAddress>1002</ModbusAddress>
+        <Description>Pick error - MODBUS coil 1002</Description>
+      </IOPoint>
+      
+      <!-- Pick Bin Controls (ERP Controlled) -->
+      <IOPoint>
+        <Address>%QX250.0</Address>
+        <Name>Pick_Bin_01</Name>
+        <Type>BOOL</Type>
+        <ModbusAddress>2000</ModbusAddress>
+        <Description>Pick bin 01 - MODBUS coil 2000</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%QX250.1</Address>
+        <Name>Pick_Bin_02</Name>
+        <Type>BOOL</Type>
+        <ModbusAddress>2001</ModbusAddress>
+        <Description>Pick bin 02 - MODBUS coil 2001</Description>
+      </IOPoint>
+      
+      <!-- Memory Word Mappings -->
+      <IOPoint>
+        <Address>%MW100</Address>
+        <Name>Cycle_Counter</Name>
+        <Type>INT</Type>
+        <ModbusAddress>100</ModbusAddress>
+        <Description>System cycle counter - MODBUS register 100</Description>
+      </IOPoint>
+      <IOPoint>
+        <Address>%MW101</Address>
+        <Name>Pick_Operations_Total</Name>
+        <Type>INT</Type>
+        <ModbusAddress>101</ModbusAddress>
+        <Description>Total pick operations - MODBUS register 101</Description>
+      </IOPoint>
+      
+    </IOMapping>
+    
+  </Device>
+</DeviceDescription>

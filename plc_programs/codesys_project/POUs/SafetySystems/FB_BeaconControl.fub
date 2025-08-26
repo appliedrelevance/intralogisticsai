@@ -1,0 +1,172 @@
+FUNCTION_BLOCK FB_BeaconControl
+VAR_INPUT
+    System_Running      : BOOL;         // System running status
+    System_Error        : BOOL;         // System error status
+    Safety_OK           : BOOL;         // Safety system OK
+    Manual_Mode         : BOOL;         // Manual mode active
+    Pick_Active         : BOOL;         // Pick operation active
+    Enable_Audio        : BOOL := TRUE; // Enable audio alarms
+END_VAR
+
+VAR_OUTPUT
+    Green_Light         : BOOL;         // Green beacon output
+    Yellow_Light        : BOOL;         // Yellow beacon output  
+    Red_Light           : BOOL;         // Red beacon output
+    Audio_Alarm         : BOOL;         // Audio alarm output
+    Status_Pattern      : INT;          // Status light pattern
+END_VAR
+
+VAR
+    (* Timing variables *)
+    Flash_Timer         : TON;          // Flash timer
+    Flash_State         : BOOL;         // Flash state
+    Pattern_Timer       : TON;          // Pattern timer
+    Alarm_Timer         : TON;          // Alarm timer
+    
+    (* Flash patterns *)
+    Fast_Flash_Time     : TIME := T#250ms;  // Fast flash rate
+    Slow_Flash_Time     : TIME := T#1s;     // Slow flash rate
+    Pattern_Cycle_Time  : TIME := T#2s;     // Pattern cycle time
+    
+    (* Beacon states *)
+    Beacon_Mode         : INT := 0;         // Current beacon mode
+    Flash_Rate          : TIME;             // Current flash rate
+    
+    (* Audio control *)
+    Audio_Pattern       : INT := 0;         // Audio pattern type
+    Audio_Active        : BOOL;             // Audio currently active
+    
+    (* Internal variables *)
+    Pattern_Step        : INT := 0;         // Pattern step counter
+    Cycle_Counter       : INT := 0;         // Cycle counter
+END_VAR
+
+(* Determine beacon mode based on system status *)
+IF NOT Safety_OK THEN
+    Beacon_Mode := 4;           (* Emergency/Safety fault *)
+ELSIF System_Error THEN
+    Beacon_Mode := 3;           (* System error *)
+ELSIF Manual_Mode THEN
+    Beacon_Mode := 2;           (* Manual mode *)
+ELSIF System_Running AND Pick_Active THEN
+    Beacon_Mode := 1;           (* Active operation *)
+ELSIF System_Running THEN
+    Beacon_Mode := 0;           (* System ready *)
+ELSE
+    Beacon_Mode := 5;           (* System stopped *)
+END_IF
+
+(* Flash timer control *)
+CASE Beacon_Mode OF
+    0, 1: Flash_Rate := Slow_Flash_Time;    (* Slow flash for normal operation *)
+    2, 3: Flash_Rate := Fast_Flash_Time;    (* Fast flash for warnings *)
+    4: Flash_Rate := Fast_Flash_Time;       (* Fast flash for alarms *)
+    5: Flash_Rate := Slow_Flash_Time;       (* Slow flash for stopped *)
+END_CASE
+
+Flash_Timer(IN := TRUE, PT := Flash_Rate);
+IF Flash_Timer.Q THEN
+    Flash_State := NOT Flash_State;
+    Flash_Timer(IN := FALSE);
+END_IF
+
+(* Pattern timer for complex patterns *)
+Pattern_Timer(IN := TRUE, PT := Pattern_Cycle_Time);
+IF Pattern_Timer.Q THEN
+    Pattern_Step := Pattern_Step + 1;
+    IF Pattern_Step > 3 THEN
+        Pattern_Step := 0;
+    END_IF
+    Pattern_Timer(IN := FALSE);
+END_IF
+
+(* Beacon control logic *)
+CASE Beacon_Mode OF
+    
+    0: (* SYSTEM_READY - Solid green *)
+        Green_Light := TRUE;
+        Yellow_Light := FALSE;
+        Red_Light := FALSE;
+        Audio_Active := FALSE;
+        Status_Pattern := 0;
+    
+    1: (* ACTIVE_OPERATION - Flashing green *)
+        Green_Light := Flash_State;
+        Yellow_Light := FALSE;
+        Red_Light := FALSE;
+        Audio_Active := FALSE;
+        Status_Pattern := 1;
+    
+    2: (* MANUAL_MODE - Solid yellow *)
+        Green_Light := FALSE;
+        Yellow_Light := TRUE;
+        Red_Light := FALSE;
+        Audio_Active := FALSE;
+        Status_Pattern := 2;
+    
+    3: (* SYSTEM_ERROR - Flashing yellow *)
+        Green_Light := FALSE;
+        Yellow_Light := Flash_State;
+        Red_Light := FALSE;
+        Audio_Active := Enable_Audio;
+        Audio_Pattern := 1;
+        Status_Pattern := 3;
+    
+    4: (* EMERGENCY/SAFETY_FAULT - Flashing red *)
+        Green_Light := FALSE;
+        Yellow_Light := FALSE;
+        Red_Light := Flash_State;
+        Audio_Active := Enable_Audio;
+        Audio_Pattern := 2;
+        Status_Pattern := 4;
+    
+    5: (* SYSTEM_STOPPED - All off or dim pattern *)
+        CASE Pattern_Step OF
+            0, 1: 
+                Green_Light := FALSE;
+                Yellow_Light := FALSE;
+                Red_Light := FALSE;
+            2:
+                Green_Light := TRUE;
+                Yellow_Light := TRUE;
+                Red_Light := TRUE;
+            3:
+                Green_Light := FALSE;
+                Yellow_Light := FALSE;
+                Red_Light := FALSE;
+        END_CASE
+        Audio_Active := FALSE;
+        Status_Pattern := 5;
+
+END_CASE
+
+(* Audio alarm patterns *)
+IF Audio_Active AND Enable_Audio THEN
+    CASE Audio_Pattern OF
+        1: (* System error - intermittent beep *)
+            Alarm_Timer(IN := TRUE, PT := T#2s);
+            Audio_Alarm := Flash_State;
+            IF Alarm_Timer.Q THEN
+                Alarm_Timer(IN := FALSE);
+            END_IF
+            
+        2: (* Emergency - continuous alarm *)
+            Audio_Alarm := TRUE;
+            
+        ELSE
+            Audio_Alarm := FALSE;
+    END_CASE
+ELSE
+    Audio_Alarm := FALSE;
+    Alarm_Timer(IN := FALSE);
+END_IF
+
+(* Update I/O outputs *)
+GVL_IO.Green_Beacon := Green_Light;
+GVL_IO.Yellow_Beacon := Yellow_Light;
+GVL_IO.Red_Beacon := Red_Light;
+GVL_IO.Buzzer := Audio_Alarm;
+
+(* Update internal status *)
+GVL_Internal.Status_Light_Pattern := Status_Pattern;
+GVL_Internal.Beacon_Flash_State := Flash_State;

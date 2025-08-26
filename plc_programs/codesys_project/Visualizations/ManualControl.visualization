@@ -1,0 +1,1660 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualization xmlns="http://www.3s-software.com/schemas/visualization">
+  <interface>
+    <visualization version="4.0.0.0" name="ManualControl" id="{12345678-6234-1234-1234-123456789601}">
+      <description>Manual control screen for maintenance and testing operations</description>
+      <window height="800" width="1200" />
+      <size height="800" width="1200" />
+      <frame>
+
+        <!-- Background -->
+        <element name="Background" id="{12345678-6234-1234-1234-123456789602}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>0</xpos>
+            <ypos>0</ypos>
+          </position>
+          <size>
+            <width>1200</width>
+            <height>800</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>16777215</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <!-- Title Header -->
+        <element name="HeaderTitle" id="{12345678-6234-1234-1234-123456789603}">
+          <type>Text</type>
+          <position>
+            <xpos>400</xpos>
+            <ypos>20</ypos>
+          </position>
+          <size>
+            <width>400</width>
+            <height>40</height>
+          </size>
+          <text>Manual Control & Testing</text>
+          <font>
+            <family>Arial</family>
+            <size>16</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Warning Banner -->
+        <element name="WarningBanner" id="{12345678-6234-1234-1234-123456789604}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>50</xpos>
+            <ypos>70</ypos>
+          </position>
+          <size>
+            <width>1100</width>
+            <height>30</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>255</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="WarningText" id="{12345678-6234-1234-1234-123456789605}">
+          <type>Text</type>
+          <position>
+            <xpos>60</xpos>
+            <ypos>75</ypos>
+          </position>
+          <size>
+            <width>1080</width>
+            <height>20</height>
+          </size>
+          <text>⚠️ WARNING: Manual mode bypasses safety interlocks. Use only for maintenance and testing. Ensure area is clear.</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>16777215</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Mode Control Panel -->
+        <element name="ModeControlPanel" id="{12345678-6234-1234-1234-123456789606}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>50</xpos>
+            <ypos>120</ypos>
+          </position>
+          <size>
+            <width>350</width>
+            <height>200</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>15790320</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="ModeControlTitle" id="{12345678-6234-1234-1234-123456789607}">
+          <type>Text</type>
+          <position>
+            <xpos>60</xpos>
+            <ypos>130</ypos>
+          </position>
+          <size>
+            <width>330</width>
+            <height>25</height>
+          </size>
+          <text>Operation Mode Control</text>
+          <font>
+            <family>Arial</family>
+            <size>12</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Manual Mode Toggle -->
+        <element name="ManualModeToggle" id="{12345678-6234-1234-1234-123456789608}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>170</ypos>
+          </position>
+          <size>
+            <width>150</width>
+            <height>40</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_Internal.Manual_Mode_Active THEN 16776960 ELSE 12632256 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>3</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>Toggle</id>
+                  <variable>GVL_Internal.Manual_Mode_Active</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="ManualModeText" id="{12345678-6234-1234-1234-123456789609}">
+          <type>Text</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>185</ypos>
+          </position>
+          <size>
+            <width>150</width>
+            <height>20</height>
+          </size>
+          <text>
+            <dynprop name="text">
+              <value>
+                <expression>IF GVL_Internal.Manual_Mode_Active THEN 'MANUAL MODE' ELSE 'AUTO MODE' END_IF</expression>
+              </value>
+            </dynprop>
+          </text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- System Enable Toggle -->
+        <element name="SystemEnableToggle" id="{12345678-6234-1234-1234-123456789610}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>230</ypos>
+          </position>
+          <size>
+            <width>150</width>
+            <height>40</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_IO.System_Running THEN 65280 ELSE 255 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>3</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>Toggle</id>
+                  <variable>GVL_IO.System_Running</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="SystemEnableText" id="{12345678-6234-1234-1234-123456789611}">
+          <type>Text</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>245</ypos>
+          </position>
+          <size>
+            <width>150</width>
+            <height>20</height>
+          </size>
+          <text>
+            <dynprop name="text">
+              <value>
+                <expression>IF GVL_IO.System_Running THEN 'SYSTEM ENABLED' ELSE 'SYSTEM STOPPED' END_IF</expression>
+              </value>
+            </dynprop>
+          </text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Robot Manual Control Panel -->
+        <element name="RobotManualPanel" id="{12345678-6234-1234-1234-123456789612}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>420</xpos>
+            <ypos>120</ypos>
+          </position>
+          <size>
+            <width>350</width>
+            <height>200</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>15790320</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="RobotManualTitle" id="{12345678-6234-1234-1234-123456789613}">
+          <type>Text</type>
+          <position>
+            <xpos>430</xpos>
+            <ypos>130</ypos>
+          </position>
+          <size>
+            <width>330</width>
+            <height>25</height>
+          </size>
+          <text>Robot Manual Control</text>
+          <font>
+            <family>Arial</family>
+            <size>12</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Robot Enable -->
+        <element name="RobotEnableButton" id="{12345678-6234-1234-1234-123456789614}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>450</xpos>
+            <ypos>170</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>30</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_IO.Robot_Enable THEN 65280 ELSE 12632256 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>Toggle</id>
+                  <variable>GVL_IO.Robot_Enable</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="RobotEnableText" id="{12345678-6234-1234-1234-123456789615}">
+          <type>Text</type>
+          <position>
+            <xpos>450</xpos>
+            <ypos>175</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>20</height>
+          </size>
+          <text>ENABLE</text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Robot Movement Buttons -->
+        <element name="RobotHomeButton" id="{12345678-6234-1234-1234-123456789616}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>550</xpos>
+            <ypos>170</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>30</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>14277081</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_IO.Robot_Move_Home</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="RobotHomeText" id="{12345678-6234-1234-1234-123456789617}">
+          <type>Text</type>
+          <position>
+            <xpos>550</xpos>
+            <ypos>175</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>20</height>
+          </size>
+          <text>HOME</text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <element name="RobotToBinButton" id="{12345678-6234-1234-1234-123456789618}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>170</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>30</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>14277081</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_IO.Robot_Move_To_Bin</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="RobotToBinText" id="{12345678-6234-1234-1234-123456789619}">
+          <type>Text</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>175</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>20</height>
+          </size>
+          <text>TO BIN</text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <element name="RobotToStationButton" id="{12345678-6234-1234-1234-123456789620}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>550</xpos>
+            <ypos>210</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>30</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>14277081</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_IO.Robot_Move_To_Station</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="RobotToStationText" id="{12345678-6234-1234-1234-123456789621}">
+          <type>Text</type>
+          <position>
+            <xpos>550</xpos>
+            <ypos>215</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>20</height>
+          </size>
+          <text>TO STATION</text>
+          <font>
+            <family>Arial</family>
+            <size>8</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Gripper Control -->
+        <element name="GripperOpenButton" id="{12345678-6234-1234-1234-123456789622}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>450</xpos>
+            <ypos>250</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>30</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>65280</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_IO.Robot_Gripper_Open_Cmd</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="GripperOpenText" id="{12345678-6234-1234-1234-123456789623}">
+          <type>Text</type>
+          <position>
+            <xpos>450</xpos>
+            <ypos>255</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>20</height>
+          </size>
+          <text>OPEN</text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <element name="GripperCloseButton" id="{12345678-6234-1234-1234-123456789624}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>550</xpos>
+            <ypos>250</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>30</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>255</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_IO.Robot_Gripper_Close_Cmd</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="GripperCloseText" id="{12345678-6234-1234-1234-123456789625}">
+          <type>Text</type>
+          <position>
+            <xpos>550</xpos>
+            <ypos>255</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>20</height>
+          </size>
+          <text>CLOSE</text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Conveyor Manual Control Panel -->
+        <element name="ConveyorManualPanel" id="{12345678-6234-1234-1234-123456789626}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>790</xpos>
+            <ypos>120</ypos>
+          </position>
+          <size>
+            <width>380</width>
+            <height>200</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>15790320</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="ConveyorManualTitle" id="{12345678-6234-1234-1234-123456789627}">
+          <type>Text</type>
+          <position>
+            <xpos>800</xpos>
+            <ypos>130</ypos>
+          </position>
+          <size>
+            <width>360</width>
+            <height>25</height>
+          </size>
+          <text>Conveyor Manual Control</text>
+          <font>
+            <family>Arial</family>
+            <size>12</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Conveyor 1 Manual Control -->
+        <element name="Conv1ManualButton" id="{12345678-6234-1234-1234-123456789628}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>820</xpos>
+            <ypos>170</ypos>
+          </position>
+          <size>
+            <width>70</width>
+            <height>30</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_IO.Conveyor1_Motor THEN 65280 ELSE 12632256 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>Toggle</id>
+                  <variable>GVL_IO.Conveyor1_Motor</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="Conv1ManualText" id="{12345678-6234-1234-1234-123456789629}">
+          <type>Text</type>
+          <position>
+            <xpos>820</xpos>
+            <ypos>175</ypos>
+          </position>
+          <size>
+            <width>70</width>
+            <height>20</height>
+          </size>
+          <text>CONV 1</text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Conveyor 2 Manual Control -->
+        <element name="Conv2ManualButton" id="{12345678-6234-1234-1234-123456789630}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>900</xpos>
+            <ypos>170</ypos>
+          </position>
+          <size>
+            <width>70</width>
+            <height>30</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_IO.Conveyor2_Motor THEN 65280 ELSE 12632256 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>Toggle</id>
+                  <variable>GVL_IO.Conveyor2_Motor</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="Conv2ManualText" id="{12345678-6234-1234-1234-123456789631}">
+          <type>Text</type>
+          <position>
+            <xpos>900</xpos>
+            <ypos>175</ypos>
+          </position>
+          <size>
+            <width>70</width>
+            <height>20</height>
+          </size>
+          <text>CONV 2</text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Conveyor 3 Manual Control -->
+        <element name="Conv3ManualButton" id="{12345678-6234-1234-1234-123456789632}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>980</xpos>
+            <ypos>170</ypos>
+          </position>
+          <size>
+            <width>70</width>
+            <height>30</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_IO.Conveyor3_Motor THEN 65280 ELSE 12632256 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>Toggle</id>
+                  <variable>GVL_IO.Conveyor3_Motor</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="Conv3ManualText" id="{12345678-6234-1234-1234-123456789633}">
+          <type>Text</type>
+          <position>
+            <xpos>980</xpos>
+            <ypos>175</ypos>
+          </position>
+          <size>
+            <width>70</width>
+            <height>20</height>
+          </size>
+          <text>CONV 3</text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Conveyor 4 Manual Control -->
+        <element name="Conv4ManualButton" id="{12345678-6234-1234-1234-123456789634}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>1060</xpos>
+            <ypos>170</ypos>
+          </position>
+          <size>
+            <width>70</width>
+            <height>30</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_IO.Conveyor4_Motor THEN 65280 ELSE 12632256 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>Toggle</id>
+                  <variable>GVL_IO.Conveyor4_Motor</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="Conv4ManualText" id="{12345678-6234-1234-1234-123456789635}">
+          <type>Text</type>
+          <position>
+            <xpos>1060</xpos>
+            <ypos>175</ypos>
+          </position>
+          <size>
+            <width>70</width>
+            <height>20</height>
+          </size>
+          <text>CONV 4</text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- All Conveyors Control -->
+        <element name="AllConvStartButton" id="{12345678-6234-1234-1234-123456789636}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>820</xpos>
+            <ypos>220</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>30</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>65280</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_IO.Conveyor1_Motor</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_IO.Conveyor2_Motor</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_IO.Conveyor3_Motor</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_IO.Conveyor4_Motor</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="AllConvStartText" id="{12345678-6234-1234-1234-123456789637}">
+          <type>Text</type>
+          <position>
+            <xpos>820</xpos>
+            <ypos>225</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>START ALL</text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <element name="AllConvStopButton" id="{12345678-6234-1234-1234-123456789638}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>940</xpos>
+            <ypos>220</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>30</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>255</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>FALSE</value>
+                  <variable>GVL_IO.Conveyor1_Motor</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>FALSE</value>
+                  <variable>GVL_IO.Conveyor2_Motor</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>FALSE</value>
+                  <variable>GVL_IO.Conveyor3_Motor</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>FALSE</value>
+                  <variable>GVL_IO.Conveyor4_Motor</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="AllConvStopText" id="{12345678-6234-1234-1234-123456789639}">
+          <type>Text</type>
+          <position>
+            <xpos>940</xpos>
+            <ypos>225</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>STOP ALL</text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- I/O Testing Panel -->
+        <element name="IOTestingPanel" id="{12345678-6234-1234-1234-123456789640}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>50</xpos>
+            <ypos>340</ypos>
+          </position>
+          <size>
+            <width>550</width>
+            <height>300</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>15790320</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="IOTestingTitle" id="{12345678-6234-1234-1234-123456789641}">
+          <type>Text</type>
+          <position>
+            <xpos>60</xpos>
+            <ypos>350</ypos>
+          </position>
+          <size>
+            <width>530</width>
+            <height>25</height>
+          </size>
+          <text>I/O Testing & Simulation</text>
+          <font>
+            <family>Arial</family>
+            <size>12</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Input Simulation -->
+        <element name="InputSimTitle" id="{12345678-6234-1234-1234-123456789642}">
+          <type>Text</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>390</ypos>
+          </position>
+          <size>
+            <width>200</width>
+            <height>20</height>
+          </size>
+          <text>Input Simulation:</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <!-- Simulate Start Button -->
+        <element name="SimStartButton" id="{12345678-6234-1234-1234-123456789643}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>420</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>25</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_IO.Start_Button THEN 65280 ELSE 12632256 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>Toggle</id>
+                  <variable>GVL_IO.Start_Button</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="SimStartText" id="{12345678-6234-1234-1234-123456789644}">
+          <type>Text</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>425</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>15</height>
+          </size>
+          <text>START</text>
+          <font>
+            <family>Arial</family>
+            <size>8</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Simulate Stop Button -->
+        <element name="SimStopButton" id="{12345678-6234-1234-1234-123456789645}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>170</xpos>
+            <ypos>420</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>25</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_IO.Stop_Button THEN 255 ELSE 12632256 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>Toggle</id>
+                  <variable>GVL_IO.Stop_Button</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="SimStopText" id="{12345678-6234-1234-1234-123456789646}">
+          <type>Text</type>
+          <position>
+            <xpos>170</xpos>
+            <ypos>425</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>15</height>
+          </size>
+          <text>STOP</text>
+          <font>
+            <family>Arial</family>
+            <size>8</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Simulate E-Stop -->
+        <element name="SimEStopButton" id="{12345678-6234-1234-1234-123456789647}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>260</xpos>
+            <ypos>420</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>25</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_IO.Emergency_Stop THEN 255 ELSE 12632256 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>Toggle</id>
+                  <variable>GVL_IO.Emergency_Stop</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="SimEStopText" id="{12345678-6234-1234-1234-123456789648}">
+          <type>Text</type>
+          <position>
+            <xpos>260</xpos>
+            <ypos>425</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>15</height>
+          </size>
+          <text>E-STOP</text>
+          <font>
+            <family>Arial</family>
+            <size>8</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Output Testing -->
+        <element name="OutputTestTitle" id="{12345678-6234-1234-1234-123456789649}">
+          <type>Text</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>470</ypos>
+          </position>
+          <size>
+            <width>200</width>
+            <height>20</height>
+          </size>
+          <text>Manual Output Control:</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <!-- Beacon Manual Control -->
+        <element name="ManualGreenBeacon" id="{12345678-6234-1234-1234-123456789650}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>500</ypos>
+          </position>
+          <size>
+            <width>60</width>
+            <height>25</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_IO.Green_Beacon THEN 65280 ELSE 12632256 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>Toggle</id>
+                  <variable>GVL_IO.Green_Beacon</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="ManualGreenText" id="{12345678-6234-1234-1234-123456789651}">
+          <type>Text</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>505</ypos>
+          </position>
+          <size>
+            <width>60</width>
+            <height>15</height>
+          </size>
+          <text>GREEN</text>
+          <font>
+            <family>Arial</family>
+            <size>8</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- System Reset Panel -->
+        <element name="SystemResetPanel" id="{12345678-6234-1234-1234-123456789652}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>620</xpos>
+            <ypos>340</ypos>
+          </position>
+          <size>
+            <width>550</width>
+            <height>300</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>15790320</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="SystemResetTitle" id="{12345678-6234-1234-1234-123456789653}">
+          <type>Text</type>
+          <position>
+            <xpos>630</xpos>
+            <ypos>350</ypos>
+          </position>
+          <size>
+            <width>530</width>
+            <height>25</height>
+          </size>
+          <text>System Reset & Recovery</text>
+          <font>
+            <family>Arial</family>
+            <size>12</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Emergency Reset Button -->
+        <element name="EmergencyResetButton" id="{12345678-6234-1234-1234-123456789654}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>390</ypos>
+          </position>
+          <size>
+            <width>150</width>
+            <height>50</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>255</fillcolor>
+          <linewidth>3</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>FALSE</value>
+                  <variable>GVL_Internal.Emergency_Stop_Active</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_Internal.Safety_Circuit_OK</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="EmergencyResetText" id="{12345678-6234-1234-1234-123456789655}">
+          <type>Text</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>405</ypos>
+          </position>
+          <size>
+            <width>150</width>
+            <height>20</height>
+          </size>
+          <text>EMERGENCY RESET</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>16777215</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Robot Reset Button -->
+        <element name="RobotResetButton" id="{12345678-6234-1234-1234-123456789656}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>820</xpos>
+            <ypos>390</ypos>
+          </position>
+          <size>
+            <width>120</width>
+            <height>40</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>16776960</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_IO.Robot_Reset</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="RobotResetText" id="{12345678-6234-1234-1234-123456789657}">
+          <type>Text</type>
+          <position>
+            <xpos>820</xpos>
+            <ypos>400</ypos>
+          </position>
+          <size>
+            <width>120</width>
+            <height>20</height>
+          </size>
+          <text>ROBOT RESET</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- System Initialize Button -->
+        <element name="SystemInitButton" id="{12345678-6234-1234-1234-123456789658}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>460</ypos>
+          </position>
+          <size>
+            <width>150</width>
+            <height>40</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>65280</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_Internal.System_Initialize</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="SystemInitText" id="{12345678-6234-1234-1234-123456789659}">
+          <type>Text</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>470</ypos>
+          </position>
+          <size>
+            <width>150</width>
+            <height>20</height>
+          </size>
+          <text>SYSTEM INITIALIZE</text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Current Status Display -->
+        <element name="CurrentStatusTitle" id="{12345678-6234-1234-1234-123456789660}">
+          <type>Text</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>520</ypos>
+          </position>
+          <size>
+            <width>200</width>
+            <height>20</height>
+          </size>
+          <text>Current System Status:</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <element name="CurrentStatusValue" id="{12345678-6234-1234-1234-123456789661}">
+          <type>Text</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>545</ypos>
+          </position>
+          <size>
+            <width>300</width>
+            <height>30</height>
+          </size>
+          <text>
+            <dynprop name="text">
+              <value>
+                <expression>
+                  IF GVL_Internal.Manual_Mode_Active THEN 'MANUAL MODE ACTIVE'
+                  ELSIF GVL_Internal.Emergency_Stop_Active THEN 'EMERGENCY STOP'
+                  ELSIF GVL_Internal.System_State = 2 THEN 'RUNNING'
+                  ELSIF GVL_Internal.System_State = 4 THEN 'ERROR'
+                  ELSE 'STOPPED'
+                  END_IF
+                </expression>
+              </value>
+            </dynprop>
+          </text>
+          <font>
+            <family>Arial</family>
+            <size>12</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>
+            <dynprop name="textcolor">
+              <value>
+                <expression>
+                  IF GVL_Internal.Emergency_Stop_Active THEN 255
+                  ELSIF GVL_Internal.Manual_Mode_Active THEN 16776960
+                  ELSIF GVL_Internal.System_State = 2 THEN 65280
+                  ELSE 0
+                  END_IF
+                </expression>
+              </value>
+            </dynprop>
+          </textcolor>
+        </element>
+
+        <!-- Back Button -->
+        <element name="BackButton" id="{12345678-6234-1234-1234-123456789662}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>50</xpos>
+            <ypos>670</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>40</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>14277081</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>ChangeVisu</id>
+                  <visualization>MainOverview</visualization>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="BackButtonText" id="{12345678-6234-1234-1234-123456789663}">
+          <type>Text</type>
+          <position>
+            <xpos>50</xpos>
+            <ypos>680</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>← Back</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+      </frame>
+    </visualization>
+  </interface>
+</visualization>

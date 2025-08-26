@@ -1,0 +1,13 @@
+TYPE DUT_RobotState :
+(
+    ROBOT_IDLE := 0,            // Robot is idle at home position
+    ROBOT_MOVING_TO_BIN := 1,   // Robot moving to bin position
+    ROBOT_AT_BIN := 2,          // Robot at bin position
+    ROBOT_PICKING := 3,         // Robot picking item from bin
+    ROBOT_MOVING_TO_STATION := 4, // Robot moving to station
+    ROBOT_AT_STATION := 5,      // Robot at station position
+    ROBOT_PLACING := 6,         // Robot placing item at station
+    ROBOT_RETURNING_HOME := 7,  // Robot returning to home
+    ROBOT_ERROR := 8            // Robot error state
+);
+END_TYPE

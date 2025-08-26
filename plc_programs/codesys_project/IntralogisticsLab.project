@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://www.plcopen.org/xml/tc6_0200">
+  <fileHeader companyName="Intralogistics Learning Lab" 
+              productName="CODESYS V3.5 SP19" 
+              productVersion="3.5.19.0" 
+              creationDateTime="2025-08-25T12:00:00">
+    <coordinateInfo>
+      <fbd>
+        <scaling x="1" y="1" />
+      </fbd>
+      <ld>
+        <scaling x="1" y="1" />
+      </ld>
+      <sfc>
+        <scaling x="1" y="1" />
+      </sfc>
+    </coordinateInfo>
+  </fileHeader>
+  <contentHeader name="IntralogisticsLab" modificationDateTime="2025-08-25T12:00:00">
+    <coordinateInfo>
+      <pageSize x="0" y="0" />
+      <fbd>
+        <scaling x="1" y="1" />
+      </fbd>
+      <ld>
+        <scaling x="1" y="1" />
+      </ld>
+      <sfc>
+        <scaling x="1" y="1" />
+      </sfc>
+    </coordinateInfo>
+  </contentHeader>
+  <types>
+    <dataTypes>
+      <!-- System State Enumeration -->
+      <dataType name="DUT_SystemState">
+        <baseType>
+          <enum>
+            <values>
+              <value name="SYSTEM_STOPPED" value="0" />
+              <value name="SYSTEM_STARTING" value="1" />
+              <value name="SYSTEM_RUNNING" value="2" />
+              <value name="SYSTEM_STOPPING" value="3" />
+              <value name="SYSTEM_ERROR" value="4" />
+              <value name="SYSTEM_MANUAL" value="5" />
+            </values>
+          </enum>
+        </baseType>
+      </dataType>
+      
+      <!-- Robot State Enumeration -->
+      <dataType name="DUT_RobotState">
+        <baseType>
+          <enum>
+            <values>
+              <value name="ROBOT_IDLE" value="0" />
+              <value name="ROBOT_MOVING_TO_BIN" value="1" />
+              <value name="ROBOT_AT_BIN" value="2" />
+              <value name="ROBOT_PICKING" value="3" />
+              <value name="ROBOT_MOVING_TO_STATION" value="4" />
+              <value name="ROBOT_AT_STATION" value="5" />
+              <value name="ROBOT_PLACING" value="6" />
+              <value name="ROBOT_RETURNING_HOME" value="7" />
+              <value name="ROBOT_ERROR" value="8" />
+            </values>
+          </enum>
+        </baseType>
+      </dataType>
+      
+      <!-- Conveyor Status Enumeration -->
+      <dataType name="DUT_ConveyorStatus">
+        <baseType>
+          <enum>
+            <values>
+              <value name="CONVEYOR_STOPPED" value="0" />
+              <value name="CONVEYOR_RUNNING" value="1" />
+              <value name="CONVEYOR_FAULT" value="2" />
+              <value name="CONVEYOR_MAINTENANCE" value="3" />
+            </values>
+          </enum>
+        </baseType>
+      </dataType>
+      
+      <!-- RFID Status Enumeration -->
+      <dataType name="DUT_RFIDStatus">
+        <baseType>
+          <enum>
+            <values>
+              <value name="RFID_IDLE" value="0" />
+              <value name="RFID_READING" value="1" />
+              <value name="RFID_VALID_READ" value="2" />
+              <value name="RFID_ERROR" value="3" />
+              <value name="RFID_NO_TAG" value="4" />
+            </values>
+          </enum>
+        </baseType>
+      </dataType>
+      
+      <!-- Station Type Enumeration -->
+      <dataType name="DUT_StationType">
+        <baseType>
+          <enum>
+            <values>
+              <value name="STATION_NONE" value="0" />
+              <value name="STATION_RECEIVING" value="1" />
+              <value name="STATION_ASSEMBLY" value="2" />
+              <value name="STATION_WAREHOUSE" value="3" />
+            </values>
+          </enum>
+        </baseType>
+      </dataType>
+      
+      <!-- Conveyor Data Structure -->
+      <dataType name="DUT_ConveyorData">
+        <baseType>
+          <struct>
+            <variable name="Status" type="DUT_ConveyorStatus" />
+            <variable name="Motor_Command" type="BOOL" />
+            <variable name="Speed_Setpoint" type="INT" initialValue="1000" />
+            <variable name="Entry_Sensor" type="BOOL" />
+            <variable name="Exit_Sensor" type="BOOL" />
+            <variable name="Run_Timer" type="INT" />
+            <variable name="Fault_Code" type="INT" />
+            <variable name="Item_Count" type="INT" />
+            <variable name="Auto_Mode" type="BOOL" initialValue="TRUE" />
+          </struct>
+        </baseType>
+      </dataType>
+      
+      <!-- Robot Data Structure -->
+      <dataType name="DUT_RobotData">
+        <baseType>
+          <struct>
+            <variable name="Current_State" type="DUT_RobotState" />
+            <variable name="Target_Bin" type="INT" />
+            <variable name="Target_Station" type="DUT_StationType" />
+            <variable name="Position_X" type="INT" />
+            <variable name="Position_Y" type="INT" />
+            <variable name="Position_Z" type="INT" />
+            <variable name="At_Home" type="BOOL" />
+            <variable name="At_Target" type="BOOL" />
+            <variable name="Gripper_Open" type="BOOL" />
+            <variable name="Gripper_Closed" type="BOOL" />
+            <variable name="Moving" type="BOOL" />
+            <variable name="Error_Code" type="INT" />
+            <variable name="Operation_Timer" type="INT" />
+            <variable name="Enable_Command" type="BOOL" />
+            <variable name="Reset_Command" type="BOOL" />
+          </struct>
+        </baseType>
+      </dataType>
+      
+      <!-- RFID Data Structure -->
+      <dataType name="DUT_RFIDData">
+        <baseType>
+          <struct>
+            <variable name="Status" type="DUT_RFIDStatus" />
+            <variable name="Tag_Present" type="BOOL" />
+            <variable name="Tag_ID" type="DINT" />
+            <variable name="Read_Command" type="BOOL" />
+            <variable name="Enable_Command" type="BOOL" />
+            <variable name="Ready" type="BOOL" />
+            <variable name="Read_Timer" type="INT" />
+            <variable name="Error_Code" type="INT" />
+            <variable name="Valid_Read_Count" type="INT" />
+            <variable name="Error_Count" type="INT" />
+          </struct>
+        </baseType>
+      </dataType>
+    </dataTypes>
+    
+    <pous>
+      <!-- Main Program -->
+      <pou name="MAIN" pouType="program">
+        <interface>
+          <localVars>
+            <variable name="System_Initialize" type="BOOL" initialValue="TRUE" />
+            <variable name="System_Enable" type="BOOL" />
+            <variable name="System_Reset" type="BOOL" />
+            <variable name="Manual_Mode_Request" type="BOOL" />
+            <variable name="FB_Safety" type="FB_SafetySystem" />
+            <variable name="FB_Conveyors" type="FB_ConveyorSystem" />
+            <variable name="FB_Robot" type="FB_StorageRobot" />
+            <variable name="FB_PickControl" type="FB_PickOperationControl" />
+            <variable name="FB_RFID" type="FB_RFIDSystem" />
+            <variable name="FB_Beacons" type="FB_BeaconControl" />
+            <variable name="Robot_Data" type="DUT_RobotData" />
+            <variable name="System_Ready" type="BOOL" />
+            <variable name="All_Systems_OK" type="BOOL" />
+            <variable name="Any_System_Error" type="BOOL" />
+            <variable name="Cycle_Counter" type="DINT" />
+            <variable name="Uptime_Counter" type="INT" />
+            <variable name="Heartbeat_Counter" type="INT" />
+            <variable name="HMI_System_Start" type="BOOL" />
+            <variable name="HMI_System_Stop" type="BOOL" />
+            <variable name="HMI_System_Reset" type="BOOL" />
+            <variable name="HMI_Manual_Mode" type="BOOL" />
+            <variable name="Init_Timer" type="TON" />
+            <variable name="Init_Complete" type="BOOL" />
+          </localVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">
+              <!-- Program body would be inserted here from MAIN.prg file -->
+            </xhtml>
+          </ST>
+        </body>
+      </pou>
+      
+      <!-- Function Blocks -->
+      <pou name="FB_SafetySystem" pouType="functionBlock">
+        <interface>
+          <inputVars>
+            <variable name="System_Enable" type="BOOL" />
+            <variable name="Manual_Reset" type="BOOL" />
+            <variable name="Bypass_Mode" type="BOOL" initialValue="FALSE" />
+          </inputVars>
+          <outputVars>
+            <variable name="Safety_OK" type="BOOL" />
+            <variable name="Emergency_Stop" type="BOOL" />
+            <variable name="Reset_Required" type="BOOL" />
+            <variable name="System_Safe" type="BOOL" />
+            <variable name="Fault_Code" type="INT" />
+          </outputVars>
+        </interface>
+      </pou>
+      
+      <!-- Additional function blocks would be defined here -->
+      
+    </pous>
+  </types>
+  
+  <instances>
+    <configurations>
+      <configuration name="Config0">
+        <resource name="Res0">
+          <task name="Main" interval="T#100ms" priority="0" />
+          <pouInstance name="Inst0" typeName="MAIN" />
+          <programs>
+            <program name="Inst0" task="Main" />
+          </programs>
+        </resource>
+      </configuration>
+    </configurations>
+  </instances>
+</project>

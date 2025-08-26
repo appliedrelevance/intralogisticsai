@@ -1,0 +1,19 @@
+TYPE DUT_RobotData :
+STRUCT
+    Current_State       : DUT_RobotState;      // Current robot state
+    Target_Bin          : INT;                 // Target bin number (1-12)
+    Target_Station      : DUT_StationType;     // Target station
+    Position_X          : INT;                 // Current X position
+    Position_Y          : INT;                 // Current Y position
+    Position_Z          : INT;                 // Current Z position
+    At_Home             : BOOL;                // Robot at home position
+    At_Target           : BOOL;                // Robot at target position
+    Gripper_Open        : BOOL;                // Gripper open status
+    Gripper_Closed      : BOOL;                // Gripper closed status
+    Moving              : BOOL;                // Robot in motion
+    Error_Code          : INT;                 // Error code (0 = no error)
+    Operation_Timer     : INT;                 // Operation timer
+    Enable_Command      : BOOL;                // Robot enable command
+    Reset_Command       : BOOL;                // Robot reset command
+END_STRUCT
+END_TYPE

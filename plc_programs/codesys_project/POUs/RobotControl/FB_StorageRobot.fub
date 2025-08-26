@@ -1,0 +1,254 @@
+FUNCTION_BLOCK FB_StorageRobot
+VAR_INPUT
+    Enable              : BOOL;                 // Robot enable
+    Reset_Command       : BOOL;                 // Reset robot
+    Pick_Request        : BOOL;                 // Pick operation request
+    Target_Bin          : INT;                  // Target bin number (1-12)
+    Target_Station      : DUT_StationType;     // Target station type
+    Manual_Mode         : BOOL;                 // Manual operation mode
+END_VAR
+
+VAR_OUTPUT
+    Ready               : BOOL;                 // Robot ready
+    Busy                : BOOL;                 // Robot busy
+    Operation_Complete  : BOOL;                 // Operation complete
+    Error               : BOOL;                 // Robot error
+    At_Home             : BOOL;                 // Robot at home position
+END_VAR
+
+VAR_IN_OUT
+    Robot_Data          : DUT_RobotData;        // Robot data structure
+END_VAR
+
+VAR
+    (* Timers *)
+    Move_Timer          : TON;                  // Movement timer
+    Pick_Timer          : TON;                  // Pick operation timer
+    Place_Timer         : TON;                  // Place operation timer
+    Complete_Timer      : TON;                  // Operation complete timer
+    Error_Timer         : TON;                  // Error detection timer
+    
+    (* Internal variables *)
+    Operation_Step      : INT := 0;             // Operation step counter
+    Move_Time           : TIME := T#5s;         // Time to move between positions
+    Pick_Time           : TIME := T#3s;         // Time to pick item
+    Place_Time          : TIME := T#3s;         // Time to place item
+    Complete_Pulse_Time : TIME := T#1s;         // Complete signal pulse time
+    
+    (* Position calculation *)
+    Bin_Position_X      : INT;                  // Calculated bin X position
+    Bin_Position_Y      : INT;                  // Calculated bin Y position
+    Station_Position_X  : INT;                  // Calculated station X position
+    Station_Position_Y  : INT;                  // Calculated station Y position
+    
+    (* Edge detection *)
+    Pick_Request_Edge   : R_TRIG;               // Pick request rising edge
+    Home_Position_Edge  : R_TRIG;               // Home position edge
+END_VAR
+
+(* Initialize robot data from I/O *)
+Robot_Data.At_Home := GVL_IO.Robot_Home_Position;
+Robot_Data.At_Target := GVL_IO.Robot_At_Conveyor;
+Robot_Data.Moving := GVL_IO.Robot_Moving;
+Robot_Data.Gripper_Open := GVL_IO.Robot_Gripper_Open;
+Robot_Data.Gripper_Closed := GVL_IO.Robot_Gripper_Closed;
+
+(* Edge detection *)
+Pick_Request_Edge(CLK := Pick_Request);
+Home_Position_Edge(CLK := Robot_Data.At_Home);
+
+(* Reset logic *)
+IF Reset_Command THEN
+    Robot_Data.Current_State := DUT_RobotState.ROBOT_IDLE;
+    Robot_Data.Error_Code := 0;
+    Robot_Data.Operation_Timer := 0;
+    Operation_Step := 0;
+    Operation_Complete := FALSE;
+    Error := FALSE;
+    GVL_IO.Robot_Reset := TRUE;
+ELSE
+    GVL_IO.Robot_Reset := FALSE;
+END_IF
+
+(* Calculate bin positions (3x4 grid layout) *)
+IF Target_Bin >= 1 AND Target_Bin <= 12 THEN
+    Bin_Position_X := ((Target_Bin - 1) MOD 4) * 100 + 100;  // Columns: 100, 200, 300, 400
+    Bin_Position_Y := ((Target_Bin - 1) / 4) * 100 + 100;    // Rows: 100, 200, 300
+    Robot_Data.Target_Bin := Target_Bin;
+END_IF
+
+(* Calculate station positions *)
+CASE Target_Station OF
+    DUT_StationType.STATION_RECEIVING:
+        Station_Position_X := 500;
+        Station_Position_Y := 100;
+    DUT_StationType.STATION_ASSEMBLY:
+        Station_Position_X := 500;
+        Station_Position_Y := 200;
+    DUT_StationType.STATION_WAREHOUSE:
+        Station_Position_X := 500;
+        Station_Position_Y := 300;
+    ELSE
+        Station_Position_X := 0;
+        Station_Position_Y := 0;
+END_CASE
+
+Robot_Data.Target_Station := Target_Station;
+
+(* Main robot state machine *)
+CASE Robot_Data.Current_State OF
+    
+    DUT_RobotState.ROBOT_IDLE:
+        Ready := Enable AND Robot_Data.At_Home AND NOT Error;
+        Busy := FALSE;
+        At_Home := Robot_Data.At_Home;
+        Operation_Complete := FALSE;
+        
+        (* Robot enable control *)
+        GVL_IO.Robot_Enable := Enable;
+        
+        (* Start operation on pick request *)
+        IF Pick_Request_Edge.Q AND Ready AND Target_Bin > 0 THEN
+            Robot_Data.Current_State := DUT_RobotState.ROBOT_MOVING_TO_BIN;
+            Operation_Step := 1;
+            Robot_Data.Operation_Timer := 0;
+        END_IF
+    
+    DUT_RobotState.ROBOT_MOVING_TO_BIN:
+        Ready := FALSE;
+        Busy := TRUE;
+        At_Home := FALSE;
+        
+        (* Send move command *)
+        GVL_IO.Robot_Move_To_Bin := TRUE;
+        
+        (* Update position registers *)
+        Robot_Data.Position_X := Bin_Position_X;
+        Robot_Data.Position_Y := Bin_Position_Y;
+        
+        (* Timer for movement *)
+        Move_Timer(IN := TRUE, PT := Move_Time);
+        IF Move_Timer.Q THEN
+            Move_Timer(IN := FALSE);
+            Robot_Data.Current_State := DUT_RobotState.ROBOT_AT_BIN;
+            GVL_IO.Robot_Move_To_Bin := FALSE;
+        END_IF
+    
+    DUT_RobotState.ROBOT_AT_BIN:
+        Busy := TRUE;
+        Robot_Data.Current_State := DUT_RobotState.ROBOT_PICKING;
+    
+    DUT_RobotState.ROBOT_PICKING:
+        Busy := TRUE;
+        
+        (* Close gripper to pick item *)
+        GVL_IO.Robot_Gripper_Close_Cmd := TRUE;
+        GVL_IO.Robot_Gripper_Open_Cmd := FALSE;
+        
+        (* Pick timer *)
+        Pick_Timer(IN := TRUE, PT := Pick_Time);
+        IF Pick_Timer.Q THEN
+            Pick_Timer(IN := FALSE);
+            Robot_Data.Current_State := DUT_RobotState.ROBOT_MOVING_TO_STATION;
+            GVL_IO.Robot_Gripper_Close_Cmd := FALSE;
+        END_IF
+    
+    DUT_RobotState.ROBOT_MOVING_TO_STATION:
+        Busy := TRUE;
+        
+        (* Send move command *)
+        GVL_IO.Robot_Move_To_Station := TRUE;
+        
+        (* Update position registers *)
+        Robot_Data.Position_X := Station_Position_X;
+        Robot_Data.Position_Y := Station_Position_Y;
+        
+        (* Timer for movement *)
+        Move_Timer(IN := TRUE, PT := Move_Time);
+        IF Move_Timer.Q THEN
+            Move_Timer(IN := FALSE);
+            Robot_Data.Current_State := DUT_RobotState.ROBOT_AT_STATION;
+            GVL_IO.Robot_Move_To_Station := FALSE;
+        END_IF
+    
+    DUT_RobotState.ROBOT_AT_STATION:
+        Busy := TRUE;
+        Robot_Data.Current_State := DUT_RobotState.ROBOT_PLACING;
+    
+    DUT_RobotState.ROBOT_PLACING:
+        Busy := TRUE;
+        
+        (* Open gripper to place item *)
+        GVL_IO.Robot_Gripper_Open_Cmd := TRUE;
+        GVL_IO.Robot_Gripper_Close_Cmd := FALSE;
+        
+        (* Place timer *)
+        Place_Timer(IN := TRUE, PT := Place_Time);
+        IF Place_Timer.Q THEN
+            Place_Timer(IN := FALSE);
+            Robot_Data.Current_State := DUT_RobotState.ROBOT_RETURNING_HOME;
+            GVL_IO.Robot_Gripper_Open_Cmd := FALSE;
+        END_IF
+    
+    DUT_RobotState.ROBOT_RETURNING_HOME:
+        Busy := TRUE;
+        
+        (* Send move home command *)
+        GVL_IO.Robot_Move_Home := TRUE;
+        
+        (* Reset position registers *)
+        Robot_Data.Position_X := 0;
+        Robot_Data.Position_Y := 0;
+        Robot_Data.Position_Z := 0;
+        
+        (* Timer for movement *)
+        Move_Timer(IN := TRUE, PT := Move_Time);
+        IF Move_Timer.Q THEN
+            Move_Timer(IN := FALSE);
+            Operation_Complete := TRUE;
+            Robot_Data.Current_State := DUT_RobotState.ROBOT_IDLE;
+            GVL_IO.Robot_Move_Home := FALSE;
+            
+            (* Start complete signal timer *)
+            Complete_Timer(IN := TRUE, PT := Complete_Pulse_Time);
+        END_IF
+    
+    DUT_RobotState.ROBOT_ERROR:
+        Ready := FALSE;
+        Busy := FALSE;
+        Error := TRUE;
+        
+        (* Stop all robot commands *)
+        GVL_IO.Robot_Enable := FALSE;
+        GVL_IO.Robot_Move_To_Bin := FALSE;
+        GVL_IO.Robot_Move_To_Station := FALSE;
+        GVL_IO.Robot_Move_Home := FALSE;
+        GVL_IO.Robot_Gripper_Open_Cmd := FALSE;
+        GVL_IO.Robot_Gripper_Close_Cmd := FALSE;
+        
+        (* Reset to idle on reset command *)
+        IF Reset_Command THEN
+            Robot_Data.Current_State := DUT_RobotState.ROBOT_IDLE;
+            Error := FALSE;
+        END_IF
+
+END_CASE
+
+(* Complete signal pulse *)
+Complete_Timer(IN := Operation_Complete);
+IF Complete_Timer.Q THEN
+    Operation_Complete := FALSE;
+    Complete_Timer(IN := FALSE);
+END_IF
+
+(* Error detection *)
+Error_Timer(IN := GVL_IO.Robot_Error_Status, PT := T#1s);
+IF Error_Timer.Q THEN
+    Robot_Data.Current_State := DUT_RobotState.ROBOT_ERROR;
+    Robot_Data.Error_Code := 1; (* General robot error *)
+END_IF
+
+(* Update MODBUS position registers *)
+GVL_MODBUS.Robot_Position_X := Robot_Data.Position_X;
+GVL_MODBUS.Robot_Position_Y := Robot_Data.Position_Y;
+GVL_MODBUS.Robot_Position_Z := Robot_Data.Position_Z;

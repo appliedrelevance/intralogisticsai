@@ -1,0 +1,1267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualization xmlns="http://www.3s-software.com/schemas/visualization">
+  <interface>
+    <visualization version="4.0.0.0" name="SafetyDiagnostics" id="{12345678-5234-1234-1234-123456789501}">
+      <description>Safety and diagnostics screen showing E-stops, beacons, alarms, and system diagnostics</description>
+      <window height="800" width="1200" />
+      <size height="800" width="1200" />
+      <frame>
+
+        <!-- Background -->
+        <element name="Background" id="{12345678-5234-1234-1234-123456789502}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>0</xpos>
+            <ypos>0</ypos>
+          </position>
+          <size>
+            <width>1200</width>
+            <height>800</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>16777215</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <!-- Title Header -->
+        <element name="HeaderTitle" id="{12345678-5234-1234-1234-123456789503}">
+          <type>Text</type>
+          <position>
+            <xpos>400</xpos>
+            <ypos>20</ypos>
+          </position>
+          <size>
+            <width>400</width>
+            <height>40</height>
+          </size>
+          <text>Safety & Diagnostics System</text>
+          <font>
+            <family>Arial</family>
+            <size>16</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Safety System Status Panel -->
+        <element name="SafetySystemPanel" id="{12345678-5234-1234-1234-123456789504}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>50</xpos>
+            <ypos>80</ypos>
+          </position>
+          <size>
+            <width>550</width>
+            <height>300</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>15790320</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="SafetySystemTitle" id="{12345678-5234-1234-1234-123456789505}">
+          <type>Text</type>
+          <position>
+            <xpos>60</xpos>
+            <ypos>90</ypos>
+          </position>
+          <size>
+            <width>530</width>
+            <height>25</height>
+          </size>
+          <text>Safety System Status</text>
+          <font>
+            <family>Arial</family>
+            <size>12</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Emergency Stop Status -->
+        <element name="EmergencyStopPanel" id="{12345678-5234-1234-1234-123456789506}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>130</ypos>
+          </position>
+          <size>
+            <width>200</width>
+            <height>80</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_Internal.Emergency_Stop_Active THEN 255 ELSE 65280 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>3</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="EmergencyStopTitle" id="{12345678-5234-1234-1234-123456789507}">
+          <type>Text</type>
+          <position>
+            <xpos>90</xpos>
+            <ypos>140</ypos>
+          </position>
+          <size>
+            <width>180</width>
+            <height>20</height>
+          </size>
+          <text>EMERGENCY STOP</text>
+          <font>
+            <family>Arial</family>
+            <size>12</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <element name="EmergencyStopStatus" id="{12345678-5234-1234-1234-123456789508}">
+          <type>Text</type>
+          <position>
+            <xpos>90</xpos>
+            <ypos>165</ypos>
+          </position>
+          <size>
+            <width>180</width>
+            <height>30</height>
+          </size>
+          <text>
+            <dynprop name="text">
+              <value>
+                <expression>IF GVL_Internal.Emergency_Stop_Active THEN 'ACTIVATED' ELSE 'NORMAL' END_IF</expression>
+              </value>
+            </dynprop>
+          </text>
+          <font>
+            <family>Arial</family>
+            <size>14</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Safety Circuit Status -->
+        <element name="SafetyCircuitPanel" id="{12345678-5234-1234-1234-123456789509}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>300</xpos>
+            <ypos>130</ypos>
+          </position>
+          <size>
+            <width>200</width>
+            <height>80</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_Internal.Safety_Circuit_OK THEN 65280 ELSE 255 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>3</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="SafetyCircuitTitle" id="{12345678-5234-1234-1234-123456789510}">
+          <type>Text</type>
+          <position>
+            <xpos>310</xpos>
+            <ypos>140</ypos>
+          </position>
+          <size>
+            <width>180</width>
+            <height>20</height>
+          </size>
+          <text>SAFETY CIRCUIT</text>
+          <font>
+            <family>Arial</family>
+            <size>12</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <element name="SafetyCircuitStatus" id="{12345678-5234-1234-1234-123456789511}">
+          <type>Text</type>
+          <position>
+            <xpos>310</xpos>
+            <ypos>165</ypos>
+          </position>
+          <size>
+            <width>180</width>
+            <height>30</height>
+          </size>
+          <text>
+            <dynprop name="text">
+              <value>
+                <expression>IF GVL_Internal.Safety_Circuit_OK THEN 'OK' ELSE 'FAULT' END_IF</expression>
+              </value>
+            </dynprop>
+          </text>
+          <font>
+            <family>Arial</family>
+            <size>14</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Safety Inputs Status -->
+        <element name="SafetyInputsTitle" id="{12345678-5234-1234-1234-123456789512}">
+          <type>Text</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>230</ypos>
+          </position>
+          <size>
+            <width>200</width>
+            <height>20</height>
+          </size>
+          <text>Safety Input Status:</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <!-- Safety Gate Status -->
+        <element name="SafetyGateIndicator" id="{12345678-5234-1234-1234-123456789513}">
+          <type>Ellipse</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>255</ypos>
+          </position>
+          <size>
+            <width>20</width>
+            <height>20</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_Internal.Safety_Gate_Closed THEN 65280 ELSE 255 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="SafetyGateLabel" id="{12345678-5234-1234-1234-123456789514}">
+          <type>Text</type>
+          <position>
+            <xpos>110</xpos>
+            <ypos>255</ypos>
+          </position>
+          <size>
+            <width>120</width>
+            <height>20</height>
+          </size>
+          <text>Safety Gate Closed</text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <!-- Light Curtain Status -->
+        <element name="LightCurtainIndicator" id="{12345678-5234-1234-1234-123456789515}">
+          <type>Ellipse</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>285</ypos>
+          </position>
+          <size>
+            <width>20</width>
+            <height>20</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_Internal.Light_Curtain_Clear THEN 65280 ELSE 255 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="LightCurtainLabel" id="{12345678-5234-1234-1234-123456789516}">
+          <type>Text</type>
+          <position>
+            <xpos>110</xpos>
+            <ypos>285</ypos>
+          </position>
+          <size>
+            <width>120</width>
+            <height>20</height>
+          </size>
+          <text>Light Curtain Clear</text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <!-- Safety Reset Required -->
+        <element name="SafetyResetIndicator" id="{12345678-5234-1234-1234-123456789517}">
+          <type>Ellipse</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>315</ypos>
+          </position>
+          <size>
+            <width>20</width>
+            <height>20</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_Internal.Safety_Reset_Required THEN 16776960 ELSE 12632256 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="SafetyResetLabel" id="{12345678-5234-1234-1234-123456789518}">
+          <type>Text</type>
+          <position>
+            <xpos>110</xpos>
+            <ypos>315</ypos>
+          </position>
+          <size>
+            <width>120</width>
+            <height>20</height>
+          </size>
+          <text>Safety Reset Required</text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <!-- Beacon Control Panel -->
+        <element name="BeaconControlPanel" id="{12345678-5234-1234-1234-123456789519}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>620</xpos>
+            <ypos>80</ypos>
+          </position>
+          <size>
+            <width>550</width>
+            <height>300</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>15790320</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="BeaconControlTitle" id="{12345678-5234-1234-1234-123456789520}">
+          <type>Text</type>
+          <position>
+            <xpos>630</xpos>
+            <ypos>90</ypos>
+          </position>
+          <size>
+            <width>530</width>
+            <height>25</height>
+          </size>
+          <text>Visual & Audio Indicators</text>
+          <font>
+            <family>Arial</family>
+            <size>12</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Green Beacon -->
+        <element name="GreenBeaconPanel" id="{12345678-5234-1234-1234-123456789521}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>130</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>60</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_IO.Green_Beacon THEN 65280 ELSE 12632256 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="GreenBeaconText" id="{12345678-5234-1234-1234-123456789522}">
+          <type>Text</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>150</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>GREEN</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Yellow Beacon -->
+        <element name="YellowBeaconPanel" id="{12345678-5234-1234-1234-123456789523}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>770</xpos>
+            <ypos>130</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>60</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_IO.Yellow_Beacon THEN 16776960 ELSE 12632256 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="YellowBeaconText" id="{12345678-5234-1234-1234-123456789524}">
+          <type>Text</type>
+          <position>
+            <xpos>770</xpos>
+            <ypos>150</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>YELLOW</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Red Beacon -->
+        <element name="RedBeaconPanel" id="{12345678-5234-1234-1234-123456789525}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>890</xpos>
+            <ypos>130</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>60</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_IO.Red_Beacon THEN 255 ELSE 12632256 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="RedBeaconText" id="{12345678-5234-1234-1234-123456789526}">
+          <type>Text</type>
+          <position>
+            <xpos>890</xpos>
+            <ypos>150</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>RED</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Buzzer Status -->
+        <element name="BuzzerPanel" id="{12345678-5234-1234-1234-123456789527}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>1010</xpos>
+            <ypos>130</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>60</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_IO.Buzzer THEN 16711680 ELSE 12632256 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="BuzzerText" id="{12345678-5234-1234-1234-123456789528}">
+          <type>Text</type>
+          <position>
+            <xpos>1010</xpos>
+            <ypos>150</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>BUZZER</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Beacon Status Pattern -->
+        <element name="BeaconPatternLabel" id="{12345678-5234-1234-1234-123456789529}">
+          <type>Text</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>210</ypos>
+          </position>
+          <size>
+            <width>150</width>
+            <height>20</height>
+          </size>
+          <text>Light Pattern:</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <element name="BeaconPatternValue" id="{12345678-5234-1234-1234-123456789530}">
+          <type>Text</type>
+          <position>
+            <xpos>810</xpos>
+            <ypos>210</ypos>
+          </position>
+          <size>
+            <width>200</width>
+            <height>20</height>
+          </size>
+          <text>
+            <dynprop name="text">
+              <value>
+                <expression>
+                  CASE GVL_Internal.Status_Light_Pattern OF
+                    0: 'ALL OFF'
+                    1: 'GREEN STEADY'
+                    2: 'YELLOW FLASHING'
+                    3: 'RED STEADY'
+                    4: 'RED FLASHING'
+                    ELSE: 'UNKNOWN'
+                  END_CASE
+                </expression>
+              </value>
+            </dynprop>
+          </text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <!-- Manual Beacon Test Buttons -->
+        <element name="BeaconTestTitle" id="{12345678-5234-1234-1234-123456789531}">
+          <type>Text</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>240</ypos>
+          </position>
+          <size>
+            <width>200</width>
+            <height>20</height>
+          </size>
+          <text>Manual Beacon Test:</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <element name="TestGreenButton" id="{12345678-5234-1234-1234-123456789532}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>270</ypos>
+          </position>
+          <size>
+            <width>60</width>
+            <height>25</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>65280</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_IO.Green_Beacon</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="TestGreenText" id="{12345678-5234-1234-1234-123456789533}">
+          <type>Text</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>275</ypos>
+          </position>
+          <size>
+            <width>60</width>
+            <height>15</height>
+          </size>
+          <text>Green</text>
+          <font>
+            <family>Arial</family>
+            <size>8</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- System Diagnostics Panel -->
+        <element name="DiagnosticsPanel" id="{12345678-5234-1234-1234-123456789534}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>50</xpos>
+            <ypos>400</ypos>
+          </position>
+          <size>
+            <width>550</width>
+            <height>250</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>15790320</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="DiagnosticsTitle" id="{12345678-5234-1234-1234-123456789535}">
+          <type>Text</type>
+          <position>
+            <xpos>60</xpos>
+            <ypos>410</ypos>
+          </position>
+          <size>
+            <width>530</width>
+            <height>25</height>
+          </size>
+          <text>System Diagnostics</text>
+          <font>
+            <family>Arial</family>
+            <size>12</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Current Error Code -->
+        <element name="ErrorCodeLabel" id="{12345678-5234-1234-1234-123456789536}">
+          <type>Text</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>450</ypos>
+          </position>
+          <size>
+            <width>120</width>
+            <height>20</height>
+          </size>
+          <text>Current Error Code:</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <element name="ErrorCodeValue" id="{12345678-5234-1234-1234-123456789537}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>210</xpos>
+            <ypos>448</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>24</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_Internal.Error_Code > 0 THEN 255 ELSE 16777215 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="ErrorCodeText" id="{12345678-5234-1234-1234-123456789538}">
+          <type>Text</type>
+          <position>
+            <xpos>215</xpos>
+            <ypos>450</ypos>
+          </position>
+          <size>
+            <width>90</width>
+            <height>20</height>
+          </size>
+          <text>
+            <dynprop name="text">
+              <value>
+                <expression>INT_TO_STRING(GVL_Internal.Error_Code)</expression>
+              </value>
+            </dynprop>
+          </text>
+          <font>
+            <family>Courier New</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Last Error Code -->
+        <element name="LastErrorLabel" id="{12345678-5234-1234-1234-123456789539}">
+          <type>Text</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>485</ypos>
+          </position>
+          <size>
+            <width>120</width>
+            <height>20</height>
+          </size>
+          <text>Last Error Code:</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <element name="LastErrorValue" id="{12345678-5234-1234-1234-123456789540}">
+          <type>Text</type>
+          <position>
+            <xpos>210</xpos>
+            <ypos>485</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>
+            <dynprop name="text">
+              <value>
+                <expression>INT_TO_STRING(GVL_Internal.Last_Error_Code)</expression>
+              </value>
+            </dynprop>
+          </text>
+          <font>
+            <family>Courier New</family>
+            <size>10</size>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <!-- Error Timer -->
+        <element name="ErrorTimerLabel" id="{12345678-5234-1234-1234-123456789541}">
+          <type>Text</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>520</ypos>
+          </position>
+          <size>
+            <width>120</width>
+            <height>20</height>
+          </size>
+          <text>Error Timer (s):</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <element name="ErrorTimerValue" id="{12345678-5234-1234-1234-123456789542}">
+          <type>Text</type>
+          <position>
+            <xpos>210</xpos>
+            <ypos>520</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>
+            <dynprop name="text">
+              <value>
+                <expression>INT_TO_STRING(GVL_Internal.Error_Timer / 10)</expression>
+              </value>
+            </dynprop>
+          </text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <!-- Heartbeat Counter -->
+        <element name="HeartbeatLabel" id="{12345678-5234-1234-1234-123456789543}">
+          <type>Text</type>
+          <position>
+            <xpos>350</xpos>
+            <ypos>450</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>Heartbeat:</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <element name="HeartbeatValue" id="{12345678-5234-1234-1234-123456789544}">
+          <type>Text</type>
+          <position>
+            <xpos>460</xpos>
+            <ypos>450</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>
+            <dynprop name="text">
+              <value>
+                <expression>INT_TO_STRING(GVL_Internal.Heartbeat_Timer)</expression>
+              </value>
+            </dynprop>
+          </text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <!-- Performance Counter -->
+        <element name="PerformanceLabel" id="{12345678-5234-1234-1234-123456789545}">
+          <type>Text</type>
+          <position>
+            <xpos>350</xpos>
+            <ypos>485</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>Performance:</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <element name="PerformanceValue" id="{12345678-5234-1234-1234-123456789546}">
+          <type>Text</type>
+          <position>
+            <xpos>460</xpos>
+            <ypos>485</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>
+            <dynprop name="text">
+              <value>
+                <expression>DINT_TO_STRING(GVL_Internal.Performance_Counter)</expression>
+              </value>
+            </dynprop>
+          </text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <!-- Error Reset Button -->
+        <element name="ErrorResetButton" id="{12345678-5234-1234-1234-123456789547}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>570</ypos>
+          </position>
+          <size>
+            <width>120</width>
+            <height>40</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>16776960</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_Internal.Error_Reset_Request</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="ErrorResetText" id="{12345678-5234-1234-1234-123456789548}">
+          <type>Text</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>580</ypos>
+          </position>
+          <size>
+            <width>120</width>
+            <height>20</height>
+          </size>
+          <text>Reset Errors</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Alarm History Panel -->
+        <element name="AlarmHistoryPanel" id="{12345678-5234-1234-1234-123456789549}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>620</xpos>
+            <ypos>400</ypos>
+          </position>
+          <size>
+            <width>550</width>
+            <height>250</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>15790320</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="AlarmHistoryTitle" id="{12345678-5234-1234-1234-123456789550}">
+          <type>Text</type>
+          <position>
+            <xpos>630</xpos>
+            <ypos>410</ypos>
+          </position>
+          <size>
+            <width>530</width>
+            <height>25</height>
+          </size>
+          <text>Active Alarms & Events</text>
+          <font>
+            <family>Arial</family>
+            <size>12</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Active Alarms List -->
+        <element name="ActiveAlarmsTitle" id="{12345678-5234-1234-1234-123456789551}">
+          <type>Text</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>450</ypos>
+          </position>
+          <size>
+            <width>200</width>
+            <height>20</height>
+          </size>
+          <text>Active System Events:</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <!-- Emergency Stop Event -->
+        <element name="EmergencyStopEvent" id="{12345678-5234-1234-1234-123456789552}">
+          <type>Text</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>480</ypos>
+          </position>
+          <size>
+            <width>500</width>
+            <height>20</height>
+          </size>
+          <text>
+            <dynprop name="text">
+              <value>
+                <expression>IF GVL_Internal.Emergency_Stop_Active THEN '• EMERGENCY STOP ACTIVATED' ELSE '' END_IF</expression>
+              </value>
+            </dynprop>
+          </text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+            <color>
+              <dynprop name="color">
+                <value>
+                  <expression>IF GVL_Internal.Emergency_Stop_Active THEN 255 ELSE 0 END_IF</expression>
+                </value>
+              </dynprop>
+            </color>
+          </font>
+          <textcolor>255</textcolor>
+        </element>
+
+        <!-- Robot Error Event -->
+        <element name="RobotErrorEvent" id="{12345678-5234-1234-1234-123456789553}">
+          <type>Text</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>500</ypos>
+          </position>
+          <size>
+            <width>500</width>
+            <height>20</height>
+          </size>
+          <text>
+            <dynprop name="text">
+              <value>
+                <expression>IF GVL_IO.Robot_Error_Status THEN '• ROBOT ERROR DETECTED' ELSE '' END_IF</expression>
+              </value>
+            </dynprop>
+          </text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+            <color>
+              <dynprop name="color">
+                <value>
+                  <expression>IF GVL_IO.Robot_Error_Status THEN 255 ELSE 0 END_IF</expression>
+                </value>
+              </dynprop>
+            </color>
+          </font>
+          <textcolor>255</textcolor>
+        </element>
+
+        <!-- Safety Circuit Event -->
+        <element name="SafetyCircuitEvent" id="{12345678-5234-1234-1234-123456789554}">
+          <type>Text</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>520</ypos>
+          </position>
+          <size>
+            <width>500</width>
+            <height>20</height>
+          </size>
+          <text>
+            <dynprop name="text">
+              <value>
+                <expression>IF NOT GVL_Internal.Safety_Circuit_OK THEN '• SAFETY CIRCUIT FAULT' ELSE '' END_IF</expression>
+              </value>
+            </dynprop>
+          </text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+            <color>
+              <dynprop name="color">
+                <value>
+                  <expression>IF NOT GVL_Internal.Safety_Circuit_OK THEN 255 ELSE 0 END_IF</expression>
+                </value>
+              </dynprop>
+            </color>
+          </font>
+          <textcolor>255</textcolor>
+        </element>
+
+        <!-- Manual Mode Event -->
+        <element name="ManualModeEvent" id="{12345678-5234-1234-1234-123456789555}">
+          <type>Text</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>540</ypos>
+          </position>
+          <size>
+            <width>500</width>
+            <height>20</height>
+          </size>
+          <text>
+            <dynprop name="text">
+              <value>
+                <expression>IF GVL_Internal.Manual_Mode_Active THEN '• MANUAL MODE ACTIVE' ELSE '' END_IF</expression>
+              </value>
+            </dynprop>
+          </text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+            <color>
+              <dynprop name="color">
+                <value>
+                  <expression>IF GVL_Internal.Manual_Mode_Active THEN 16776960 ELSE 0 END_IF</expression>
+                </value>
+              </dynprop>
+            </color>
+          </font>
+          <textcolor>16776960</textcolor>
+        </element>
+
+        <!-- Back Button -->
+        <element name="BackButton" id="{12345678-5234-1234-1234-123456789556}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>50</xpos>
+            <ypos>670</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>40</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>14277081</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>ChangeVisu</id>
+                  <visualization>MainOverview</visualization>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="BackButtonText" id="{12345678-5234-1234-1234-123456789557}">
+          <type>Text</type>
+          <position>
+            <xpos>50</xpos>
+            <ypos>680</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>← Back</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+      </frame>
+    </visualization>
+  </interface>
+</visualization>

@@ -1,0 +1,14 @@
+TYPE DUT_RFIDData :
+STRUCT
+    Status              : DUT_RFIDStatus;      // RFID reader status
+    Tag_Present         : BOOL;                // Tag present on reader
+    Tag_ID              : DINT;                // Tag ID (32-bit)
+    Read_Command        : BOOL;                // Read command
+    Enable_Command      : BOOL;                // Reader enable command
+    Ready               : BOOL;                // Reader ready status
+    Read_Timer          : INT;                 // Read operation timer
+    Error_Code          : INT;                 // Error code (0 = no error)
+    Valid_Read_Count    : INT;                 // Number of valid reads
+    Error_Count         : INT;                 // Number of read errors
+END_STRUCT
+END_TYPE

@@ -1,0 +1,1276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualization xmlns="http://www.3s-software.com/schemas/visualization">
+  <interface>
+    <visualization version="4.0.0.0" name="StorageRobot" id="{12345678-3234-1234-1234-123456789301}">
+      <description>Storage robot screen with 12-bin rack visualization, robot position, and pick/place operations</description>
+      <window height="800" width="1200" />
+      <size height="800" width="1200" />
+      <frame>
+
+        <!-- Background -->
+        <element name="Background" id="{12345678-3234-1234-1234-123456789302}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>0</xpos>
+            <ypos>0</ypos>
+          </position>
+          <size>
+            <width>1200</width>
+            <height>800</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>16777215</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <!-- Title Header -->
+        <element name="HeaderTitle" id="{12345678-3234-1234-1234-123456789303}">
+          <type>Text</type>
+          <position>
+            <xpos>400</xpos>
+            <ypos>20</ypos>
+          </position>
+          <size>
+            <width>400</width>
+            <height>40</height>
+          </size>
+          <text>Storage Robot Control System</text>
+          <font>
+            <family>Arial</family>
+            <size>16</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Storage Rack Visualization -->
+        <element name="StorageRackPanel" id="{12345678-3234-1234-1234-123456789304}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>50</xpos>
+            <ypos>80</ypos>
+          </position>
+          <size>
+            <width>400</width>
+            <height>500</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>15790320</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="StorageRackTitle" id="{12345678-3234-1234-1234-123456789305}">
+          <type>Text</type>
+          <position>
+            <xpos>60</xpos>
+            <ypos>90</ypos>
+          </position>
+          <size>
+            <width>380</width>
+            <height>25</height>
+          </size>
+          <text>12-Bin Storage Rack</text>
+          <font>
+            <family>Arial</family>
+            <size>12</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Bin Grid - 4 rows x 3 columns -->
+        <!-- Row 1 (Top) -->
+        <element name="Bin1" id="{12345678-3234-1234-1234-123456789306}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>130</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>80</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_MODBUS.Pick_Bin_01 THEN 16776960 ELSE 12632256 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_MODBUS.Pick_Bin_01</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="Bin1Text" id="{12345678-3234-1234-1234-123456789307}">
+          <type>Text</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>160</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>20</height>
+          </size>
+          <text>BIN 1</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <element name="Bin2" id="{12345678-3234-1234-1234-123456789308}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>180</xpos>
+            <ypos>130</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>80</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_MODBUS.Pick_Bin_02 THEN 16776960 ELSE 12632256 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_MODBUS.Pick_Bin_02</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="Bin2Text" id="{12345678-3234-1234-1234-123456789309}">
+          <type>Text</type>
+          <position>
+            <xpos>180</xpos>
+            <ypos>160</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>20</height>
+          </size>
+          <text>BIN 2</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <element name="Bin3" id="{12345678-3234-1234-1234-123456789310}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>280</xpos>
+            <ypos>130</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>80</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_MODBUS.Pick_Bin_03 THEN 16776960 ELSE 12632256 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_MODBUS.Pick_Bin_03</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="Bin3Text" id="{12345678-3234-1234-1234-123456789311}">
+          <type>Text</type>
+          <position>
+            <xpos>280</xpos>
+            <ypos>160</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>20</height>
+          </size>
+          <text>BIN 3</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Row 2 -->
+        <element name="Bin4" id="{12345678-3234-1234-1234-123456789312}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>230</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>80</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_MODBUS.Pick_Bin_04 THEN 16776960 ELSE 12632256 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_MODBUS.Pick_Bin_04</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="Bin4Text" id="{12345678-3234-1234-1234-123456789313}">
+          <type>Text</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>260</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>20</height>
+          </size>
+          <text>BIN 4</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Continue with remaining bins (5-12) following same pattern -->
+        <!-- Row 3 -->
+        <element name="Bin7" id="{12345678-3234-1234-1234-123456789314}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>330</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>80</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_MODBUS.Pick_Bin_07 THEN 16776960 ELSE 12632256 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_MODBUS.Pick_Bin_07</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="Bin7Text" id="{12345678-3234-1234-1234-123456789315}">
+          <type>Text</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>360</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>20</height>
+          </size>
+          <text>BIN 7</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Row 4 (Bottom) -->
+        <element name="Bin10" id="{12345678-3234-1234-1234-123456789316}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>430</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>80</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_MODBUS.Pick_Bin_10 THEN 16776960 ELSE 12632256 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_MODBUS.Pick_Bin_10</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="Bin10Text" id="{12345678-3234-1234-1234-123456789317}">
+          <type>Text</type>
+          <position>
+            <xpos>80</xpos>
+            <ypos>460</ypos>
+          </position>
+          <size>
+            <width>80</width>
+            <height>20</height>
+          </size>
+          <text>BIN 10</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Robot Status Panel -->
+        <element name="RobotStatusPanel" id="{12345678-3234-1234-1234-123456789318}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>470</xpos>
+            <ypos>80</ypos>
+          </position>
+          <size>
+            <width>350</width>
+            <height>300</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>15790320</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="RobotStatusTitle" id="{12345678-3234-1234-1234-123456789319}">
+          <type>Text</type>
+          <position>
+            <xpos>480</xpos>
+            <ypos>90</ypos>
+          </position>
+          <size>
+            <width>330</width>
+            <height>25</height>
+          </size>
+          <text>Robot Status</text>
+          <font>
+            <family>Arial</family>
+            <size>12</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Robot Position -->
+        <element name="RobotPositionLabel" id="{12345678-3234-1234-1234-123456789320}">
+          <type>Text</type>
+          <position>
+            <xpos>490</xpos>
+            <ypos>130</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>Position:</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <element name="RobotPositionValue" id="{12345678-3234-1234-1234-123456789321}">
+          <type>Text</type>
+          <position>
+            <xpos>600</xpos>
+            <ypos>130</ypos>
+          </position>
+          <size>
+            <width>200</width>
+            <height>20</height>
+          </size>
+          <text>
+            <dynprop name="text">
+              <value>
+                <expression>
+                  IF GVL_IO.Robot_Home_Position THEN 'HOME'
+                  ELSIF GVL_IO.Robot_At_Conveyor THEN 'AT CONVEYOR'
+                  ELSIF GVL_IO.Robot_Moving THEN 'MOVING'
+                  ELSE 'UNKNOWN'
+                  END_IF
+                </expression>
+              </value>
+            </dynprop>
+          </text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <!-- Robot State -->
+        <element name="RobotStateLabel" id="{12345678-3234-1234-1234-123456789322}">
+          <type>Text</type>
+          <position>
+            <xpos>490</xpos>
+            <ypos>155</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>State:</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <element name="RobotStateValue" id="{12345678-3234-1234-1234-123456789323}">
+          <type>Text</type>
+          <position>
+            <xpos>600</xpos>
+            <ypos>155</ypos>
+          </position>
+          <size>
+            <width>200</width>
+            <height>20</height>
+          </size>
+          <text>
+            <dynprop name="text">
+              <value>
+                <expression>INT_TO_STRING(GVL_Internal.Robot_State)</expression>
+              </value>
+            </dynprop>
+          </text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <!-- Target Bin -->
+        <element name="TargetBinLabel" id="{12345678-3234-1234-1234-123456789324}">
+          <type>Text</type>
+          <position>
+            <xpos>490</xpos>
+            <ypos>180</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>Target Bin:</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <element name="TargetBinValue" id="{12345678-3234-1234-1234-123456789325}">
+          <type>Text</type>
+          <position>
+            <xpos>600</xpos>
+            <ypos>180</ypos>
+          </position>
+          <size>
+            <width>200</width>
+            <height>20</height>
+          </size>
+          <text>
+            <dynprop name="text">
+              <value>
+                <expression>
+                  IF GVL_Internal.Robot_Target_Bin > 0 THEN
+                    INT_TO_STRING(GVL_Internal.Robot_Target_Bin)
+                  ELSE
+                    'None'
+                  END_IF
+                </expression>
+              </value>
+            </dynprop>
+          </text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <!-- Gripper Status -->
+        <element name="GripperLabel" id="{12345678-3234-1234-1234-123456789326}">
+          <type>Text</type>
+          <position>
+            <xpos>490</xpos>
+            <ypos>205</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>Gripper:</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <element name="GripperStatus" id="{12345678-3234-1234-1234-123456789327}">
+          <type>Text</type>
+          <position>
+            <xpos>600</xpos>
+            <ypos>205</ypos>
+          </position>
+          <size>
+            <width>200</width>
+            <height>20</height>
+          </size>
+          <text>
+            <dynprop name="text">
+              <value>
+                <expression>
+                  IF GVL_IO.Robot_Gripper_Open THEN 'OPEN'
+                  ELSIF GVL_IO.Robot_Gripper_Closed THEN 'CLOSED'
+                  ELSE 'UNKNOWN'
+                  END_IF
+                </expression>
+              </value>
+            </dynprop>
+          </text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <!-- Robot Error Status -->
+        <element name="ErrorStatusIndicator" id="{12345678-3234-1234-1234-123456789328}">
+          <type>Ellipse</type>
+          <position>
+            <xpos>490</xpos>
+            <ypos>235</ypos>
+          </position>
+          <size>
+            <width>20</width>
+            <height>20</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>IF GVL_IO.Robot_Error_Status THEN 255 ELSE 65280 END_IF</expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="ErrorStatusLabel" id="{12345678-3234-1234-1234-123456789329}">
+          <type>Text</type>
+          <position>
+            <xpos>520</xpos>
+            <ypos>235</ypos>
+          </position>
+          <size>
+            <width>150</width>
+            <height>20</height>
+          </size>
+          <text>Robot Error Status</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <!-- Manual Robot Control Panel -->
+        <element name="ManualControlPanel" id="{12345678-3234-1234-1234-123456789330}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>840</xpos>
+            <ypos>80</ypos>
+          </position>
+          <size>
+            <width>340</width>
+            <height>300</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>15790320</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="ManualControlTitle" id="{12345678-3234-1234-1234-123456789331}">
+          <type>Text</type>
+          <position>
+            <xpos>850</xpos>
+            <ypos>90</ypos>
+          </position>
+          <size>
+            <width>320</width>
+            <height>25</height>
+          </size>
+          <text>Manual Robot Control</text>
+          <font>
+            <family>Arial</family>
+            <size>12</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Move to Home Button -->
+        <element name="MoveHomeButton" id="{12345678-3234-1234-1234-123456789332}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>860</xpos>
+            <ypos>130</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>30</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>14277081</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_IO.Robot_Move_Home</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="MoveHomeButtonText" id="{12345678-3234-1234-1234-123456789333}">
+          <type>Text</type>
+          <position>
+            <xpos>860</xpos>
+            <ypos>135</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>Move Home</text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Gripper Open Button -->
+        <element name="GripperOpenButton" id="{12345678-3234-1234-1234-123456789334}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>860</xpos>
+            <ypos>170</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>30</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>65280</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_IO.Robot_Gripper_Open_Cmd</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="GripperOpenButtonText" id="{12345678-3234-1234-1234-123456789335}">
+          <type>Text</type>
+          <position>
+            <xpos>860</xpos>
+            <ypos>175</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>Open Gripper</text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Gripper Close Button -->
+        <element name="GripperCloseButton" id="{12345678-3234-1234-1234-123456789336}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>970</xpos>
+            <ypos>170</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>30</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>255</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_IO.Robot_Gripper_Close_Cmd</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="GripperCloseButtonText" id="{12345678-3234-1234-1234-123456789337}">
+          <type>Text</type>
+          <position>
+            <xpos>970</xpos>
+            <ypos>175</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>Close Gripper</text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Robot Reset Button -->
+        <element name="RobotResetButton" id="{12345678-3234-1234-1234-123456789338}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>860</xpos>
+            <ypos>210</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>30</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>16776960</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>TRUE</value>
+                  <variable>GVL_IO.Robot_Reset</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="RobotResetButtonText" id="{12345678-3234-1234-1234-123456789339}">
+          <type>Text</type>
+          <position>
+            <xpos>860</xpos>
+            <ypos>215</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>Reset Robot</text>
+          <font>
+            <family>Arial</family>
+            <size>9</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Operations Panel -->
+        <element name="OperationsPanel" id="{12345678-3234-1234-1234-123456789340}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>470</xpos>
+            <ypos>400</ypos>
+          </position>
+          <size>
+            <width>710</width>
+            <height>180</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>15790320</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="OperationsTitle" id="{12345678-3234-1234-1234-123456789341}">
+          <type>Text</type>
+          <position>
+            <xpos>480</xpos>
+            <ypos>410</ypos>
+          </position>
+          <size>
+            <width>690</width>
+            <height>25</height>
+          </size>
+          <text>Pick & Place Operations Status</text>
+          <font>
+            <family>Arial</family>
+            <size>12</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Assembly Operation Status -->
+        <element name="AssemblyOpLabel" id="{12345678-3234-1234-1234-123456789342}">
+          <type>Text</type>
+          <position>
+            <xpos>490</xpos>
+            <ypos>450</ypos>
+          </position>
+          <size>
+            <width>150</width>
+            <height>20</height>
+          </size>
+          <text>Assembly Operation:</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <element name="AssemblyOpStatus" id="{12345678-3234-1234-1234-123456789343}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>448</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>24</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>
+                  IF GVL_MODBUS.Pick_To_Assembly_In_Process THEN 16776960
+                  ELSIF GVL_MODBUS.Pick_To_Assembly_Complete THEN 65280
+                  ELSE 12632256
+                  END_IF
+                </expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <element name="AssemblyOpStatusText" id="{12345678-3234-1234-1234-123456789344}">
+          <type>Text</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>450</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>
+            <dynprop name="text">
+              <value>
+                <expression>
+                  IF GVL_MODBUS.Pick_To_Assembly_In_Process THEN 'IN PROGRESS'
+                  ELSIF GVL_MODBUS.Pick_To_Assembly_Complete THEN 'COMPLETE'
+                  ELSE 'IDLE'
+                  END_IF
+                </expression>
+              </value>
+            </dynprop>
+          </text>
+          <font>
+            <family>Arial</family>
+            <size>8</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Receiving Operation Status -->
+        <element name="ReceivingOpLabel" id="{12345678-3234-1234-1234-123456789345}">
+          <type>Text</type>
+          <position>
+            <xpos>490</xpos>
+            <ypos>480</ypos>
+          </position>
+          <size>
+            <width>150</width>
+            <height>20</height>
+          </size>
+          <text>Receiving Operation:</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <element name="ReceivingOpStatus" id="{12345678-3234-1234-1234-123456789346}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>478</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>24</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>
+                  IF GVL_MODBUS.Pick_To_Receiving_In_Process THEN 16776960
+                  ELSIF GVL_MODBUS.Pick_To_Receiving_Complete THEN 65280
+                  ELSE 12632256
+                  END_IF
+                </expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <!-- Warehouse Operation Status -->
+        <element name="WarehouseOpLabel" id="{12345678-3234-1234-1234-123456789347}">
+          <type>Text</type>
+          <position>
+            <xpos>490</xpos>
+            <ypos>510</ypos>
+          </position>
+          <size>
+            <width>150</width>
+            <height>20</height>
+          </size>
+          <text>Warehouse Operation:</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+        </element>
+
+        <element name="WarehouseOpStatus" id="{12345678-3234-1234-1234-123456789348}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>650</xpos>
+            <ypos>508</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>24</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>
+            <dynprop name="fillcolor">
+              <value>
+                <expression>
+                  IF GVL_MODBUS.Pick_To_Warehouse_In_Process THEN 16776960
+                  ELSIF GVL_MODBUS.Pick_To_Warehouse_Complete THEN 65280
+                  ELSE 12632256
+                  END_IF
+                </expression>
+              </value>
+            </dynprop>
+          </fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+        </element>
+
+        <!-- Clear All Selections Button -->
+        <element name="ClearSelectionsButton" id="{12345678-3234-1234-1234-123456789349}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>50</xpos>
+            <ypos>600</ypos>
+          </position>
+          <size>
+            <width>120</width>
+            <height>40</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>16776960</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>FALSE</value>
+                  <variable>GVL_MODBUS.Pick_Bin_01</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+              <inputconfiguration>
+                <action>
+                  <id>SetBool</id>
+                  <value>FALSE</value>
+                  <variable>GVL_MODBUS.Pick_Bin_02</variable>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+              <!-- Add for all bins 03-12 -->
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="ClearSelectionsButtonText" id="{12345678-3234-1234-1234-123456789350}">
+          <type>Text</type>
+          <position>
+            <xpos>50</xpos>
+            <ypos>610</ypos>
+          </position>
+          <size>
+            <width>120</width>
+            <height>20</height>
+          </size>
+          <text>Clear All Bins</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+        <!-- Back Button -->
+        <element name="BackButton" id="{12345678-3234-1234-1234-123456789351}">
+          <type>Rectangle</type>
+          <position>
+            <xpos>190</xpos>
+            <ypos>600</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>40</height>
+          </size>
+          <fillpattern>Solid</fillpattern>
+          <fillcolor>14277081</fillcolor>
+          <linewidth>2</linewidth>
+          <linecolor>0</linecolor>
+          <input-configuration>
+            <inputconfigurations>
+              <inputconfiguration>
+                <action>
+                  <id>ChangeVisu</id>
+                  <visualization>MainOverview</visualization>
+                </action>
+                <condition>
+                  <id>OnMouseDown</id>
+                  <mousebutton>Left</mousebutton>
+                </condition>
+              </inputconfiguration>
+            </inputconfigurations>
+          </input-configuration>
+        </element>
+
+        <element name="BackButtonText" id="{12345678-3234-1234-1234-123456789352}">
+          <type>Text</type>
+          <position>
+            <xpos>190</xpos>
+            <ypos>610</ypos>
+          </position>
+          <size>
+            <width>100</width>
+            <height>20</height>
+          </size>
+          <text>← Back</text>
+          <font>
+            <family>Arial</family>
+            <size>10</size>
+            <style>Bold</style>
+          </font>
+          <textcolor>0</textcolor>
+          <alignment>Center</alignment>
+        </element>
+
+      </frame>
+    </visualization>
+  </interface>
+</visualization>

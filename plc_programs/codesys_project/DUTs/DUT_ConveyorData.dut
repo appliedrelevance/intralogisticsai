@@ -1,0 +1,13 @@
+TYPE DUT_ConveyorData :
+STRUCT
+    Status          : DUT_ConveyorStatus;   // Current conveyor status
+    Motor_Command   : BOOL;                 // Motor run command
+    Speed_Setpoint  : INT;                  // Speed setpoint in mm/min
+    Entry_Sensor    : BOOL;                 // Entry photo-eye sensor
+    Exit_Sensor     : BOOL;                 // Exit photo-eye sensor
+    Run_Timer       : INT;                  // Run time timer
+    Fault_Code      : INT;                  // Fault code (0 = no fault)
+    Item_Count      : INT;                  // Number of items processed
+    Auto_Mode       : BOOL := TRUE;         // Automatic mode enabled
+END_STRUCT
+END_TYPE

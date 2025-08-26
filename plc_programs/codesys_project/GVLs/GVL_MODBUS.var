@@ -1,0 +1,65 @@
+{attribute 'qualified_only'}
+VAR_GLOBAL
+    (* Process Control Signals - MODBUS 1000-1008 *)
+    PLC_Cycle_Stopped           AT %QX125.0 : BOOL;    // MODBUS Address 1000
+    PLC_Cycle_Running           AT %QX125.1 : BOOL;    // MODBUS Address 1001
+    Pick_Error                  AT %QX125.2 : BOOL;    // MODBUS Address 1002
+    Pick_To_Assembly_In_Process AT %QX125.3 : BOOL;    // MODBUS Address 1003
+    Pick_To_Assembly_Complete   AT %QX125.4 : BOOL;    // MODBUS Address 1004
+    Pick_To_Receiving_In_Process AT %QX125.5 : BOOL;   // MODBUS Address 1005
+    Pick_To_Receiving_Complete  AT %QX125.6 : BOOL;    // MODBUS Address 1006
+    Pick_To_Warehouse_In_Process AT %QX125.7 : BOOL;   // MODBUS Address 1007
+    Pick_To_Warehouse_Complete  AT %QX126.0 : BOOL;    // MODBUS Address 1008
+    
+    (* Pick Bin Controls - MODBUS 2000-2011 - ERP Controlled Coils *)
+    Pick_Bin_01                 AT %QX250.0 : BOOL;    // MODBUS Address 2000
+    Pick_Bin_02                 AT %QX250.1 : BOOL;    // MODBUS Address 2001
+    Pick_Bin_03                 AT %QX250.2 : BOOL;    // MODBUS Address 2002
+    Pick_Bin_04                 AT %QX250.3 : BOOL;    // MODBUS Address 2003
+    Pick_Bin_05                 AT %QX250.4 : BOOL;    // MODBUS Address 2004
+    Pick_Bin_06                 AT %QX250.5 : BOOL;    // MODBUS Address 2005
+    Pick_Bin_07                 AT %QX250.6 : BOOL;    // MODBUS Address 2006
+    Pick_Bin_08                 AT %QX250.7 : BOOL;    // MODBUS Address 2007
+    Pick_Bin_09                 AT %QX251.0 : BOOL;    // MODBUS Address 2008
+    Pick_Bin_10                 AT %QX251.1 : BOOL;    // MODBUS Address 2009
+    Pick_Bin_11                 AT %QX251.2 : BOOL;    // MODBUS Address 2010
+    Pick_Bin_12                 AT %QX251.3 : BOOL;    // MODBUS Address 2011
+    
+    (* Station Status Controls - MODBUS 2020-2023 - ERP Controlled Coils *)
+    To_Receiving_Sta_1          AT %QX252.4 : BOOL;    // MODBUS Address 2020
+    From_Receiving_Sta_1        AT %QX252.5 : BOOL;    // MODBUS Address 2021
+    To_Assembly_Sta_2           AT %QX252.6 : BOOL;    // MODBUS Address 2022
+    From_Assembly_Sta_2         AT %QX252.7 : BOOL;    // MODBUS Address 2023
+    
+    (* Statistics and Monitoring - MODBUS 100-106 *)
+    Cycle_Counter               AT %MW100 : INT;       // MODBUS Address 100
+    Pick_Operations_Total       AT %MW101 : INT;       // MODBUS Address 101
+    Assembly_Picks              AT %MW102 : INT;       // MODBUS Address 102
+    Receiving_Picks             AT %MW103 : INT;       // MODBUS Address 103
+    Warehouse_Picks             AT %MW104 : INT;       // MODBUS Address 104
+    Error_Count                 AT %MW105 : INT;       // MODBUS Address 105
+    Uptime_Seconds              AT %MW106 : INT;       // MODBUS Address 106
+    
+    (* Additional MODBUS Registers for Enhanced Functionality *)
+    System_Status               AT %MW107 : INT;       // MODBUS Address 107 (0=Stopped, 1=Running, 2=Error, 3=Manual)
+    Current_Bin_Selection       AT %MW108 : INT;       // MODBUS Address 108 (1-12 for bin number, 0 for none)
+    Robot_Position_X            AT %MW109 : INT;       // MODBUS Address 109 (Robot X coordinate)
+    Robot_Position_Y            AT %MW110 : INT;       // MODBUS Address 110 (Robot Y coordinate)
+    Robot_Position_Z            AT %MW111 : INT;       // MODBUS Address 111 (Robot Z coordinate)
+    
+    (* RFID Data Registers - MODBUS 200-210 *)
+    RFID_Reader1_Tag_ID         AT %MW200 : DINT;      // MODBUS Address 200-201 (32-bit tag ID)
+    RFID_Reader2_Tag_ID         AT %MW202 : DINT;      // MODBUS Address 202-203 (32-bit tag ID)
+    RFID_Reader1_Status         AT %MW204 : INT;       // MODBUS Address 204 (0=Idle, 1=Reading, 2=Valid, 3=Error)
+    RFID_Reader2_Status         AT %MW205 : INT;       // MODBUS Address 205 (0=Idle, 1=Reading, 2=Valid, 3=Error)
+    
+    (* Conveyor Status Registers - MODBUS 300-320 *)
+    Conveyor1_Status            AT %MW300 : INT;       // MODBUS Address 300 (0=Stopped, 1=Running, 2=Fault)
+    Conveyor2_Status            AT %MW301 : INT;       // MODBUS Address 301
+    Conveyor3_Status            AT %MW302 : INT;       // MODBUS Address 302
+    Conveyor4_Status            AT %MW303 : INT;       // MODBUS Address 303
+    Conveyor1_Speed             AT %MW304 : INT;       // MODBUS Address 304 (Speed in mm/min)
+    Conveyor2_Speed             AT %MW305 : INT;       // MODBUS Address 305
+    Conveyor3_Speed             AT %MW306 : INT;       // MODBUS Address 306
+    Conveyor4_Speed             AT %MW307 : INT;       // MODBUS Address 307
+END_VAR
