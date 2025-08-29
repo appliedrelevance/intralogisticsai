@@ -1,8 +1,0 @@
-TYPE DUT_StationType :
-(
-    STATION_NONE := 0,          // No station selected
-    STATION_RECEIVING := 1,     // Receiving station
-    STATION_ASSEMBLY := 2,      // Assembly station
-    STATION_WAREHOUSE := 3      // Warehouse station
-);
-END_TYPE

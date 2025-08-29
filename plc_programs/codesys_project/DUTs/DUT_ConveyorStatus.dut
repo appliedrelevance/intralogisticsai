@@ -1,8 +1,0 @@
-TYPE DUT_ConveyorStatus :
-(
-    CONVEYOR_STOPPED := 0,      // Conveyor is stopped
-    CONVEYOR_RUNNING := 1,      // Conveyor is running
-    CONVEYOR_FAULT := 2,        // Conveyor has a fault
-    CONVEYOR_MAINTENANCE := 3   // Conveyor in maintenance mode
-);
-END_TYPE

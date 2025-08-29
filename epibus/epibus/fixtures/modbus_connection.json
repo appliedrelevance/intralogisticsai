@@ -5,7 +5,7 @@
  "docstatus": 0,
  "doctype": "Modbus Connection",
  "enabled": 1,
- "host": "openplc",
+ "host": "codesys",
  "idx": 0,
  "modified": "2025-08-22 22:06:15.379983",
  "modified_by": "Administrator",
@@ -16,201 +16,201 @@
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 1000,
-   "plc_address": null,
+   "modbus_address": 0,
+   "plc_address": "%IX0.0",
    "signal_name": "PLC_CYCLE_STOPPED",
-   "signal_type": "Digital Output Coil"
+   "signal_type": "Digital Input Coil"
   },
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 1001,
-   "plc_address": null,
+   "modbus_address": 1,
+   "plc_address": "%IX0.1",
    "signal_name": "PLC_CYCLE_RUNNING",
-   "signal_type": "Digital Output Coil"
+   "signal_type": "Digital Input Coil"
   },
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 1002,
-   "plc_address": null,
+   "modbus_address": 2,
+   "plc_address": "%IX0.2",
    "signal_name": "PICK_ERROR",
-   "signal_type": "Digital Output Coil"
+   "signal_type": "Digital Input Coil"
   },
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 1003,
-   "plc_address": null,
-   "signal_name": "PICK_TO_ASSEMBLY_IN_PROCESS",
-   "signal_type": "Digital Output Coil"
-  },
-  {
-   "digital_value": 0,
-   "float_value": 0.0,
-   "modbus_address": 1004,
-   "plc_address": null,
-   "signal_name": "PICK_TO_ASSEMBLY_COMPLETE",
-   "signal_type": "Digital Output Coil"
-  },
-  {
-   "digital_value": 0,
-   "float_value": 0.0,
-   "modbus_address": 1005,
-   "plc_address": null,
+   "modbus_address": 3,
+   "plc_address": "%IX0.3",
    "signal_name": "PICK_TO_RECEIVING_IN_PROCESS",
-   "signal_type": "Digital Output Coil"
+   "signal_type": "Digital Input Coil"
   },
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 1006,
-   "plc_address": null,
+   "modbus_address": 4,
+   "plc_address": "%IX0.4",
    "signal_name": "PICK_TO_RECEIVING_COMPLETE",
-   "signal_type": "Digital Output Coil"
+   "signal_type": "Digital Input Coil"
   },
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 1007,
-   "plc_address": null,
-   "signal_name": "PICK_TO_WAREHOUSE_IN_PROCESS",
-   "signal_type": "Digital Output Coil"
+   "modbus_address": 5,
+   "plc_address": "%IX0.5",
+   "signal_name": "PICK_TO_PICK&PACK_IN_PROCESS",
+   "signal_type": "Digital Input Coil"
   },
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 1008,
-   "plc_address": null,
-   "signal_name": "PICK_TO_WAREHOUSE_COMPLETE",
-   "signal_type": "Digital Output Coil"
+   "modbus_address": 6,
+   "plc_address": "%IX0.6",
+   "signal_name": "PICK_TO_PICK&PACK_COMPLETE",
+   "signal_type": "Digital Input Coil"
   },
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 2000,
-   "plc_address": null,
+   "modbus_address": 7,
+   "plc_address": "%IX0.7",
+   "signal_name": "PICK_TO_STORAGE_IN_PROCESS",
+   "signal_type": "Digital Input Coil"
+  },
+  {
+   "digital_value": 0,
+   "float_value": 0.0,
+   "modbus_address": 8,
+   "plc_address": "%IX1.0",
+   "signal_name": "PICK_TO_STORAGE_COMPLETE",
+   "signal_type": "Digital Input Coil"
+  },
+  {
+   "digital_value": 0,
+   "float_value": 0.0,
+   "modbus_address": 11,
+   "plc_address": "%QX1.3",
    "signal_name": "PICK BIN 01",
    "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 2001,
-   "plc_address": null,
+   "modbus_address": 12,
+   "plc_address": "%QX1.4",
    "signal_name": "PICK BIN 02",
    "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 2002,
-   "plc_address": null,
+   "modbus_address": 13,
+   "plc_address": "%QX1.5",
    "signal_name": "PICK BIN 03",
    "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 2003,
-   "plc_address": null,
+   "modbus_address": 14,
+   "plc_address": "%QX1.6",
    "signal_name": "PICK BIN 04",
    "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 2004,
-   "plc_address": null,
+   "modbus_address": 15,
+   "plc_address": "%QX1.7",
    "signal_name": "PICK BIN 05",
    "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 2005,
-   "plc_address": null,
+   "modbus_address": 16,
+   "plc_address": "%QX2.0",
    "signal_name": "PICK BIN 06",
    "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 2006,
-   "plc_address": null,
+   "modbus_address": 17,
+   "plc_address": "%QX2.1",
    "signal_name": "PICK BIN 07",
    "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 2007,
-   "plc_address": null,
+   "modbus_address": 18,
+   "plc_address": "%QX2.2",
    "signal_name": "PICK BIN 08",
    "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 2008,
-   "plc_address": null,
+   "modbus_address": 19,
+   "plc_address": "%QX2.3",
    "signal_name": "PICK BIN 09",
    "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 2009,
-   "plc_address": null,
+   "modbus_address": 20,
+   "plc_address": "%QX2.4",
    "signal_name": "PICK BIN 10",
    "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 2010,
-   "plc_address": null,
+   "modbus_address": 21,
+   "plc_address": "%QX2.5",
    "signal_name": "PICK BIN 11",
    "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 2011,
-   "plc_address": null,
+   "modbus_address": 22,
+   "plc_address": "%QX2.6",
    "signal_name": "PICK BIN 12",
    "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 2020,
-   "plc_address": null,
+   "modbus_address": 32,
+   "plc_address": "%QX4.0",
    "signal_name": "TO RECEIVING STA 1",
    "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 2021,
-   "plc_address": null,
+   "modbus_address": 34,
+   "plc_address": "%QX4.2",
    "signal_name": "FROM RECEIVING STA 1",
    "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 2022,
-   "plc_address": null,
-   "signal_name": "TO ASSEMBLY STA 2",
+   "modbus_address": 33,
+   "plc_address": "%QX4.1",
+   "signal_name": "TO PICK&PACK STA 2",
    "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
    "float_value": 0.0,
-   "modbus_address": 2023,
-   "plc_address": null,
-   "signal_name": "FROM ASSEMBLY STA 2",
+   "modbus_address": 35,
+   "plc_address": "%QX4.3",
+   "signal_name": "FROM PICK&PACK STA 2",
    "signal_type": "Digital Output Coil"
   }
  ]

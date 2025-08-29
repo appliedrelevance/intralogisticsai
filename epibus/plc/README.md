@@ -16,9 +16,7 @@ This directory contains the PLC bridge infrastructure for the Epibus application
   - `plc_bridge_adapter.py` - Adapter for the PLC bridge
   - `plc_redis_client.py` - Redis client for the PLC bridge
 
-- **codesys/** - CODESYS simulator and example files
 
-  - `beachside_psm.py`, `intralogistics_psm.py` - Python SubModule files for CODESYS
   - `modbus_client.py` - Diagnostic tool for Modbus communication
   - `test_modbus_tcp.py`, `test_beachside_psm.py` - Test files that serve as examples
   - `US15-B10-B1-PLC.json` - Configuration example

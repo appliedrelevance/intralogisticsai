@@ -34,14 +34,12 @@ docker compose restart plc-bridge
 ### ✅ Live Editing Enabled For:
 - **PLC Bridge**: `./epibus/plc/bridge/` → Container `/app/`
 - **EpiBus App**: `./epibus/` → Container `/workspace/epibus/`  
-- **CODESYS Projects**: `./plc_programs/` → Container `/plc_programs/`
 
 ### 🔧 Development Access Points:
 - **PLC Bridge Dashboard**: http://localhost:7654
 - **Enhanced Connection Details**: Shows actual PLC connection status
 - **ERP System**: http://intralogistics.lab  
 - **MODBUS TCP**: localhost:502
-- **CODESYS Gateway**: localhost:1217
 
 ## File Structure & Editing
 
@@ -66,10 +64,8 @@ Key files you can edit:
 
 **After changes**: EpiBus changes require Frappe restart or bench restart
 
-### CODESYS Projects
 **Location**: `./plc_programs/`
 
-- `codesys_project/` - Complete CODESYS project for Windows IDE
 - `*.st` - Individual Structured Text programs
 - `test_*.py` - MODBUS test scripts
 
@@ -137,10 +133,6 @@ docker compose logs -f plc-bridge
 2. Add signals to EpiBus via the web interface
 3. PLC Bridge automatically picks up new signals on restart
 
-### Testing CODESYS Integration
-1. Edit CODESYS projects in `./plc_programs/codesys_project/`
-2. Deploy via Windows PC with CODESYS Development System
-3. Connect to `localhost:1217` from CODESYS IDE
 
 ## Development Environment Architecture
 
@@ -148,7 +140,6 @@ docker compose logs -f plc-bridge
 Host File System          Docker Containers
 ├── epibus/plc/bridge/  →  plc-bridge:/app (live mount)
 ├── epibus/             →  backend:/workspace/epibus (live mount) 
-├── plc_programs/       →  codesys:/plc_programs (live mount)
 └── .env                →  Environment variables
 ```
 
@@ -156,7 +147,6 @@ Host File System          Docker Containers
 - `compose.yaml` - Base services
 - `overrides/compose.mariadb.yaml` - Database  
 - `overrides/compose.redis.yaml` - Caching
-- `overrides/compose.codesys.yaml` - PLC runtime
 - `overrides/compose.plc-bridge.yaml` - PLC Bridge service
 - `overrides/compose.development.yaml` - **Development volume mounts**
 - `overrides/compose.mac-m4.yaml` - Mac ARM64 optimizations (if applicable)
@@ -186,9 +176,6 @@ docker compose exec backend bench --site intralogistics.localhost migrate
 docker compose restart backend
 ```
 
-### CODESYS Connection Issues
-- Check MODBUS server is running: `docker compose logs codesys`  
-- Verify port 502 is mapped: `docker compose ps | grep codesys`
 - Test connectivity: `nc -zv localhost 502`
 
 ## Switching Back to Production

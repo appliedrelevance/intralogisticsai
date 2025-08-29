@@ -1,9 +1,0 @@
-TYPE DUT_RFIDStatus :
-(
-    RFID_IDLE := 0,             // RFID reader is idle
-    RFID_READING := 1,          // RFID reader is reading a tag
-    RFID_VALID_READ := 2,       // Valid tag read completed
-    RFID_ERROR := 3,            // RFID reader error
-    RFID_NO_TAG := 4            // No tag detected
-);
-END_TYPE

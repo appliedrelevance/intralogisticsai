@@ -33,7 +33,6 @@ The PLC Bridge is designed to run as part of the frappe_docker composition. Use 
 
 ```bash
 # From the frappe_docker root directory
-docker-compose -f compose.yaml -f overrides/compose.mac-m4.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.codesys.yaml -f overrides/compose.plc-bridge.yaml up -d
 ```
 
 ### Environment Variables
@@ -69,7 +68,6 @@ The container includes a health check that verifies the SSE server is responding
 
 The PLC Bridge integrates with the frappe_docker composition by:
 
-1. **Dependencies**: Waits for the `backend` and `codesys` services to be ready
 2. **Network**: Uses the same Docker network as other Frappe services
 3. **Configuration**: Connects to Frappe via the internal network
 4. **Data Flow**: 
@@ -108,7 +106,6 @@ Log levels: DEBUG, INFO, WARNING, ERROR, CRITICAL
 2. **MODBUS connection failures**
    - Check PLC device connectivity
    - Verify MODBUS TCP settings in Frappe
-   - Ensure CODESYS container is running (if using simulator)
 
 3. **Port 7654 already in use**
    - Check for existing PLC Bridge processes
@@ -120,8 +117,6 @@ Log levels: DEBUG, INFO, WARNING, ERROR, CRITICAL
 To run with debug logging:
 
 ```bash
-docker-compose -f compose.yaml -f overrides/compose.mac-m4.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.codesys.yaml -f overrides/compose.plc-bridge.yaml up -d
-docker-compose -f compose.yaml -f overrides/compose.mac-m4.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.codesys.yaml -f overrides/compose.plc-bridge.yaml exec plc-bridge bash
 # Inside container:
 PLC_LOG_LEVEL=DEBUG python bridge.py --frappe-url "$FRAPPE_URL" --api-key "$FRAPPE_API_KEY" --api-secret "$FRAPPE_API_SECRET"
 ```
@@ -131,7 +126,6 @@ PLC_LOG_LEVEL=DEBUG python bridge.py --frappe-url "$FRAPPE_URL" --api-key "$FRAP
 Run unit tests:
 
 ```bash
-docker-compose -f compose.yaml -f overrides/compose.mac-m4.yaml -f overrides/compose.redis.yaml -f overrides/compose.mariadb.yaml -f overrides/compose.codesys.yaml -f overrides/compose.plc-bridge.yaml exec plc-bridge python -m pytest test_bridge.py -v
 ```
 
 ## Development

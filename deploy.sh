@@ -1,92 +1,38 @@
 #!/bin/bash
 
-# Clean Frappe Docker Deployment Script
-# Based on the working pwd.yml pattern
+# Intralogistics AI Lab Deployment Script
+# Deploys the complete industrial automation training lab environment
 #
 # Usage:
-#   ./deploy.sh                    # Basic Frappe/ERPNext deployment
-#   ./deploy.sh with-epibus        # EpiBus only deployment  
-#   ./deploy.sh with-plc           # Complete industrial automation (recommended)
-#   ./deploy.sh lab                # Training lab deployment with custom domains
-#
-# The 'with-plc' option deploys the complete stack:
-# - Frappe/ERPNext ERP system
-# - EpiBus industrial integration app (automatically installed)
-# - CODESYS simulator
-# - MODBUS TCP server
-# - PLC Bridge for real-time communication
+#   ./deploy.sh                    # Deploy lab environment
+#   ./deploy.sh --rebuild          # Force rebuild of custom images
+#   ./deploy.sh stop               # Stop and cleanup lab environment
 
 show_help() {
     cat << EOF
-Clean Frappe Docker Deployment Script
+Intralogistics AI Lab Deployment Script
 
 USAGE:
-    ./deploy.sh [OPTION] [FLAGS]
-
-OPTIONS:
-    (no option)         Basic Frappe/ERPNext deployment
-    with-epibus         EpiBus only deployment  
-    with-plc            Complete industrial automation (recommended)
-    lab                 Training lab deployment with custom domains
-    --help, -h          Show this help message
+    ./deploy.sh [FLAGS]
 
 FLAGS:
-    --rebuild           Force rebuild of custom images (even if they exist)
-    --force-rebuild     Same as --rebuild
+    --rebuild           Force rebuild of custom images
+    --force-rebuild     Same as --rebuild  
+    --help, -h          Show this help message
+    stop                Stop and cleanup lab environment
 
-DEPLOYMENT TYPES:
-
-    Basic Deployment:
-        ./deploy.sh
-        - Standard Frappe/ERPNext ERP system
-        - MariaDB database
-        - Redis caching
-        - Web interface at http://localhost:[dynamic-port]
-
-    EpiBus Deployment:
-        ./deploy.sh with-epibus
-        - Includes everything from basic deployment
-        - EpiBus industrial integration app
-        - Custom Frappe app for MODBUS communication
-
-    Complete Industrial Automation:
-        ./deploy.sh with-plc
-        - Includes everything from EpiBus deployment
-        - CODESYS simulator for PLC programming
-        - MODBUS TCP server (port 502)
-        - PLC Bridge for real-time communication
-        - Web interfaces for both ERPNext and CODESYS
-
-    Training Lab:
-        ./deploy.sh lab
-        - Complete industrial automation setup
-        - Custom domain configuration (*.lab)
-        - Traefik reverse proxy
-        - Optimized for training environments
-        
-    Web:
-        ./deploy.sh web [DOMAIN]
-        - Complete industrial automation setup
-        - Real domain configuration with subdomains
-        - Traefik reverse proxy for web deployment
-        - Specify custom domain: ./deploy.sh web mydomain.com
-        - Default domain: intralogisticsai.online
-
-    Stop:
-        ./deploy.sh stop
-        - Stop all running services
-        - Remove containers, networks, and volumes
-        - Complete cleanup of the deployment
-
-REQUIREMENTS:
-    - Docker and Docker Compose installed
-    - .env file configured (copy from example.env)
-    - Required environment variables: DB_PASSWORD, ERPNEXT_VERSION
-    - For with-plc deployments: PULL_POLICY must be set
+DEPLOYMENT:
+    The lab environment includes:
+    - Frappe/ERPNext ERP system
+    - EpiBus industrial integration app
+    - MODBUS TCP server (port 502)
+    - PLC Bridge for real-time communication
+    - Traefik reverse proxy with custom domains
+    - Complete setup wizard automation
 
 ACCESS:
-    - ERPNext: http://localhost:[dynamic-port] (use 'docker compose ps' to check port)
-    - CODESYS: http://localhost:8081 (for with-plc deployments)
+    - ERPNext: http://intralogistics.lab
+    - Traefik Dashboard: http://dashboard.intralogistics.lab
     - Default login: Administrator / admin
 
 For more information, see CLAUDE.md in the repository root.
@@ -94,9 +40,7 @@ EOF
 }
 
 # Parse arguments
-DEPLOY_TYPE=""
 FORCE_REBUILD=false
-WEB_DOMAIN=""
 
 for arg in "$@"; do
     case $arg in
@@ -107,28 +51,16 @@ for arg in "$@"; do
         --rebuild|--force-rebuild)
             FORCE_REBUILD=true
             ;;
-        with-epibus|with-plc|lab|web|stop)
-            DEPLOY_TYPE="$arg"
+        stop)
+            DEPLOY_TYPE="stop"
             ;;
         *)
-            if [[ -z "$DEPLOY_TYPE" && "$arg" != "--rebuild" && "$arg" != "--force-rebuild" ]]; then
+            if [[ -z "$DEPLOY_TYPE" ]]; then
                 DEPLOY_TYPE="$arg"
-            elif [[ "$DEPLOY_TYPE" = "web" && -z "$WEB_DOMAIN" && "$arg" != "--rebuild" && "$arg" != "--force-rebuild" ]]; then
-                WEB_DOMAIN="$arg"
             fi
             ;;
     esac
 done
-
-# Set default domain for web deployment
-if [[ "$DEPLOY_TYPE" = "web" && -z "$WEB_DOMAIN" ]]; then
-    WEB_DOMAIN="intralogisticsai.online"
-fi
-
-# Export web domain early if set
-if [[ -n "$WEB_DOMAIN" ]]; then
-    export WEB_DOMAIN
-fi
 
 source .env
 set -e
@@ -192,8 +124,8 @@ check_lab_privileges() {
             echo "You may need to:"
             echo "  1. Run WSL as Administrator, or"
             echo "  2. Manually add this line to your Windows hosts file:"
-            echo "     127.0.0.1 intralogistics.lab codesys.intralogistics.lab dashboard.intralogistics.lab"
-            echo "  3. Then re-run: ./deploy.sh lab"
+            echo "     127.0.0.1 intralogistics.lab dashboard.intralogistics.lab"
+            echo "  3. Then re-run: ./deploy.sh"
             echo ""
             exit 1
         else
@@ -206,7 +138,7 @@ check_lab_privileges() {
             echo "ERROR: Lab deployment requires Administrator privileges to modify hosts file."
             echo "Please run this script as Administrator:"
             echo "  Right-click Command Prompt or PowerShell → 'Run as Administrator'"
-            echo "  Then run: ./deploy.sh lab"
+            echo "  Then run: ./deploy.sh"
             echo ""
             exit 1
         fi
@@ -216,10 +148,10 @@ check_lab_privileges() {
             echo ""
             echo "ERROR: Lab deployment requires sudo privileges to modify /etc/hosts file."
             echo "Please run this script with sudo:"
-            echo "  sudo ./deploy.sh lab"
+            echo "  sudo ./deploy.sh"
             echo ""
             echo "Or manually add this line to /etc/hosts and re-run without sudo:"
-            echo "  127.0.0.1 intralogistics.lab codesys.intralogistics.lab dashboard.intralogistics.lab"
+            echo "  127.0.0.1 intralogistics.lab dashboard.intralogistics.lab"
             echo ""
             exit 1
         fi
@@ -229,7 +161,7 @@ check_lab_privileges() {
 # Add lab domains to hosts file
 add_lab_hosts() {
     local hosts_file=$(get_hosts_file)
-    local lab_entry="127.0.0.1 intralogistics.lab codesys.intralogistics.lab dashboard.intralogistics.lab"
+    local lab_entry="127.0.0.1 intralogistics.lab dashboard.intralogistics.lab"
     
     log "Adding lab domains to hosts file: $hosts_file"
     
@@ -329,8 +261,8 @@ verify_no_images_exist() {
 : ${DB_PASSWORD:?Error: DB_PASSWORD is not set in .env or environment. Please set it.}
 : ${ERPNEXT_VERSION:?Error: ERPNEXT_VERSION is not set in .env or environment. Please set it.}
 
-
-DEPLOY_TYPE=${DEPLOY_TYPE:-"basic"}
+# Set deployment type - always lab unless stopping
+DEPLOY_TYPE=${DEPLOY_TYPE:-"lab"}
 log "Starting deployment: $DEPLOY_TYPE"
 if [[ "$FORCE_REBUILD" == "true" ]]; then
     log "Force rebuild mode enabled"
@@ -358,11 +290,6 @@ elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
     fi
 else
     log "Unknown platform: $OSTYPE - using standard configuration"
-fi
-
-if [ "$DEPLOY_TYPE" = "with-epibus" ]; then
-    log "Deploying with EpiBus application"
-    build_epibus_if_needed
 fi
 
 # Check directory
@@ -445,7 +372,6 @@ retry_compose_up() {
     done
 }
 
-
 # Handle stop command
 if [ "$DEPLOY_TYPE" = "stop" ]; then
     log "Stopping all services and cleaning up..."
@@ -502,88 +428,33 @@ if [ "$DEPLOY_TYPE" = "stop" ]; then
     exit 0
 fi
 
-# Validate required environment variables
+# Build EpiBus image for lab deployment
+build_epibus_if_needed
 
-# Build EpiBus image if needed for deployments that require it
-if [ "$DEPLOY_TYPE" = "lab" ] || [ "$DEPLOY_TYPE" = "web" ] || [ "$DEPLOY_TYPE" = "with-plc" ] || [ "$DEPLOY_TYPE" = "with-epibus" ]; then
-    build_epibus_if_needed
-    
-    # Export environment variables for docker compose
-    export CUSTOM_IMAGE=frappe-epibus
-    export CUSTOM_TAG=latest
-    export PULL_POLICY=never
-    
-    # Log environment variables
-    if [[ "$DEPLOY_TYPE" = "web" ]]; then
-        log "Environment variables set: CUSTOM_IMAGE=$CUSTOM_IMAGE, CUSTOM_TAG=$CUSTOM_TAG, PULL_POLICY=$PULL_POLICY, WEB_DOMAIN=$WEB_DOMAIN"
-    else
-        log "Environment variables set: CUSTOM_IMAGE=$CUSTOM_IMAGE, CUSTOM_TAG=$CUSTOM_TAG, PULL_POLICY=$PULL_POLICY"
-    fi
-fi
+# Export environment variables for docker compose
+export CUSTOM_IMAGE=frappe-epibus
+export CUSTOM_TAG=latest
+export PULL_POLICY=never
 
-# Deploy based on type
-if [ "$DEPLOY_TYPE" = "lab" ]; then
-    log "Deploying training lab environment with custom domains"
-    
-    # Check if we have required privileges for hosts file modification
-    check_lab_privileges
-    
-    # Add lab domains to hosts file
-    add_lab_hosts
-    
-    retry_compose_up \
-      -f compose.yaml \
-      -f overrides/compose.mariadb.yaml \
-      -f overrides/compose.redis.yaml \
-      -f overrides/compose.codesys.yaml \
-      -f overrides/compose.plc-bridge.yaml \
-      -f overrides/compose.lab.yaml \
-      -f overrides/compose.create-site-lab.yaml \
-      $PLATFORM_OVERRIDE
-elif [ "$DEPLOY_TYPE" = "web" ]; then
-    log "Deploying web environment with real domains: $WEB_DOMAIN"
-    
-    retry_compose_up \
-      -f compose.yaml \
-      -f overrides/compose.mariadb.yaml \
-      -f overrides/compose.redis.yaml \
-      -f overrides/compose.codesys.yaml \
-      -f overrides/compose.plc-bridge.yaml \
-      -f overrides/compose.web.yaml \
-      -f overrides/compose.create-site-web.yaml \
-      $PLATFORM_OVERRIDE
-elif [ "$DEPLOY_TYPE" = "with-plc" ]; then
-    log "Deploying with PLC features using compose.yaml with overrides"
-    
-    retry_compose_up \
-      -f compose.yaml \
-      -f overrides/compose.mariadb.yaml \
-      -f overrides/compose.redis.yaml \
-      -f overrides/compose.codesys.yaml \
-      -f overrides/compose.plc-bridge.yaml \
-      -f overrides/compose.create-site.yaml \
-      -f overrides/compose.noproxy.yaml \
-      $PLATFORM_OVERRIDE
-elif [ "$DEPLOY_TYPE" = "with-epibus" ]; then
-    log "Deploying with EpiBus application using compose.yaml with overrides"
-    
-    retry_compose_up \
-      -f compose.yaml \
-      -f overrides/compose.mariadb.yaml \
-      -f overrides/compose.redis.yaml \
-      -f overrides/compose.create-site.yaml \
-      -f overrides/compose.noproxy.yaml \
-      $PLATFORM_OVERRIDE
-else
-    log "Deploying basic Frappe using compose.yaml with overrides"
-    retry_compose_up \
-      -f compose.yaml \
-      -f overrides/compose.mariadb.yaml \
-      -f overrides/compose.redis.yaml \
-      -f overrides/compose.create-site.yaml \
-      -f overrides/compose.noproxy.yaml \
-      $PLATFORM_OVERRIDE
-fi
+log "Environment variables set: CUSTOM_IMAGE=$CUSTOM_IMAGE, CUSTOM_TAG=$CUSTOM_TAG, PULL_POLICY=$PULL_POLICY"
+
+# Deploy lab environment
+log "Deploying training lab environment with custom domains"
+
+# Check if we have required privileges for hosts file modification
+check_lab_privileges
+
+# Add lab domains to hosts file
+add_lab_hosts
+
+retry_compose_up \
+  -f compose.yaml \
+  -f overrides/compose.mariadb.yaml \
+  -f overrides/compose.redis.yaml \
+  -f overrides/compose.plc-bridge.yaml \
+  -f overrides/compose.lab.yaml \
+  -f overrides/compose.create-site-lab.yaml \
+  $PLATFORM_OVERRIDE
 
 # Wait for completion
 log "Waiting for site creation"
@@ -609,35 +480,27 @@ log "Waiting for site creation to complete..."
 sleep 30
 
 # Verify EpiBus installation (already installed during site creation)
-if [ "$DEPLOY_TYPE" = "with-plc" ] || [ "$DEPLOY_TYPE" = "with-epibus" ] || [ "$DEPLOY_TYPE" = "lab" ]; then
-    log "Verifying EpiBus installation..."
-    
-    # Determine site name based on deployment type
-    site_name="intralogistics.localhost"
-    if [ "$DEPLOY_TYPE" = "lab" ]; then
-        site_name="intralogistics.lab"
-    fi
-    
-    # Check if EpiBus is already installed (it should be from site creation)
-    if docker compose exec backend bench --site "$site_name" list-apps 2>/dev/null | grep -q epibus; then
-        log "EpiBus already installed during site creation"
-    else
-        log "EpiBus not found, installing now..."
-        for i in {1..30}; do
-            if docker compose exec backend bench --site "$site_name" install-app epibus 2>/dev/null; then
-                log "EpiBus installation completed successfully"
+log "Verifying EpiBus installation..."
+
+# Check if EpiBus is already installed (it should be from site creation)
+if docker compose exec backend bench --site intralogistics.lab list-apps 2>/dev/null | grep -q epibus; then
+    log "EpiBus already installed during site creation"
+else
+    log "EpiBus not found, installing now..."
+    for i in {1..30}; do
+        if docker compose exec backend bench --site intralogistics.lab install-app epibus 2>/dev/null; then
+            log "EpiBus installation completed successfully"
+            break
+        else
+            log "EpiBus installation attempt $i failed, retrying in 10 seconds..."
+            sleep 10
+            if [ $i -eq 30 ]; then
+                log "EpiBus installation failed after 30 attempts. Manual installation may be required:"
+                log "Run: docker compose exec backend bench --site intralogistics.lab install-app epibus"
                 break
-            else
-                log "EpiBus installation attempt $i failed, retrying in 10 seconds..."
-                sleep 10
-                if [ $i -eq 30 ]; then
-                    log "EpiBus installation failed after 30 attempts. Manual installation may be required:"
-                    log "Run: docker compose exec backend bench --site $site_name install-app epibus"
-                    break
-                fi
             fi
-        done
-    fi
+        fi
+    done
 fi
 
 # Comprehensive deployment testing
@@ -645,19 +508,8 @@ test_deployment() {
     local test_results=()
     local all_passed=true
     
-    # Determine site name and test URL based on deployment type
-    local site_name="intralogistics.localhost"
-    local test_host_header="Host: intralogistics.localhost"
-    local test_url="http://localhost:$PORT"
-    
-    if [ "$DEPLOY_TYPE" = "lab" ]; then
-        site_name="intralogistics.lab"
-        test_host_header="Host: intralogistics.lab"
-        test_url="http://intralogistics.lab"
-    fi
-    
-    log "Running comprehensive deployment tests for $DEPLOY_TYPE environment..."
-    log "Testing site: $site_name"
+    log "Running comprehensive deployment tests for lab environment..."
+    log "Testing site: intralogistics.lab"
     
     # Test 1: Container health
     log "Testing container health..."
@@ -672,21 +524,16 @@ test_deployment() {
     
     # Test 2: Basic HTTP connectivity
     log "Testing HTTP connectivity..."
-    if curl --max-time 5 -f -s "$test_url" >/dev/null 2>&1; then
-        test_results+=("✅ Frontend HTTP responding at $test_url")
+    if curl --max-time 5 -f -s "http://intralogistics.lab" >/dev/null 2>&1; then
+        test_results+=("✅ Frontend HTTP responding at http://intralogistics.lab")
     else
-        test_results+=("❌ Frontend HTTP not responding at $test_url")
+        test_results+=("❌ Frontend HTTP not responding at http://intralogistics.lab")
         all_passed=false
     fi
     
-    # Test 3: ERPNext login page (with correct hostname)
+    # Test 3: ERPNext login page
     log "Testing ERPNext application..."
-    local login_test
-    if [ "$DEPLOY_TYPE" = "lab" ]; then
-        login_test=$(curl --max-time 5 -s "$test_url" | grep -i "login\|erpnext" | head -1)
-    else
-        login_test=$(curl --max-time 5 -s -H "$test_host_header" "http://localhost:$PORT" | grep -i "login\|erpnext" | head -1)
-    fi
+    local login_test=$(curl --max-time 5 -s "http://intralogistics.lab" | grep -i "login\|erpnext" | head -1)
     
     if [ -n "$login_test" ]; then
         test_results+=("✅ ERPNext application responding correctly")
@@ -697,7 +544,7 @@ test_deployment() {
     
     # Test 4: Database connectivity
     log "Testing database connectivity..."
-    if docker compose exec backend bench --site "$site_name" list-apps >/dev/null 2>&1; then
+    if docker compose exec backend bench --site intralogistics.lab list-apps >/dev/null 2>&1; then
         test_results+=("✅ Database connectivity working")
     else
         test_results+=("❌ Database connectivity failed")
@@ -710,7 +557,7 @@ test_deployment() {
 import frappe
 import os
 os.chdir('/home/frappe/frappe-bench')
-frappe.init('$site_name')
+frappe.init('intralogistics.lab')
 frappe.connect()
 print('SETUP_COMPLETE=' + str(frappe.db.get_single_value('System Settings', 'setup_complete') or 0))
 print('COMPANY_EXISTS=' + str(frappe.db.exists('Company', 'Roots Intralogistics') or 0))
@@ -754,58 +601,35 @@ print('ADMIN_USER=' + str(frappe.db.exists('User', 'Administrator') or 0))
         all_passed=false
     fi
     
-    # Test 6: EpiBus availability (if applicable)
-    if [ "$DEPLOY_TYPE" = "with-plc" ] || [ "$DEPLOY_TYPE" = "with-epibus" ] || [ "$DEPLOY_TYPE" = "lab" ]; then
-        log "Testing EpiBus installation..."
-        local epibus_test=$(docker compose exec backend bench --site "$site_name" list-apps 2>/dev/null | grep epibus)
-        if [ -n "$epibus_test" ]; then
-            test_results+=("✅ EpiBus app installed and available")
-        else
-            test_results+=("❌ EpiBus app not found")
-            all_passed=false
-        fi
+    # Test 6: EpiBus availability
+    log "Testing EpiBus installation..."
+    local epibus_test=$(docker compose exec backend bench --site intralogistics.lab list-apps 2>/dev/null | grep epibus)
+    if [ -n "$epibus_test" ]; then
+        test_results+=("✅ EpiBus app installed and available")
+    else
+        test_results+=("❌ EpiBus app not found")
+        all_passed=false
     fi
     
-    # Test 7: CODESYS connectivity (if applicable)
-    if [ "$DEPLOY_TYPE" = "with-plc" ] || [ "$DEPLOY_TYPE" = "lab" ]; then
-        log "Testing CODESYS connectivity..."
-        if curl --max-time 5 -f -s "http://localhost:8081" >/dev/null 2>&1; then
-            test_results+=("✅ CODESYS web interface responding")
-        else
-            test_results+=("❌ CODESYS web interface not responding")
-            all_passed=false
-        fi
-        
-        # Test MODBUS TCP port
-        if timeout 3 bash -c "</dev/tcp/localhost/502" 2>/dev/null; then
-            test_results+=("✅ MODBUS TCP port 502 accessible")
-        else
-            test_results+=("❌ MODBUS TCP port 502 not accessible")
-            all_passed=false
-        fi
+    # Test 7: MODBUS TCP port
+    if timeout 3 bash -c "</dev/tcp/localhost/502" 2>/dev/null; then
+        test_results+=("✅ MODBUS TCP port 502 accessible")
+    else
+        test_results+=("❌ MODBUS TCP port 502 not accessible")
+        all_passed=false
     fi
     
-    # Test 8: Lab domains (if applicable)
-    if [ "$DEPLOY_TYPE" = "lab" ]; then
-        log "Testing lab domain routing..."
-        
-        # First check hosts file configuration
-        local hosts_file=$(get_hosts_file)
-        if grep -q "intralogistics.lab" "$hosts_file" 2>/dev/null; then
-            test_results+=("✅ Lab domains configured in hosts file")
-        else
-            test_results+=("❌ Lab domains missing from hosts file: $hosts_file")
-            test_results+=("   Manual fix: Add '127.0.0.1 intralogistics.lab codesys.intralogistics.lab dashboard.intralogistics.lab' to hosts file")
-            all_passed=false
-        fi
-        
-        # Test domain resolution
-        if curl --max-time 5 -f -s "http://codesys.intralogistics.lab" >/dev/null 2>&1; then
-            test_results+=("✅ Lab domain routing working (CODESYS)")
-        else
-            test_results+=("❌ Lab domain routing failed (CODESYS)")
-            all_passed=false
-        fi
+    # Test 8: Lab domains
+    log "Testing lab domain routing..."
+    
+    # First check hosts file configuration
+    local hosts_file=$(get_hosts_file)
+    if grep -q "intralogistics.lab" "$hosts_file" 2>/dev/null; then
+        test_results+=("✅ Lab domains configured in hosts file")
+    else
+        test_results+=("❌ Lab domains missing from hosts file: $hosts_file")
+        test_results+=("   Manual fix: Add '127.0.0.1 intralogistics.lab dashboard.intralogistics.lab' to hosts file")
+        all_passed=false
     fi
     
     # Display results
@@ -824,36 +648,15 @@ print('ADMIN_USER=' + str(frappe.db.exists('User', 'Administrator') or 0))
 if test_deployment; then
     log "🎉 SUCCESS! All deployment tests passed"
     echo ""
-    echo "🚀 DEPLOYMENT COMPLETED SUCCESSFULLY"
+    echo "🚀 LAB DEPLOYMENT COMPLETED SUCCESSFULLY"
     echo "=================================="
     echo "Login: Administrator / admin"
-    echo "Deploy Type: $DEPLOY_TYPE"
-    if [ "$DEPLOY_TYPE" = "lab" ]; then
-        CODESYS_PORT=$(docker ps --format "table {{.Names}}\t{{.Ports}}" | grep codesys | sed 's/.*:\([0-9]*\)->8080.*/\1/' || echo "8081")
-        echo "Lab Environment URLs:"
-        echo "  - ERPNext Interface: http://localhost:$PORT"
-        echo "  - CODESYS Simulator: http://localhost:$CODESYS_PORT"
-        echo "  - Traefik Dashboard: http://localhost:8080"
-        echo "  - Lab Domains (configure in /etc/hosts):"
-        echo "    127.0.0.1 intralogistics.lab codesys.intralogistics.lab dashboard.intralogistics.lab"
-        echo "MODBUS TCP: localhost:502 (for real PLC connections)"
-        echo "PLC Bridge: localhost:7654 (real-time events)"
-        echo "EpiBus: Installed and integrated"
-    elif [ "$DEPLOY_TYPE" = "web" ]; then
-        echo "Web Environment URLs:"
-        echo "  - ERPNext: http://$WEB_DOMAIN"
-        echo "  - CODESYS: http://codesys.$WEB_DOMAIN"
-        echo "  - Traefik Dashboard: http://dashboard.$WEB_DOMAIN"
-        echo "MODBUS TCP: $WEB_DOMAIN:502 (for real PLC connections)"
-        echo "PLC Bridge: $WEB_DOMAIN:7654 (real-time events)"
-        echo "EpiBus: Installed and integrated"
-    elif [ "$DEPLOY_TYPE" = "with-plc" ]; then
-        echo "CODESYS: http://localhost:8081 (codesys/codesys)"
-        echo "PLC Bridge: http://localhost:7654"
-        echo "EpiBus: Installed and integrated"
-    elif [ "$DEPLOY_TYPE" = "with-epibus" ]; then
-        echo "EpiBus: Installed and ready"
-    fi
+    echo "Lab Environment URLs:"
+    echo "  - ERPNext Interface: http://intralogistics.lab"
+    echo "  - Traefik Dashboard: http://dashboard.intralogistics.lab"
+    echo "MODBUS TCP: localhost:502 (for real PLC connections)"
+    echo "PLC Bridge: localhost:7654 (real-time events)"
+    echo "EpiBus: Installed and integrated"
     echo "=================================="
 else
     log "❌ DEPLOYMENT FAILED - Some tests did not pass"
@@ -861,9 +664,9 @@ else
     echo "🔧 TROUBLESHOOTING STEPS:"
     echo "1. Check container logs: docker compose logs"
     echo "2. Check container status: docker compose ps"
-    echo "3. Try accessing directly: http://localhost:$PORT"
-    echo "4. Verify hosts file entries (for lab deployment)"
-    echo "5. Restart deployment: ./deploy.sh stop && ./deploy.sh $DEPLOY_TYPE"
+    echo "3. Try accessing directly: http://intralogistics.lab"
+    echo "4. Verify hosts file entries"
+    echo "5. Restart deployment: ./deploy.sh stop && ./deploy.sh"
     echo ""
     echo "If issues persist, check the troubleshooting guide in docs/"
     exit 1

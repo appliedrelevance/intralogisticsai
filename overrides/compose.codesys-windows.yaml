@@ -1,6 +1,0 @@
-services:
-  codesys:
-    ports:
-      - "11740:1217"  # CODESYS programming port - alternative port
-      - "502:502"     # MODBUS TCP port  
-      - "8080:8080"   # Web interface

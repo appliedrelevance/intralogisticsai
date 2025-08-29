@@ -15,7 +15,6 @@ This repository implements a sophisticated containerized Frappe/ERPNext deployme
 
 ### Industrial Automation Integration
 - **EpiBus**: Custom Frappe app providing MODBUS/TCP communication capabilities
-- **CODESYS**: PLC simulator for development and testing
 - **PLC Bridge**: Real-time communication service between Frappe and PLCs
 - **React Dashboard**: Modern frontend for monitoring industrial processes
 
@@ -34,7 +33,6 @@ overrides/compose.postgres.yaml
 overrides/compose.redis.yaml
 
 # Industrial automation
-overrides/compose.codesys.yaml
 overrides/compose.plc-bridge.yaml
 
 # Platform-specific
@@ -46,9 +44,9 @@ overrides/compose.mac-m4.yaml  # ARM64 optimization
 **NEVER use `docker compose` commands directly!** This project requires specific environment variables and orchestration that only the deploy.sh script handles correctly.
 
 ### Container Management Rules
-- ✅ **START/DEPLOY**: `./deploy.sh lab` (or other deploy options)
+- ✅ **START/DEPLOY**: `./deploy.sh`
 - ✅ **STOP**: `./deploy.sh stop` 
-- ✅ **RESTART**: `./deploy.sh stop` followed by `./deploy.sh lab`
+- ✅ **RESTART**: `./deploy.sh stop` followed by `./deploy.sh`
 - ❌ **NEVER**: `docker compose up`, `docker compose down`, `docker compose restart`
 
 ### Why deploy.sh is Required
@@ -63,112 +61,37 @@ The deploy script handles:
 
 ## Essential Commands
 
-### Complete Industrial Automation Setup (Mac M-series ARM64)
+### Lab Deployment
 ```bash
-# STEP 1: Build custom image with EpiBus (required for complete functionality)
-./development/build-epibus-image.sh
+# Deploy complete lab environment
+./deploy.sh
 
-# STEP 2: Configure environment for custom image
-export CUSTOM_IMAGE=frappe-epibus
-export CUSTOM_TAG=latest
-export PULL_POLICY=never
+# Force rebuild of custom images
+./deploy.sh --rebuild
 
-# STEP 3: Deploy complete stack with EpiBus integration
-docker compose \
-  -f compose.yaml \
-  -f overrides/compose.mariadb.yaml \
-  -f overrides/compose.redis.yaml \
-  -f overrides/compose.codesys.yaml \
-  -f overrides/compose.plc-bridge.yaml \
-  -f overrides/compose.create-site.yaml \
-  -f overrides/compose.mac-m4.yaml \
-  up -d
-
-# STEP 4: Install EpiBus on the created site (after deployment completes)
-docker compose exec backend bench --site intralogistics.localhost install-app epibus
-
-# Standard setup without PLC integration
-docker compose \
-  -f compose.yaml \
-  -f overrides/compose.mariadb.yaml \
-  -f overrides/compose.redis.yaml \
-  -f overrides/compose.mac-m4.yaml \
-  up -d
+# Stop and cleanup
+./deploy.sh stop
 ```
 
-### Complete Industrial Automation Setup (Linux/Intel Mac x86_64)
-```bash
-# STEP 1: Build custom image with EpiBus (required for complete functionality)
-./development/build-epibus-image.sh
-
-# STEP 2: Configure environment for custom image
-export CUSTOM_IMAGE=frappe-epibus
-export CUSTOM_TAG=latest
-export PULL_POLICY=never
-
-# STEP 3: Deploy complete stack with EpiBus integration
-docker compose \
-  -f compose.yaml \
-  -f overrides/compose.mariadb.yaml \
-  -f overrides/compose.redis.yaml \
-  -f overrides/compose.codesys.yaml \
-  -f overrides/compose.plc-bridge.yaml \
-  -f overrides/compose.create-site.yaml \
-  up -d
-
-# STEP 4: Install EpiBus on the created site (after deployment completes)
-docker compose exec backend bench --site intralogistics.localhost install-app epibus
-```
-
-## Complete Deployment Overview
-
-The above commands deploy a **complete industrial automation stack** including:
-
-✅ **Frappe/ERPNext ERP System** - Business platform with web interface  
-✅ **EpiBus Industrial App** - Custom Frappe app for industrial integration  
-✅ **CODESYS Simulator** - Industrial PLC programming environment  
-✅ **MODBUS TCP Server** - Industrial communication protocol (port 502)  
-✅ **PLC Bridge Service** - Real-time data exchange between PLC and ERP  
-✅ **MariaDB Database** - Persistent data storage  
-✅ **Redis Cache/Queue** - Performance optimization  
-✅ **Automatic Site Creation** - Site `intralogistics.localhost` created automatically  
-
-### Verification Steps
-
-After deployment, verify the system is working:
-
-```bash
-# Check all services are healthy
-docker compose ps
-
-# Test ERPNext web interface (note the dynamic port)
-curl -I http://localhost:$(docker ps | grep frontend | sed 's/.*:\([0-9]*\)->8080.*/\1/')/ 
-# Should return HTTP 200 OK
-
-# Test CODESYS web interface  
-curl -I http://localhost:$(docker ps | grep codesys | sed 's/.*:\([0-9]*\)->8080.*/\1/')/ 
-# Should return HTTP 302 (redirect to login)
-
-# Test EpiBus API integration
-curl http://localhost:$(docker ps | grep frontend | sed 's/.*:\([0-9]*\)->8080.*/\1/')/api/method/epibus.api.plc.get_signals
-# Should return {"message":[]} (empty signals list for fresh installation)
-```
-
+The lab deployment automatically includes:
+- Frappe/ERPNext ERP system
+- EpiBus industrial integration app (automatically built and installed)
+- MODBUS TCP server (port 502)
+- PLC Bridge for real-time communication
+- Traefik reverse proxy with custom domains
+- Complete setup wizard automation
 ### Access Points
 
-- **ERPNext Web Interface**: `http://localhost:[dynamic-port]` (check port with `docker compose ps`)
-- **CODESYS Web Interface**: `http://localhost:[dynamic-port]` (check port with `docker compose ps`)  
+- **ERPNext Web Interface**: `http://intralogistics.lab`
+- **Traefik Dashboard**: `http://dashboard.intralogistics.lab`
 - **MODBUS TCP**: `localhost:502` (industrial communication)
 - **PLC Bridge SSE**: `localhost:7654` (real-time events)
 - **Login Credentials**: Username `Administrator`, Password `admin`
 
 ### Site Operations
 ```bash
-# Create new site with ERPNext
-docker compose exec backend bench new-site intralogistics.localhost --admin-password admin --db-root-password 123 --install-app erpnext
-
 # Install EpiBus app on existing site
-docker compose exec backend bench --site intralogistics.localhost install-app epibus
+docker compose exec backend bench --site intralogistics.lab install-app epibus
 
 # Access backend container
 docker compose exec backend bash
@@ -176,10 +99,6 @@ docker compose exec backend bash
 # Check service status
 docker compose ps
 ```
-
-### CODESYS Operations
-```bash
-
 
 ### Development Workflows
 ```bash
@@ -223,13 +142,13 @@ The project uses a modular override system allowing flexible service combination
 - **Base**: Core Frappe/ERPNext services (compose.yaml)
 - **Database**: Choose MariaDB or PostgreSQL
 - **Caching**: Redis services for performance
-- **Industrial**: CODESYS and PLC Bridge for automation
+- **Industrial**: PLC Bridge for automation
 - **Platform**: ARM64 optimizations for Mac M-series
 
-### Dynamic Port Assignment
-Services use dynamic port mapping to prevent conflicts:
-- Frontend: Auto-assigned port (check with `docker compose ps`)
-- CODESYS Web: Auto-assigned port (use `get-codesys-port.sh`)
+### Lab Domain System
+The lab deployment uses custom domain routing via Traefik:
+- ERPNext: `intralogistics.lab`
+- Traefik Dashboard: `dashboard.intralogistics.lab`
 - MODBUS TCP: Fixed port 502
 - PLC Bridge SSE: Port 7654
 
@@ -242,7 +161,7 @@ The EpiBus app provides:
 
 ### Platform Considerations
 **Mac M-series (ARM64)**:
-- Requires `compose.mac-m4.yaml` override
+- Requires `compose.arm64.yaml` override
 - Uses `platform: linux/arm64` for all services
 - Optimized for Apple Silicon performance
 
@@ -263,7 +182,7 @@ docker compose logs backend
 docker compose logs plc-bridge
 
 # Test MODBUS connectivity
-docker compose exec plc-bridge python -c "from pymodbus.client import ModbusTcpClient; client = ModbusTcpClient('codesys', 502); print(client.connect())"
+docker compose exec plc-bridge python -c "from pymodbus.client import ModbusTcpClient; client = ModbusTcpClient('localhost', 502); print(client.connect())"
 ```
 
 ### Database Operations
@@ -288,8 +207,7 @@ Services start in specific order managed by health checks:
 3. Configurator (initial setup)
 4. Backend, Queue Workers, Scheduler
 5. Frontend (Nginx proxy)
-6. CODESYS (if using industrial features)
-7. PLC Bridge (depends on CODESYS and Backend)
+6. PLC Bridge (depends on Backend)
 
 ### Volume Management
 - **sites**: Persistent Frappe sites data
@@ -326,12 +244,8 @@ docker volume prune
 # PLC Bridge connection errors
 docker compose logs plc-bridge
 
-# CODESYS not accessible
-./get-codesys-port.sh
-# Check if port is properly mapped
-
 # MODBUS communication failures
-docker compose exec plc-bridge telnet codesys 502
+docker compose exec plc-bridge telnet localhost 502
 ```
 
 This architecture represents a unique integration of enterprise business software with industrial automation capabilities, requiring careful attention to service orchestration and multi-protocol communication.

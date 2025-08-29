@@ -94,11 +94,9 @@ A **Modbus Action** provides an interface between ERPNext and the MODBUS/TCP con
 
 ## Input, Output, and Memory Addressing
 
-*The following is from the [PyModbus documentation](https://codesysproject.com/docs/2-3-input-output-and-memory-addressing/).* 
 
 PLC applications interact with the external world through Input and Output modules and/or SCADA communication protocols. When designing your PLC applications, you decide which variables should be attached to I/O and communication modules by labeling the variable with a PLC address.
 
-CODESYS Runtime uses the IEC 61131-3 nomenclature to address input, output and memory locations. The addressing of I/O locations is done through the use of special character sequences. These sequences are a concatenation of the percent sign “%”, a location prefix, a size prefix and one or more natural numbers separated by blank spaces. The following location prefixes are supported:
 
 - **I** for input
 - **O** for output
@@ -118,7 +116,6 @@ For example, if you want to read the state of the first digital input into a BOO
 
 As you probably have noticed, bit (X) PLC addresses have a two-part hierarchical address. The least significant part (right-most) can be interpreted as a position in a byte and must be in the range 0 to 7. The most significant part (left-most) must be no more than 1023. Parts are separated by a single period. Data sizes other than X have a one-part hierarchical address. They must not contain a period (.) and must be no more than the maximum memory location address for your platform.
 
-The following are invalid examples of PLC addresses in CODESYS for the stated reason:
 
 - **%IX0.8** The least significant index is greater than 7.
 - **%QX0.0.1** Three-part hierarchy is not permitted address.
@@ -126,7 +123,6 @@ The following are invalid examples of PLC addresses in CODESYS for the stated re
 
 ## Example Pinout Configuration for a Modbus Connection
 Below is an example pinout from the **Controllino Maxi Automation** PLC. It is from the 
-[Open PLC Project](https://codesysproject.com/docs/2-4-physical-addressing/).
 
 ```
 /************************PINOUT CONFIGURATION*************************

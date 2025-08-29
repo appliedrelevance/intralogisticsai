@@ -8,7 +8,6 @@ IntralogisticsAI is a comprehensive industrial automation platform that combines
 
 - **Enterprise ERP**: Complete business management with Frappe/ERPNext
 - **Industrial Integration**: Real-time PLC communication via MODBUS TCP
-- **Visual Programming**: CODESYS environment for ladder logic development
 - **Real-time Monitoring**: Live dashboard for industrial signals and processes
 - **Containerized Deployment**: Docker-based architecture for easy scaling
 - **Educational Ready**: Perfect for logistics and automation education
@@ -18,7 +17,6 @@ IntralogisticsAI is a comprehensive industrial automation platform that combines
 IntralogisticsAI integrates multiple components:
 
 - **EpiBus**: Custom Frappe app providing MODBUS/TCP communication
-- **CODESYS**: Industrial programming environment with MODBUS TCP server
 - **PLC Bridge**: Real-time communication service between ERP and PLCs
 - **React Dashboard**: Modern frontend for monitoring industrial processes
 
