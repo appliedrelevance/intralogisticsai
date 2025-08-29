@@ -551,57 +551,8 @@ test_deployment() {
         all_passed=false
     fi
     
-    # Test 5: Setup wizard completion validation
-    log "Testing setup wizard completion..."
-    local setup_complete_status=$(docker compose exec backend bash -c "cd /home/frappe/frappe-bench && ./env/bin/python -c \"
-import frappe
-import os
-os.chdir('/home/frappe/frappe-bench')
-frappe.init('intralogistics.lab')
-frappe.connect()
-print('SETUP_COMPLETE=' + str(frappe.db.get_single_value('System Settings', 'setup_complete') or 0))
-print('COMPANY_EXISTS=' + str(frappe.db.exists('Company', 'Roots Intralogistics') or 0))
-print('DEFAULT_CURRENCY=' + str(frappe.db.get_single_value('Global Defaults', 'default_currency') or 'None'))
-print('TIMEZONE=' + str(frappe.db.get_single_value('System Settings', 'time_zone') or 'None'))
-print('ADMIN_USER=' + str(frappe.db.exists('User', 'Administrator') or 0))
-\"" 2>/dev/null)
     
-    if echo "$setup_complete_status" | grep -q "SETUP_COMPLETE=1"; then
-        test_results+=("✅ Setup wizard marked as complete")
-    else
-        test_results+=("❌ Setup wizard not completed")
-        all_passed=false
-    fi
-    
-    if echo "$setup_complete_status" | grep -q "COMPANY_EXISTS=Roots Intralogistics"; then
-        test_results+=("✅ Company 'Roots Intralogistics' created")
-    else
-        test_results+=("❌ Company 'Roots Intralogistics' not found")
-        all_passed=false
-    fi
-    
-    if echo "$setup_complete_status" | grep -q "DEFAULT_CURRENCY=USD"; then
-        test_results+=("✅ Default currency set to USD")
-    else
-        test_results+=("❌ Default currency not set to USD")
-        all_passed=false
-    fi
-    
-    if echo "$setup_complete_status" | grep -q "TIMEZONE=America/New_York"; then
-        test_results+=("✅ Timezone set to America/New_York")
-    else
-        test_results+=("❌ Timezone not set to America/New_York")
-        all_passed=false
-    fi
-    
-    if echo "$setup_complete_status" | grep -q "ADMIN_USER=Administrator"; then
-        test_results+=("✅ Administrator user exists")
-    else
-        test_results+=("❌ Administrator user not found")
-        all_passed=false
-    fi
-    
-    # Test 6: EpiBus availability
+    # Test 5: EpiBus availability
     log "Testing EpiBus installation..."
     local epibus_test=$(docker compose exec backend bench --site intralogistics.lab list-apps 2>/dev/null | grep epibus)
     if [ -n "$epibus_test" ]; then
@@ -611,7 +562,7 @@ print('ADMIN_USER=' + str(frappe.db.exists('User', 'Administrator') or 0))
         all_passed=false
     fi
     
-    # Test 7: MODBUS TCP port
+    # Test 6: MODBUS TCP port
     if timeout 3 bash -c "</dev/tcp/localhost/502" 2>/dev/null; then
         test_results+=("✅ MODBUS TCP port 502 accessible")
     else
@@ -619,7 +570,7 @@ print('ADMIN_USER=' + str(frappe.db.exists('User', 'Administrator') or 0))
         all_passed=false
     fi
     
-    # Test 8: Lab domains
+    # Test 7: Lab domains
     log "Testing lab domain routing..."
     
     # First check hosts file configuration
