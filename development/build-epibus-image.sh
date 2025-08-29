@@ -31,7 +31,7 @@ if [ ! -f "compose.yaml" ]; then
     exit 1
 fi
 
-# Create apps.json with EpiBus
+# Create apps.json with EpiBus (using local path)
 cat > apps-epibus-build.json << EOF
 [
   {
@@ -39,7 +39,7 @@ cat > apps-epibus-build.json << EOF
     "branch": "version-15"
   },
   {
-    "url": "https://github.com/appliedrelevance/epibus",
+    "url": "file:///opt/epibus",
     "branch": "main"
   }
 ]

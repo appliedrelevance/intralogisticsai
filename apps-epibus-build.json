@@ -4,7 +4,7 @@
     "branch": "version-15"
   },
   {
-    "url": "https://github.com/appliedrelevance/epibus",
+    "url": "file:///opt/epibus",
     "branch": "main"
   }
 ]

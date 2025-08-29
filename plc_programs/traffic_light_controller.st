@@ -1,5 +1,4 @@
-PROGRAM TrafficLightController
-
+PROGRAM traffic_light_controller
 VAR
     pedestrian_ns_button AT %IX0.0 : BOOL;
     pedestrian_ew_button AT %IX0.1 : BOOL;
@@ -25,9 +24,7 @@ VAR
     ped_ew_cycles AT %MW4 : INT;
     emergency_activations AT %MW5 : INT;
     total_runtime_seconds AT %MW6 : INT;
-END_VAR
-
-VAR
+    
     timer_main : TON;
     timer_yellow : TON;
     timer_ped : TON;
@@ -60,14 +57,10 @@ VAR
     ped_ew_btn_prev : BOOL := FALSE;
     emergency_btn_prev : BOOL := FALSE;
     
-    (* System Status *)
     system_running : BOOL;
     emergency_mode : BOOL;
     fault_status : BOOL;
-END_VAR
-
-VAR_IN_OUT
-    (* Statistics for MODBUS Register Access *)
+    
     cycle_count_total : INT;
     avg_cycle_time : INT;
     last_emergency_time : TIME;
@@ -109,7 +102,7 @@ ped_ew_btn_prev := pedestrian_ew_button;
 IF emergency_override AND NOT emergency_btn_prev THEN
     emergency_active := TRUE;
     emergency_activations := emergency_activations + 1;
-    last_emergency_time := TIME();
+    (* last_emergency_time := current_time; *)
 END_IF;
 emergency_btn_prev := emergency_override;
 

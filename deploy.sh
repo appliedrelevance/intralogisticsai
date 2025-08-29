@@ -562,6 +562,7 @@ elif [ "$DEPLOY_TYPE" = "with-plc" ]; then
       -f overrides/compose.codesys.yaml \
       -f overrides/compose.plc-bridge.yaml \
       -f overrides/compose.create-site.yaml \
+      -f overrides/compose.noproxy.yaml \
       $PLATFORM_OVERRIDE
 elif [ "$DEPLOY_TYPE" = "with-epibus" ]; then
     log "Deploying with EpiBus application using compose.yaml with overrides"
@@ -571,6 +572,7 @@ elif [ "$DEPLOY_TYPE" = "with-epibus" ]; then
       -f overrides/compose.mariadb.yaml \
       -f overrides/compose.redis.yaml \
       -f overrides/compose.create-site.yaml \
+      -f overrides/compose.noproxy.yaml \
       $PLATFORM_OVERRIDE
 else
     log "Deploying basic Frappe using compose.yaml with overrides"
@@ -579,6 +581,7 @@ else
       -f overrides/compose.mariadb.yaml \
       -f overrides/compose.redis.yaml \
       -f overrides/compose.create-site.yaml \
+      -f overrides/compose.noproxy.yaml \
       $PLATFORM_OVERRIDE
 fi
 
