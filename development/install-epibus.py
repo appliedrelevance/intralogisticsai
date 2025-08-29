@@ -174,11 +174,6 @@ def main():
                 port = port_info.split('->')[0].split(':')[-1]
                 cprint(f"✅ Frappe/ERPNext with EpiBus: http://localhost:{port}", level=2)
     
-    # Check CODESYS
-    codesys_script = "./get-codesys-port.sh"
-    if os.path.exists(codesys_script):
-        cprint("CODESYS Information:", level=2)
-        run_command(codesys_script, check=False)
     
     # Final status
     cprint("\n=== EpiBus Installation Complete! ===", level=2)

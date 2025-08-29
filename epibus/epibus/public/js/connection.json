@@ -3,7 +3,6 @@
     "device_name": "US15-B10-B1",
     "device_type": "PLC",
     "enabled": 0,
-    "host": "codesys",
     "port": 502,
     "thumbnail": null,
     "signals": [

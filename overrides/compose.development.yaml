@@ -27,25 +27,19 @@ services:
     depends_on:
       backend:
         condition: service_started
-      codesys:
         condition: service_healthy
 
-  # CODESYS with project files mounted
-  codesys:
-    image: jugaadtech/codesyscontrol_virtuallinuxarm64_v13:latest
     platform: linux/arm64
     volumes:
       - ./plc_programs:/plc_programs:rw  # Live editing for PLC programs
     ports:
       - "502:502"    # MODBUS TCP
-      - "1217:1217"  # CODESYS Gateway for development
     environment:
       OPENPLC_LOG_LEVEL: ${OPENPLC_LOG_LEVEL:-DEBUG}
     networks:
       - frappe_network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "test", "-f", "/opt/codesys/bin/codesyscontrol.bin"]
       interval: 30s
       timeout: 10s
       retries: 3
