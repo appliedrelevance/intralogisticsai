@@ -5,6 +5,7 @@
  "docstatus": 0,
  "doctype": "Modbus Connection",
  "enabled": 1,
+ "host": "localhost",
  "idx": 0,
  "modified": "2025-08-22 22:06:15.379983",
  "modified_by": "Administrator",
