@@ -1,4 +1,4 @@
 services:
   frontend:
     ports:
-      - "${HTTP_PUBLISH_PORT:-0}:8080"  # Dynamic port mapping (0 = auto-assign)
+      - "${HTTP_PUBLISH_PORT:-8080}:8080"  # Default to port 8080
