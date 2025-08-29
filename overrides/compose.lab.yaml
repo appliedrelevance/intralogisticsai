@@ -10,8 +10,6 @@ services:
     # Fixed ports for lab environment
     ports:
       - "502:502"    # MODBUS TCP server
-    labels:
-      - traefik.enable=true
 
   proxy:
     image: traefik:v2.11

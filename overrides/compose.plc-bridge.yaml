@@ -32,7 +32,6 @@ services:
     depends_on:
       backend:
         condition: service_started
-        condition: service_healthy
 
 volumes:
   plc-bridge-logs:
