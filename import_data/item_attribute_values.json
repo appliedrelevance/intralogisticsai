@@ -1,0 +1,92 @@
+[
+  {
+    "attribute_value": "Charcoal",
+    "abbr": "CHR",
+    "parent": "Color"
+  },
+  {
+    "attribute_value": "Extra Extra Large",
+    "abbr": "XXL",
+    "parent": "Size"
+  },
+  {
+    "attribute_value": "Youth",
+    "abbr": "Youth",
+    "parent": "Size"
+  },
+  {
+    "attribute_value": "Adult",
+    "abbr": "Adult",
+    "parent": "Size"
+  },
+  {
+    "attribute_value": "Green Glow",
+    "abbr": "GRN/GLO",
+    "parent": "Color"
+  },
+  {
+    "attribute_value": "Pink Glow",
+    "abbr": "PNK/GLO",
+    "parent": "Color"
+  },
+  {
+    "attribute_value": "Orange Glow",
+    "abbr": "ORG/GLO",
+    "parent": "Color"
+  },
+  {
+    "attribute_value": "Grey",
+    "abbr": "GRY",
+    "parent": "Color"
+  },
+  {
+    "attribute_value": "Red",
+    "abbr": "RED",
+    "parent": "Color"
+  },
+  {
+    "attribute_value": "Green",
+    "abbr": "GRE",
+    "parent": "Color"
+  },
+  {
+    "attribute_value": "White",
+    "abbr": "WHI",
+    "parent": "Color"
+  },
+  {
+    "attribute_value": "Black",
+    "abbr": "BLA",
+    "parent": "Color"
+  },
+  {
+    "attribute_value": "Extra Small",
+    "abbr": "XS",
+    "parent": "Size"
+  },
+  {
+    "attribute_value": "Large",
+    "abbr": "L",
+    "parent": "Size"
+  },
+  {
+    "attribute_value": "Extra Large",
+    "abbr": "XL",
+    "parent": "Size"
+  },
+  {
+    "attribute_value": "Medium",
+    "abbr": "M",
+    "parent": "Size"
+  },
+  {
+    "attribute_value": "Small",
+    "abbr": "S",
+    "parent": "Size"
+  },
+  {
+    "attribute_value": "Blue",
+    "abbr": "BLU",
+    "parent": "Color"
+  }
+]

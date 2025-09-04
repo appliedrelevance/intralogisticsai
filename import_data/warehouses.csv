@@ -1,0 +1,6 @@
+warehouse_name,is_group,parent_warehouse,disabled,company
+All Warehouses,1,,0,
+Picking and Packing,0,All Warehouses,0,
+Receiving Area,0,All Warehouses,159,
+Shipping,0,All Warehouses,0,
+Storage Area,0,All Warehouses,0,

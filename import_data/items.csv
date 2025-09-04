@@ -1,0 +1,30 @@
+item_code,item_name,item_group,stock_uom,disabled,is_stock_item,has_variants,valuation_rate,standard_rate,description,is_purchase_item,is_sales_item,country_of_origin
+"4\"" Ball Chain/Clasp","4\"" Ball Chain/Clasp",Hardware,Nos,0,1,0,0.060000000,0.000000000,"4\"" Ball Chain/Clasp",1,1,United States
+Root Keychain BLK,Roots Keychain BLK,Product Bundles,Nos,0,0,0,0.000000000,0.000000000,Root Keychain BLK,1,1,United States
+Root Logo (Only) Keychain,Root Logo (Only) Keychain,Template,Nos,0,0,1,0.360000000,0.000000000,Root Logo (Only) Keychain,1,1,United States
+Root Logo (Only) Keychain-BLA,Root Logo (Only) Keychain-BLA,3D Printed Parts,Nos,0,1,0,0.000000000,0.000000000,Root Logo (Only) Keychain-BLA,1,1,United States
+Root Logo (Only) Keychain-GRY,Root Logo (Only) Keychain-GRY,3D Printed Parts,Nos,0,1,0,0.000000000,0.000000000,Root Logo (Only) Keychain-GRY,1,1,United States
+Roots Bracelet,Roots Bracelet,Template,Nos,0,0,1,0.000000000,0.000000000,Roots Bracelet,1,1,United States
+Roots Bracelet-GRN/GLO-Adult,Roots Bracelet-GRN/GLO-Adult,Products,Nos,0,1,0,0.680000000,0.000000000,Roots Bracelet-GRN/GLO-Adult,1,1,United States
+Roots Bracelet-GRN/GLO-Youth,Roots Bracelet-GRN/GLO-Youth,Products,Nos,0,1,0,0.680000000,0.000000000,Roots Bracelet-GRN/GLO-Youth,1,1,United States
+Roots Bracelet-ORG/GLO-Adult,Roots Bracelet-ORG/GLO-Adult,Products,Nos,0,1,0,0.680000000,0.000000000,Roots Bracelet-ORG/GLO-Adult,1,1,United States
+Roots Bracelet-ORG/GLO-Youth,Roots Bracelet-ORG/GLO-Youth,Products,Nos,0,1,0,0.680000000,0.000000000,Roots Bracelet-ORG/GLO-Youth,1,1,United States
+Roots Bracelet-PNK/GLO-Adult,Roots Bracelet-PNK/GLO-Adult,Products,Nos,0,1,0,0.680000000,0.000000000,Roots Bracelet-PNK/GLO-Adult,1,1,United States
+Roots Bracelet-PNK/GLO-Youth,Roots Bracelet-PNK/GLO-Youth,Products,Nos,0,1,0,0.620000000,0.000000000,Roots Bracelet-PNK/GLO-Youth,1,1,United States
+Roots Keychain GRY,Roots Keychain GRY,Product Bundles,Nos,0,0,0,0.000000000,0.000000000,Roots Keychain GRY,1,1,United States
+Roots T-Shirt,Roots T-Shirt,Template,Nos,0,0,1,0.000000000,0.000000000,Roots T-Shirt,1,1,United States
+Roots T-Shirt-CHR-L,Roots T-Shirt-CHR-L,Products,Nos,0,1,0,9.990000000,0.000000000,Roots T-Shirt-CHR-L,1,1,United States
+Roots T-Shirt-CHR-M,Roots T-Shirt-CHR-M,Products,Nos,0,1,0,9.990000000,0.000000000,Roots T-Shirt-CHR-M,1,1,United States
+Roots T-Shirt-CHR-S,Roots T-Shirt-CHR-S,Products,Nos,0,1,0,9.990000000,0.000000000,Roots T-Shirt-CHR-S,1,1,United States
+Roots Wallet - BASE,Roots Wallet - BASE,Template,Nos,0,0,1,0.450000000,0.000000000,Roots Wallet - BASE,1,1,United States
+Roots Wallet - BASE-BLA,Roots Wallet - BASE-BLA,3D Printed Parts,Nos,0,1,0,0.450000000,0.000000000,Roots Wallet - BASE-BLA,1,1,United States
+Roots Wallet - BASE-WHI,Roots Wallet - BASE-WHI,Template,Nos,0,0,0,0.000000000,0.000000000,Roots Wallet - BASE-WHI,1,1,United States
+Roots Wallet - Front,Roots Wallet - Front,Template,Nos,0,0,1,0.000000000,0.000000000,Roots Wallet - Front,1,1,United States
+Roots Wallet - Front-BLA,Roots Wallet - Front-BLA,3D Printed Parts,Nos,0,1,0,0.270000000,0.000000000,Roots Wallet - Front-BLA,1,1,United States
+Roots Wallet - Front-WHI,Roots Wallet - Front-WHI,Template,Nos,0,0,0,0.000000000,0.000000000,Roots Wallet - Front-WHI,1,1,United States
+Roots Wallet-BLK-GRN Band,Roots Wallet-BLK-GRN Band,Product Bundles,Nos,0,0,0,0.000000000,0.000000000,Roots Wallet-BLK-GRN Band,1,1,United States
+Roots Wallet-BLK-ORG Band,Roots Wallet-BLK-ORG Band,Product Bundles,Nos,0,0,0,0.000000000,0.000000000,Roots Wallet-BLK-ORG Band,1,1,United States
+Roots Wallet-BLK-PNK Band,Roots Wallet-BLK-PNK Band,Product Bundles,Nos,0,0,0,0.000000000,0.000000000,Roots Wallet-BLK-PNK Band,1,1,United States
+Roots Wallet-WHT-GRN Band,Roots Wallet-WHT-GRN Band,Product Bundles,Nos,0,0,0,0.000000000,0.000000000,Roots Wallet-WHT-GRN Band,1,1,United States
+Roots Wallet-WHT-ORG Band,Roots Wallet-WHT-ORG Band,Product Bundles,Nos,0,0,0,0.000000000,0.000000000,Roots Wallet-WHT-ORG Band,1,1,United States
+Roots Wallet-WHT-PNK Band,Roots Wallet-WHT-PNK Band,Product Bundles,Nos,0,0,0,0.000000000,0.000000000,Roots Wallet-WHT-PNK Band,1,1,United States

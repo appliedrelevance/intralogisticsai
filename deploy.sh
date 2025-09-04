@@ -503,6 +503,86 @@ else
     done
 fi
 
+# Restore golden backup with items and images
+restore_golden_backup() {
+    local backup_dir="backups/backups"
+    local site_name="intralogistics.lab"
+    local backup_prefix="20250904_221006-intralogistics_lab"
+    
+    log "Restoring golden backup with items and images..."
+    
+    # Check if backup files exist
+    if [ ! -f "$backup_dir/${backup_prefix}-database.sql.gz" ]; then
+        log "WARNING: Golden backup database file not found at $backup_dir/${backup_prefix}-database.sql.gz"
+        log "Skipping backup restoration - site will use basic EpiBus setup"
+        return 0
+    fi
+    
+    if [ ! -f "$backup_dir/${backup_prefix}-files.tar" ]; then
+        log "WARNING: Golden backup files archive not found at $backup_dir/${backup_prefix}-files.tar"
+    fi
+    
+    if [ ! -f "$backup_dir/${backup_prefix}-private-files.tar" ]; then
+        log "WARNING: Golden backup private files archive not found at $backup_dir/${backup_prefix}-private-files.tar"
+    fi
+    
+    # Copy backup files to the backend container
+    log "Copying backup files to backend container..."
+    docker compose exec backend mkdir -p /home/frappe/frappe-bench/sites/backups/
+    docker compose cp "$backup_dir/${backup_prefix}-database.sql.gz" backend:/home/frappe/frappe-bench/sites/backups/
+    
+    if [ -f "$backup_dir/${backup_prefix}-files.tar" ]; then
+        docker compose cp "$backup_dir/${backup_prefix}-files.tar" backend:/home/frappe/frappe-bench/sites/backups/
+    fi
+    
+    if [ -f "$backup_dir/${backup_prefix}-private-files.tar" ]; then
+        docker compose cp "$backup_dir/${backup_prefix}-private-files.tar" backend:/home/frappe/frappe-bench/sites/backups/
+    fi
+    
+    # Restore the backup using direct MySQL approach (bench restore has password prompt issues)
+    log "Restoring database from golden backup using MySQL..."
+    
+    # Get the database name for the site
+    local db_name=$(docker compose exec backend bash -c "cd /home/frappe/frappe-bench && python -c \"
+import frappe
+frappe.init(site='$site_name')
+print(frappe.conf.db_name)
+\"" 2>/dev/null | tr -d '\r')
+    
+    if [ -n "$db_name" ]; then
+        log "Restoring to database: $db_name"
+        if docker compose exec backend bash -c "gunzip -c /home/frappe/frappe-bench/sites/backups/${backup_prefix}-database.sql.gz | MYSQL_PWD=123 mysql -h db -u root $db_name" 2>/dev/null; then
+            log "✅ Database restored successfully"
+            
+            # Extract and restore files
+            log "Restoring public and private files..."
+            docker compose exec backend bash -c "cd /home/frappe/frappe-bench/sites/$site_name && tar -xf /home/frappe/frappe-bench/sites/backups/${backup_prefix}-files.tar" 2>/dev/null || true
+            docker compose exec backend bash -c "cd /home/frappe/frappe-bench/sites/$site_name && tar -xf /home/frappe/frappe-bench/sites/backups/${backup_prefix}-private-files.tar" 2>/dev/null || true
+            
+            log "✅ Golden backup restored successfully"
+            log "Site now contains items with images and complete setup"
+        else
+            log "❌ Failed to restore database from golden backup"
+            return 1
+        fi
+    else
+        log "❌ Could not determine database name for site $site_name"
+        log "Manual restoration can be done with:"
+        log "  docker compose exec backend bash -c \"gunzip -c /path/to/backup.sql.gz | MYSQL_PWD=123 mysql -h db -u root <db_name>\""
+        return 1
+    fi
+    
+    # Restart the backend services to ensure all changes take effect
+    log "Restarting backend services after backup restoration..."
+    docker compose restart backend queue-short queue-long scheduler
+    
+    # Wait for services to be ready
+    sleep 15
+}
+
+# Execute backup restoration
+# restore_golden_backup  # TEMPORARILY COMMENTED OUT - Skip backup restoration
+
 # Comprehensive deployment testing
 test_deployment() {
     local test_results=()

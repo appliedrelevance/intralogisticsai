@@ -1,0 +1,36 @@
+[
+  {
+    "warehouse_name": "All Warehouses",
+    "company": "Global Trade and Logistics",
+    "is_group": 1,
+    "disabled": 0
+  },
+  {
+    "warehouse_name": "Picking and Packing",
+    "parent_warehouse": "All Warehouses - GTAL",
+    "company": "Global Trade and Logistics",
+    "is_group": 0,
+    "disabled": 0
+  },
+  {
+    "warehouse_name": "Receiving Area",
+    "parent_warehouse": "All Warehouses - GTAL",
+    "company": "Global Trade and Logistics",
+    "is_group": 0,
+    "disabled": 0
+  },
+  {
+    "warehouse_name": "Shipping",
+    "parent_warehouse": "All Warehouses - GTAL",
+    "company": "Global Trade and Logistics",
+    "is_group": 0,
+    "disabled": 0
+  },
+  {
+    "warehouse_name": "Storage Area",
+    "parent_warehouse": "All Warehouses - GTAL",
+    "company": "Global Trade and Logistics",
+    "is_group": 0,
+    "disabled": 0
+  }
+]

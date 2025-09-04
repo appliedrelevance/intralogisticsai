@@ -1,0 +1,16 @@
+[
+  {
+    "attribute_name": "Color",
+    "numeric_values": 0,
+    "from_range": 0,
+    "to_range": 0,
+    "increment": 0
+  },
+  {
+    "attribute_name": "Size",
+    "numeric_values": 0,
+    "from_range": 0,
+    "to_range": 0,
+    "increment": 0
+  }
+]

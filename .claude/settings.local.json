@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tar:*)",
+      "Bash(docker compose exec backend cat:*)",
+      "Bash(docker compose exec backend grep:*)",
+      "Bash(docker compose exec backend find:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
