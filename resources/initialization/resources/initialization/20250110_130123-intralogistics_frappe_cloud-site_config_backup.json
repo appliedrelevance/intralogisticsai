@@ -1,0 +1,15 @@
+{
+ "db_name": "_c2a4844bf2fe0b9a",
+ "db_password": "F4cO5RkaKCxQ83Nx",
+ "db_type": "mariadb",
+ "host_name": "https://intralogistics.frappe.cloud",
+ "maintenance_mode": 0,
+ "plan_limit": {
+  "max_database_usage": 1024,
+  "max_storage_usage": 25600
+ },
+ "rate_limit": {
+  "limit": 7200.0,
+  "window": 86400
+ }
+}
