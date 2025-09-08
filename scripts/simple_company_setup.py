@@ -1,0 +1,1 @@
+import frappe; from erpnext.setup.setup_wizard.operations.install_fixtures import install_company; install_company('Global Trade and Logistics', 'GTAL', 'Manufacturing', 'United States'); print(f"Created {frappe.db.count('Account', {'company': 'Global Trade and Logistics'})} accounts")

@@ -5,13 +5,17 @@ services:
     platform: linux/amd64
     networks:
       - frappe_network
+    depends_on:
+      - backend
+      - db
+      - redis-cache
+      - redis-queue
     deploy:
       restart_policy:
         condition: none
     volumes:
       - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs  
-      - ./scripts/complete_setup_wizard.py:/tmp/complete_setup_wizard.py
+      - logs:/home/frappe/frappe-bench/logs
     entrypoint:
       - bash
       - -c
@@ -33,12 +37,14 @@ services:
           fi
         done;
         echo "sites/common_site_config.json found";
-        bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=${DB_PASSWORD} --install-app erpnext --install-app epibus --set-default intralogistics.lab --force;
-        echo "Building assets for intralogistics.lab";
+        bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=${DB_PASSWORD} --install-app erpnext --set-default intralogistics.lab --force;
+        echo "Installing EpiBus app on intralogistics.lab";
+        bench --site intralogistics.lab install-app epibus;
+        echo "Building assets for intralogistics.lab with both ERPNext and EpiBus";
         bench --site intralogistics.lab build;
         echo "Assets built successfully";
-        echo "Running ERPNext setup wizard completion with all required parameters";
-        ./env/bin/python /tmp/complete_setup_wizard.py intralogistics.lab || echo "ERPNext setup failed, but site should still work";
+        echo "Site creation completed with ERPNext and EpiBus installed";
+        echo "Setup wizard will be available at http://intralogistics.lab";
 
 networks:
   frappe_network: {}

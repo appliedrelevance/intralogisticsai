@@ -88,6 +88,29 @@ The lab deployment automatically includes:
 - **PLC Bridge SSE**: `localhost:7654` (real-time events)
 - **Login Credentials**: Username `Administrator`, Password `admin`
 
+### Business Data Import & Backup
+
+**NEW: Pre-configured Backup Workflow**
+The repository now includes clean backups with business data that bypass the setup wizard entirely:
+
+```bash
+# Import business data from CSV files (if starting fresh)
+./scripts/import_all_data.sh
+
+# Restore pre-configured backup (recommended)
+./scripts/restore_clean_backup.sh
+
+# Create new clean backup after changes
+docker compose exec backend bench --site intralogistics.lab backup --with-files
+```
+
+**Available Business Data:**
+- **Companies**: Global Trade and Logistics (GTAL)
+- **Item Groups**: 3D Printed Parts, Hardware, Products, Templates
+- **Warehouses**: Hierarchical structure (All Warehouses → Picking, Receiving, Shipping, Storage)
+- **Items**: 200+ product catalog including keychains, bracelets, 3D printed components
+- **Item Attributes**: Color and Size variants with values
+
 ### Site Operations
 ```bash
 # Install EpiBus app on existing site

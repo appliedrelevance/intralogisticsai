@@ -482,26 +482,8 @@ sleep 30
 # Verify EpiBus installation (already installed during site creation)
 log "Verifying EpiBus installation..."
 
-# Check if EpiBus is already installed (it should be from site creation)
-if docker compose exec backend bench --site intralogistics.lab list-apps 2>/dev/null | grep -q epibus; then
-    log "EpiBus already installed during site creation"
-else
-    log "EpiBus not found, installing now..."
-    for i in {1..30}; do
-        if docker compose exec backend bench --site intralogistics.lab install-app epibus 2>/dev/null; then
-            log "EpiBus installation completed successfully"
-            break
-        else
-            log "EpiBus installation attempt $i failed, retrying in 10 seconds..."
-            sleep 10
-            if [ $i -eq 30 ]; then
-                log "EpiBus installation failed after 30 attempts. Manual installation may be required:"
-                log "Run: docker compose exec backend bench --site intralogistics.lab install-app epibus"
-                break
-            fi
-        fi
-    done
-fi
+# EpiBus can be installed manually after deployment if needed:
+# docker compose exec backend bench --site intralogistics.lab install-app epibus
 
 # Restore golden backup with items and images
 restore_golden_backup() {
@@ -632,18 +614,18 @@ test_deployment() {
     fi
     
     
-    # Test 5: EpiBus availability
-    log "Testing EpiBus installation..."
-    local epibus_test=$(docker compose exec backend bench --site intralogistics.lab list-apps 2>/dev/null | grep epibus)
-    if [ -n "$epibus_test" ]; then
-        test_results+=("✅ EpiBus app installed and available")
+    # Test 5: Apps installation
+    log "Testing ERPNext and EpiBus installation..."
+    local apps_installed=$(docker compose exec backend bench --site intralogistics.lab list-apps 2>/dev/null | grep -E "(erpnext|epibus)" | wc -l)
+    if [ "$apps_installed" -ge 2 ]; then
+        test_results+=("✅ ERPNext and EpiBus apps installed")
     else
-        test_results+=("❌ EpiBus app not found")
+        test_results+=("❌ ERPNext or EpiBus apps missing")
         all_passed=false
     fi
     
     # Test 6: MODBUS TCP port
-    if timeout 3 bash -c "</dev/tcp/localhost/502" 2>/dev/null; then
+    if timeout 3 bash -c "</dev/tcp/localhost/502"; then
         test_results+=("✅ MODBUS TCP port 502 accessible")
     else
         test_results+=("❌ MODBUS TCP port 502 not accessible")
@@ -681,13 +663,23 @@ if test_deployment; then
     echo ""
     echo "🚀 LAB DEPLOYMENT COMPLETED SUCCESSFULLY"
     echo "=================================="
-    echo "Login: Administrator / admin"
+    echo "Setup Wizard: http://intralogistics.lab"
+    echo "Default Admin Password: admin"
+    echo ""
+    echo "Apps Installed:"
+    echo "  - ERPNext: Enterprise Resource Planning"
+    echo "  - EpiBus: Industrial Automation Integration"
+    echo ""
     echo "Lab Environment URLs:"
-    echo "  - ERPNext Interface: http://intralogistics.lab"
+    echo "  - ERPNext Setup: http://intralogistics.lab"
     echo "  - Traefik Dashboard: http://dashboard.intralogistics.lab"
     echo "MODBUS TCP: localhost:502 (for real PLC connections)"
     echo "PLC Bridge: localhost:7654 (real-time events)"
-    echo "EpiBus: Installed and integrated"
+    echo ""
+    echo "Next Steps:"
+    echo "  1. Complete ERPNext Setup Wizard at http://intralogistics.lab"
+    echo "  2. Create your company (e.g., Global Trade and Logistics)"
+    echo "  3. Import business data after setup completion"
     echo "=================================="
 else
     log "❌ DEPLOYMENT FAILED - Some tests did not pass"

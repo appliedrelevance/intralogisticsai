@@ -1,0 +1,14 @@
+warehouse_name,is_group,parent_warehouse,disabled,company
+All Warehouses,1,,0,
+Receiving Area,0,All Warehouses,0,Global Trade and Logistics
+Pick and Pack Area,0,All Warehouses,0,Global Trade and Logistics
+Storage Area,1,All Warehouses,0,Global Trade and Logistics
+Storage Bin 1,0,Storage Area,0,Global Trade and Logistics
+Storage Bin 2,0,Storage Area,0,Global Trade and Logistics
+Storage Bin 3,0,Storage Area,0,Global Trade and Logistics
+Storage Bin 4,0,Storage Area,0,Global Trade and Logistics
+Storage Bin 5,0,Storage Area,0,Global Trade and Logistics
+Storage Bin 6,0,Storage Area,0,Global Trade and Logistics
+Storage Bin 7,0,Storage Area,0,Global Trade and Logistics
+Storage Bin 8,0,Storage Area,0,Global Trade and Logistics
+Shipping Area,0,All Warehouses,0,Global Trade and Logistics
