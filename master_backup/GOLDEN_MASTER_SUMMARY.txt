@@ -1,0 +1,31 @@
+GOLDEN MASTER BACKUP SUMMARY - Intralogistics Lab
+==================================================
+Created: September 8, 2025 at 12:09 UTC
+Backup ID: 20250908_120921
+
+UPDATED SYSTEM STATE AT BACKUP:
+✅ Complete GTAL company with working setup wizard bypass
+✅ Full warehouse structure with 8 storage bins for MODBUS
+✅ Scheduler enabled for data import operations
+✅ All three apps properly integrated (Frappe + ERPNext + EpiBus)
+🔧 MODBUS connection errors fixed
+
+BACKUP FILES:
+- Database: 20250908_120921-intralogistics_lab-database.sql.gz (826 KB)
+- Public Files: 20250908_120921-intralogistics_lab-files.tar (10 KB)
+- Private Files: 20250908_120921-intralogistics_lab-private-files.tar (20 KB)  
+- Site Config: 20250908_120921-intralogistics_lab-site_config_backup.json (94 B)
+
+THIS GOLDEN MASTER SOLVES:
+🎯 "Setup wizard nightmare" - Complete bypass with working system
+🎯 Perfect warehouse structure matching MODBUS configuration
+🎯 Scheduler enabled for seamless data imports
+🎯 MODBUS connection errors resolved for PLC integration
+🎯 Ready for production use and product catalog imports
+🎯 Industrial automation capabilities fully active
+
+USAGE:
+Updated deploy.sh now restores from this golden master after site creation.
+
+RESULT:
+Ready-to-use intralogistics lab with complete warehouse structure and fixed MODBUS!

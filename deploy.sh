@@ -485,85 +485,71 @@ log "Verifying EpiBus installation..."
 # EpiBus can be installed manually after deployment if needed:
 # docker compose exec backend bench --site intralogistics.lab install-app epibus
 
-# Restore golden backup with items and images
-restore_golden_backup() {
-    local backup_dir="backups/backups"
+# Restore golden master backup with complete warehouse structure
+restore_golden_master() {
+    local backup_dir="master_backup"
     local site_name="intralogistics.lab"
-    local backup_prefix="20250904_221006-intralogistics_lab"
+    local backup_prefix="20250908_120921-intralogistics_lab"
     
-    log "Restoring golden backup with items and images..."
+    log "Restoring golden master backup with complete configuration..."
     
     # Check if backup files exist
     if [ ! -f "$backup_dir/${backup_prefix}-database.sql.gz" ]; then
-        log "WARNING: Golden backup database file not found at $backup_dir/${backup_prefix}-database.sql.gz"
+        log "WARNING: Golden master backup database not found at $backup_dir/${backup_prefix}-database.sql.gz"
         log "Skipping backup restoration - site will use basic EpiBus setup"
         return 0
     fi
     
-    if [ ! -f "$backup_dir/${backup_prefix}-files.tar" ]; then
-        log "WARNING: Golden backup files archive not found at $backup_dir/${backup_prefix}-files.tar"
-    fi
-    
-    if [ ! -f "$backup_dir/${backup_prefix}-private-files.tar" ]; then
-        log "WARNING: Golden backup private files archive not found at $backup_dir/${backup_prefix}-private-files.tar"
-    fi
-    
     # Copy backup files to the backend container
-    log "Copying backup files to backend container..."
+    log "Copying golden master backup files to container..."
     docker compose exec backend mkdir -p /home/frappe/frappe-bench/sites/backups/
-    docker compose cp "$backup_dir/${backup_prefix}-database.sql.gz" backend:/home/frappe/frappe-bench/sites/backups/
+    docker compose cp "$backup_dir/${backup_prefix}-database.sql.gz" backend:/tmp/
     
     if [ -f "$backup_dir/${backup_prefix}-files.tar" ]; then
-        docker compose cp "$backup_dir/${backup_prefix}-files.tar" backend:/home/frappe/frappe-bench/sites/backups/
+        docker compose cp "$backup_dir/${backup_prefix}-files.tar" backend:/tmp/
     fi
     
     if [ -f "$backup_dir/${backup_prefix}-private-files.tar" ]; then
-        docker compose cp "$backup_dir/${backup_prefix}-private-files.tar" backend:/home/frappe/frappe-bench/sites/backups/
+        docker compose cp "$backup_dir/${backup_prefix}-private-files.tar" backend:/tmp/
     fi
     
-    # Restore the backup using direct MySQL approach (bench restore has password prompt issues)
-    log "Restoring database from golden backup using MySQL..."
-    
-    # Get the database name for the site
-    local db_name=$(docker compose exec backend bash -c "cd /home/frappe/frappe-bench && python -c \"
-import frappe
-frappe.init(site='$site_name')
-print(frappe.conf.db_name)
-\"" 2>/dev/null | tr -d '\r')
-    
-    if [ -n "$db_name" ]; then
-        log "Restoring to database: $db_name"
-        if docker compose exec backend bash -c "gunzip -c /home/frappe/frappe-bench/sites/backups/${backup_prefix}-database.sql.gz | MYSQL_PWD=123 mysql -h db -u root $db_name" 2>/dev/null; then
-            log "✅ Database restored successfully"
-            
-            # Extract and restore files
-            log "Restoring public and private files..."
-            docker compose exec backend bash -c "cd /home/frappe/frappe-bench/sites/$site_name && tar -xf /home/frappe/frappe-bench/sites/backups/${backup_prefix}-files.tar" 2>/dev/null || true
-            docker compose exec backend bash -c "cd /home/frappe/frappe-bench/sites/$site_name && tar -xf /home/frappe/frappe-bench/sites/backups/${backup_prefix}-private-files.tar" 2>/dev/null || true
-            
-            log "✅ Golden backup restored successfully"
-            log "Site now contains items with images and complete setup"
-        else
-            log "❌ Failed to restore database from golden backup"
-            return 1
+    # Restore using bench restore command
+    log "Restoring golden master backup using bench..."
+    if echo "123" | docker compose exec -T backend bench --site "$site_name" restore "/tmp/${backup_prefix}-database.sql.gz" --force; then
+        log "✅ Golden master database restored successfully"
+        
+        # Restore files if they exist
+        log "Restoring files from golden master..."
+        if [ -f "$backup_dir/${backup_prefix}-files.tar" ]; then
+            docker compose exec backend bash -c "cd /home/frappe/frappe-bench/sites/$site_name && tar -xf /tmp/${backup_prefix}-files.tar" 2>/dev/null || true
         fi
+        if [ -f "$backup_dir/${backup_prefix}-private-files.tar" ]; then
+            docker compose exec backend bash -c "cd /home/frappe/frappe-bench/sites/$site_name && tar -xf /tmp/${backup_prefix}-private-files.tar" 2>/dev/null || true
+        fi
+        
+        # Clean up temporary files
+        docker compose exec backend rm -f "/tmp/${backup_prefix}-*"
+        
+        # Run migrations and restart services
+        log "Running migrations after golden master restore..."
+        docker compose exec backend bench --site "$site_name" migrate
+        
+        log "Restarting backend services..."
+        docker compose restart backend frontend queue-short queue-long scheduler websocket
+        
+        # Wait for services
+        sleep 15
+        
+        log "✅ Golden master backup restored successfully"
+        log "Site now has complete GTAL company, warehouse structure, and enabled scheduler"
     else
-        log "❌ Could not determine database name for site $site_name"
-        log "Manual restoration can be done with:"
-        log "  docker compose exec backend bash -c \"gunzip -c /path/to/backup.sql.gz | MYSQL_PWD=123 mysql -h db -u root <db_name>\""
+        log "❌ Failed to restore golden master backup"
         return 1
     fi
-    
-    # Restart the backend services to ensure all changes take effect
-    log "Restarting backend services after backup restoration..."
-    docker compose restart backend queue-short queue-long scheduler
-    
-    # Wait for services to be ready
-    sleep 15
 }
 
-# Execute backup restoration
-# restore_golden_backup  # TEMPORARILY COMMENTED OUT - Skip backup restoration
+# Execute golden master restoration
+restore_golden_master
 
 # Comprehensive deployment testing
 test_deployment() {
@@ -663,23 +649,29 @@ if test_deployment; then
     echo ""
     echo "🚀 LAB DEPLOYMENT COMPLETED SUCCESSFULLY"
     echo "=================================="
-    echo "Setup Wizard: http://intralogistics.lab"
-    echo "Default Admin Password: admin"
+    echo "Golden Master Restored: http://intralogistics.lab"
+    echo "Login: Administrator / admin"
+    echo ""
+    echo "Pre-Configured System:"
+    echo "  - Global Trade and Logistics company (GTAL)"
+    echo "  - Complete warehouse structure with 8 storage bins"
+    echo "  - Chart of accounts and fiscal years configured"
+    echo "  - Scheduler enabled for data imports"
     echo ""
     echo "Apps Installed:"
     echo "  - ERPNext: Enterprise Resource Planning"
     echo "  - EpiBus: Industrial Automation Integration"
     echo ""
     echo "Lab Environment URLs:"
-    echo "  - ERPNext Setup: http://intralogistics.lab"
+    echo "  - ERPNext System: http://intralogistics.lab"
     echo "  - Traefik Dashboard: http://dashboard.intralogistics.lab"
     echo "MODBUS TCP: localhost:502 (for real PLC connections)"
     echo "PLC Bridge: localhost:7654 (real-time events)"
     echo ""
-    echo "Next Steps:"
-    echo "  1. Complete ERPNext Setup Wizard at http://intralogistics.lab"
-    echo "  2. Create your company (e.g., Global Trade and Logistics)"
-    echo "  3. Import business data after setup completion"
+    echo "Ready for:"
+    echo "  ✅ No setup wizard needed - system fully configured"
+    echo "  ✅ Data imports (scheduler enabled)"
+    echo "  ✅ Industrial automation and PLC integration"
     echo "=================================="
 else
     log "❌ DEPLOYMENT FAILED - Some tests did not pass"

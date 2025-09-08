@@ -1,0 +1,5 @@
+warehouse_name,is_group,parent_warehouse,disabled,company
+Receiving Area,0,All Warehouses - GTAL,0,Global Trade and Logistics
+Pick and Pack Area,0,All Warehouses - GTAL,0,Global Trade and Logistics
+Storage Area,1,All Warehouses - GTAL,0,Global Trade and Logistics
+Shipping Area,0,All Warehouses - GTAL,0,Global Trade and Logistics
