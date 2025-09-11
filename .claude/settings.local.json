@@ -1,17 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(tar:*)",
-      "Bash(docker compose exec backend cat:*)",
-      "Bash(docker compose exec backend grep:*)",
-      "Bash(docker compose exec backend find:*)",
-      "WebSearch",
-      "WebFetch(domain:github.com)",
-      "Bash(curl:*)",
-      "Bash(docker compose exec backend bench:*)",
-      "Bash(grep:*)",
-      "Bash(docker logs:*)",
-      "Bash(gunzip:*)"
+      "Read(//mnt/c/Users/Geordie/Code/**)"
     ],
     "deny": [],
     "ask": []
