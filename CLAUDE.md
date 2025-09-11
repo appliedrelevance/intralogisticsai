@@ -15,8 +15,8 @@ This repository implements a sophisticated containerized Frappe/ERPNext deployme
 
 ### Industrial Automation Integration
 - **EpiBus**: Custom Frappe app providing MODBUS/TCP communication capabilities
-- **PLC Bridge**: Real-time communication service between Frappe and PLCs
-- **React Dashboard**: Modern frontend for monitoring industrial processes
+- **PLC Bridge**: Simple, reliable communication service between Frappe and PLCs
+- **MODBUS TCP Server**: Industrial protocol communication (port 502)
 
 ### Multi-Service Docker Architecture
 The system uses a sophisticated Docker Compose override system allowing modular service configuration:
@@ -271,4 +271,53 @@ docker compose logs plc-bridge
 docker compose exec plc-bridge telnet localhost 502
 ```
 
-This architecture represents a unique integration of enterprise business software with industrial automation capabilities, requiring careful attention to service orchestration and multi-protocol communication.
+## EpiBus Architecture - What Works vs What Doesn't
+
+### ✅ What Works Well (Keep This)
+**PLC Bridge Service** (`epibus/plc/bridge/bridge.py`)
+- Simple, clean Flask application with 3-second polling
+- Direct MODBUS TCP communication without complexity
+- Reliable real-time updates sent to Frappe via HTTP
+- Serves its own endpoints at `localhost:7654`
+- **This is the MVP** - it solves the real problem of persistent PLC communication
+
+**Core EpiBus Frappe App**
+- MODBUS Connection and Signal doctypes ✅
+- Server Scripts for automation ✅ 
+- API endpoints in `epibus.api.plc` ✅
+- Document-driven configuration ✅
+
+**Frappe/ERPNext Integration**
+- Business document automation ✅
+- Workflow triggers via server scripts ✅
+- Standard Frappe UI for configuration ✅
+
+### ❌ What Was Removed (Dashboard Cruft)
+**Broken WWW Attempts** (Deleted)
+- `epibus/epibus/www/` - Desperate hacks to force Frappe into real-time dashboards
+- `plc_monitor.html` - 334 lines of inline React nightmare
+- `warehouse_dashboard.py` - Over-engineered TypedDict theater
+- Built React assets - 1.3MB of broken webpack outputs
+
+**Why These Failed:**
+Frappe is designed for business document management, not real-time industrial dashboards. Fighting this design leads to architectural disasters.
+
+### 🎯 Current Clean Architecture
+
+**For Business Logic:** Use standard Frappe
+- Configure MODBUS connections via Frappe UI
+- Set up automation via Server Scripts
+- Manage business documents normally
+
+**For Real-Time Monitoring:** Use PLC Bridge directly
+- Connect to `localhost:7654` for real-time data
+- Simple HTTP endpoints without Frappe overhead
+- Build external monitoring tools that consume PLC Bridge APIs
+
+**For MODBUS Communication:** PLC Bridge handles everything
+- Persistent connection management
+- Automatic retries and error handling
+- Real-time signal value updates
+- No Frappe web request overhead
+
+This represents a clean separation of concerns: Frappe for business logic, PLC Bridge for real-time industrial communication.
