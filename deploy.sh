@@ -489,7 +489,7 @@ log "Verifying EpiBus installation..."
 restore_golden_master() {
     local backup_dir="master_backup"
     local site_name="intralogistics.lab"
-    local backup_prefix="20250908_120921-intralogistics_lab"
+    local backup_prefix="20250911_151118-intralogistics_lab"
     
     log "Restoring golden master backup with complete configuration..."
     

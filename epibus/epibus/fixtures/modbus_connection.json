@@ -19,7 +19,7 @@
    "modbus_address": 0,
    "plc_address": "%IX0.0",
    "signal_name": "PLC_CYCLE_STOPPED",
-   "signal_type": "Digital Input Coil"
+   "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
@@ -27,7 +27,7 @@
    "modbus_address": 1,
    "plc_address": "%IX0.1",
    "signal_name": "PLC_CYCLE_RUNNING",
-   "signal_type": "Digital Input Coil"
+   "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
@@ -35,7 +35,7 @@
    "modbus_address": 2,
    "plc_address": "%IX0.2",
    "signal_name": "PICK_ERROR",
-   "signal_type": "Digital Input Coil"
+   "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
@@ -43,7 +43,7 @@
    "modbus_address": 3,
    "plc_address": "%IX0.3",
    "signal_name": "PICK_TO_RECEIVING_IN_PROCESS",
-   "signal_type": "Digital Input Coil"
+   "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
@@ -51,7 +51,7 @@
    "modbus_address": 4,
    "plc_address": "%IX0.4",
    "signal_name": "PICK_TO_RECEIVING_COMPLETE",
-   "signal_type": "Digital Input Coil"
+   "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
@@ -59,7 +59,7 @@
    "modbus_address": 5,
    "plc_address": "%IX0.5",
    "signal_name": "PICK_TO_PICK&PACK_IN_PROCESS",
-   "signal_type": "Digital Input Coil"
+   "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
@@ -67,7 +67,7 @@
    "modbus_address": 6,
    "plc_address": "%IX0.6",
    "signal_name": "PICK_TO_PICK&PACK_COMPLETE",
-   "signal_type": "Digital Input Coil"
+   "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
@@ -75,7 +75,7 @@
    "modbus_address": 7,
    "plc_address": "%IX0.7",
    "signal_name": "PICK_TO_STORAGE_IN_PROCESS",
-   "signal_type": "Digital Input Coil"
+   "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
@@ -83,7 +83,7 @@
    "modbus_address": 8,
    "plc_address": "%IX1.0",
    "signal_name": "PICK_TO_STORAGE_COMPLETE",
-   "signal_type": "Digital Input Coil"
+   "signal_type": "Digital Output Coil"
   },
   {
    "digital_value": 0,
