@@ -1,31 +1,32 @@
-GOLDEN MASTER BACKUP SUMMARY - Intralogistics Lab
-==================================================
-Created: September 8, 2025 at 12:09 UTC
-Backup ID: 20250908_120921
+GOLDEN MASTER BACKUP - CLEAN ARCHITECTURE
+==========================================
+Backup Date: 2025-09-11 (Sept 11, 18:18 UTC)
+Backup Files: 20250912_034814-intralogistics_lab-*
 
-UPDATED SYSTEM STATE AT BACKUP:
-✅ Complete GTAL company with working setup wizard bypass
-✅ Full warehouse structure with 8 storage bins for MODBUS
-✅ Scheduler enabled for data import operations
-✅ All three apps properly integrated (Frappe + ERPNext + EpiBus)
-🔧 MODBUS connection errors fixed
+CLEAN ARCHITECTURE FEATURES:
+- Nuclear cleanup of broken dashboard code complete
+- Removed 1.3MB of broken React build artifacts
+- Eliminated architectural nightmares (inline React + Frappe templates)
+- Clean workspace with no broken dashboard references
+- Working PLC Bridge preserved as proper real-time solution
 
-BACKUP FILES:
-- Database: 20250908_120921-intralogistics_lab-database.sql.gz (826 KB)
-- Public Files: 20250908_120921-intralogistics_lab-files.tar (10 KB)
-- Private Files: 20250908_120921-intralogistics_lab-private-files.tar (20 KB)  
-- Site Config: 20250908_120921-intralogistics_lab-site_config_backup.json (94 B)
+CONTENTS:
+- Database: Clean ERPNext installation with EpiBus
+- Apps: frappe, erpnext, epibus (no broken www/ dashboards)
+- Workspace: Clean EpiBus workspace without dashboard shortcuts
+- Business Data: Full intralogistics company setup with warehouses and items
 
-THIS GOLDEN MASTER SOLVES:
-🎯 "Setup wizard nightmare" - Complete bypass with working system
-🎯 Perfect warehouse structure matching MODBUS configuration
-🎯 Scheduler enabled for seamless data imports
-🎯 MODBUS connection errors resolved for PLC integration
-🎯 Ready for production use and product catalog imports
-🎯 Industrial automation capabilities fully active
+WHAT'S WORKING:
+✅ EpiBus MODBUS integration (core functionality)
+✅ PLC Bridge for real-time industrial communication
+✅ Clean separation of concerns: Frappe for business, Bridge for real-time
+✅ Complete business data setup ready for production use
 
-USAGE:
-Updated deploy.sh now restores from this golden master after site creation.
+WHAT WAS REMOVED:
+❌ epibus/epibus/www/ directory (broken dashboard attempts)
+❌ React build artifacts (~1.3MB)
+❌ Dashboard workspace shortcuts
+❌ Over-engineered TypedDict classes and global cache dictionaries
 
-RESULT:
-Ready-to-use intralogistics lab with complete warehouse structure and fixed MODBUS!
+This golden master represents the clean, working architecture after removing
+architectural debt and focusing on what actually works.
