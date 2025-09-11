@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Read(//mnt/c/Users/Geordie/Code/**)"
+      "Read(//mnt/c/Users/Geordie/Code/**)",
+      "Bash(docker compose exec:*)"
     ],
     "deny": [],
     "ask": []
