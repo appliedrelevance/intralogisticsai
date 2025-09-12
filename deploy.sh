@@ -551,6 +551,38 @@ restore_golden_master() {
 # Execute golden master restoration
 restore_golden_master
 
+# Enable server scripts for automation
+enable_server_scripts() {
+    log "Enabling server scripts for automation..."
+    
+    # Create new common_site_config.json with server_script_enabled: true
+    docker compose exec backend bash -c "
+        cd /home/frappe/frappe-bench/sites
+        cp common_site_config.json common_site_config.json.backup
+        python3 -c \"
+import json
+with open('common_site_config.json', 'r') as f:
+    config = json.load(f)
+config['server_script_enabled'] = True
+with open('common_site_config.json', 'w') as f:
+    json.dump(config, f, indent=2)
+print('Server scripts enabled in configuration')
+        \"
+    "
+    
+    # Restart services to pick up the new configuration
+    log "Restarting services to activate server scripts..."
+    docker compose restart backend queue-short queue-long scheduler websocket
+    
+    # Wait for services to be ready
+    sleep 10
+    
+    log "✅ Server scripts enabled and services restarted"
+}
+
+# Execute server scripts enablement
+enable_server_scripts
+
 # Comprehensive deployment testing
 test_deployment() {
     local test_results=()
@@ -618,7 +650,26 @@ test_deployment() {
         all_passed=false
     fi
     
-    # Test 7: Lab domains
+    # Test 7: Server Scripts enabled
+    log "Testing server scripts configuration..."
+    local server_scripts_enabled=$(docker compose exec backend python3 -c "
+import os, sys
+sys.path.append('/home/frappe/frappe-bench/apps/frappe')
+sys.path.append('/home/frappe/frappe-bench/sites')
+import frappe
+frappe.init(site='intralogistics.lab', sites_path='/home/frappe/frappe-bench/sites')
+frappe.connect()
+print('1' if frappe.conf.get('server_script_enabled', False) else '0')
+" 2>/dev/null | tail -1)
+    
+    if [ "$server_scripts_enabled" = "1" ]; then
+        test_results+=("✅ Server scripts enabled for automation")
+    else
+        test_results+=("❌ Server scripts not enabled")
+        all_passed=false
+    fi
+    
+    # Test 8: Lab domains
     log "Testing lab domain routing..."
     
     # First check hosts file configuration
@@ -671,6 +722,7 @@ if test_deployment; then
     echo "Ready for:"
     echo "  ✅ No setup wizard needed - system fully configured"
     echo "  ✅ Data imports (scheduler enabled)"
+    echo "  ✅ Server scripts enabled for automation"
     echo "  ✅ Industrial automation and PLC integration"
     echo "=================================="
 else
