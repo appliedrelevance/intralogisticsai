@@ -15,6 +15,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application files
 COPY . .
 
+# Make entrypoint script executable
+RUN chmod +x /app/entrypoint.sh
+
 # Create a non-root user
 RUN useradd -m -u 1000 plcbridge && \
     chown -R plcbridge:plcbridge /app
@@ -26,9 +29,6 @@ EXPOSE 7654
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import requests; requests.get('http://localhost:7654/signals', timeout=5)" || exit 1
-
-# Make entrypoint script executable
-RUN chmod +x /app/entrypoint.sh
 
 # Default command
 CMD ["/app/entrypoint.sh"]
