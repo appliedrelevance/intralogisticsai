@@ -39,47 +39,26 @@ overrides/compose.plc-bridge.yaml
 overrides/compose.mac-m4.yaml  # ARM64 optimization
 ```
 
-## ⚠️ CRITICAL: Always Use deploy.sh Script
+## Container Management
 
-**NEVER use `docker compose` commands directly!** This project requires specific environment variables and orchestration that only the deploy.sh script handles correctly.
+Use standard Docker Compose commands to manage the environment:
 
-### Container Management Rules
-- ✅ **START/DEPLOY**: `./deploy.sh`
-- ✅ **STOP**: `./deploy.sh stop` 
-- ✅ **RESTART**: `./deploy.sh stop` followed by `./deploy.sh`
-- ❌ **NEVER**: `docker compose up`, `docker compose down`, `docker compose restart`
-
-### Why deploy.sh is Required
-The deploy script handles:
-- Custom image environment variables (`CUSTOM_IMAGE`, `CUSTOM_TAG`, `PULL_POLICY`)
-- Complex Docker Compose override file orchestration
-- Platform-specific configurations (ARM64 vs x86_64)
-- EpiBus installation and site configuration
-- Network and dependency management
-
-**Manual docker compose commands WILL FAIL** because they don't have the required environment context.
-
-## Essential Commands
-
-### Lab Deployment
 ```bash
-# Deploy complete lab environment
-./deploy.sh
+# Start services
+docker compose up -d
 
-# Force rebuild of custom images
-./deploy.sh --rebuild
+# Stop services
+docker compose down
 
-# Stop and cleanup
-./deploy.sh stop
+# Restart specific services
+docker compose restart backend frontend
+
+# View logs
+docker compose logs -f backend
+
+# Check service status
+docker compose ps
 ```
-
-The lab deployment automatically includes:
-- Frappe/ERPNext ERP system
-- EpiBus industrial integration app (automatically built and installed)
-- MODBUS TCP server (port 502)
-- PLC Bridge for real-time communication
-- Traefik reverse proxy with custom domains
-- Complete setup wizard automation
 ### Access Points
 
 - **ERPNext Web Interface**: `http://intralogistics.lab`
@@ -90,18 +69,15 @@ The lab deployment automatically includes:
 
 ### Business Data Import & Backup
 
-**NEW: Pre-configured Backup Workflow**
-The repository now includes clean backups with business data that bypass the setup wizard entirely:
+**Pre-configured Backup Workflow**
+The repository includes clean backups with business data:
 
 ```bash
-# Import business data from CSV files (if starting fresh)
-./scripts/import_all_data.sh
-
-# Restore pre-configured backup (recommended)
-./scripts/restore_clean_backup.sh
-
-# Create new clean backup after changes
+# Create new backup
 docker compose exec backend bench --site intralogistics.lab backup --with-files
+
+# Restore from backup
+docker compose exec backend bench --site intralogistics.lab --force restore /path/to/backup.sql.gz --mariadb-root-password 123
 ```
 
 **Available Business Data:**
