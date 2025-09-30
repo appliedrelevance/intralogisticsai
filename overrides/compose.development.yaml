@@ -29,20 +29,6 @@ services:
         condition: service_started
         condition: service_healthy
 
-    platform: linux/arm64
-    volumes:
-      - ./plc_programs:/plc_programs:rw  # Live editing for PLC programs
-    ports:
-      - "502:502"    # MODBUS TCP
-    environment:
-      OPENPLC_LOG_LEVEL: ${OPENPLC_LOG_LEVEL:-DEBUG}
-    networks:
-      - frappe_network
-    restart: unless-stopped
-    healthcheck:
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   # All EpiBus services already have volume mounts in compose.epibus.yaml
   # Add any development-specific environment variables here if needed

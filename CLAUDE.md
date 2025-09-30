@@ -14,9 +14,8 @@ This repository implements a sophisticated containerized Frappe/ERPNext deployme
 - **Nginx**: Reverse proxy and static file serving
 
 ### Industrial Automation Integration
-- **EpiBus**: Custom Frappe app providing MODBUS/TCP communication capabilities
-- **PLC Bridge**: Simple, reliable communication service between Frappe and PLCs
-- **MODBUS TCP Server**: Industrial protocol communication (port 502)
+- **EpiBus**: Custom Frappe app providing MODBUS/TCP client capabilities
+- **PLC Bridge**: Simple, reliable MODBUS client service that connects Frappe to external PLCs/MODBUS servers
 
 ### Multi-Service Docker Architecture
 The system uses a sophisticated Docker Compose override system allowing modular service configuration:
@@ -61,10 +60,9 @@ docker compose ps
 ```
 ### Access Points
 
-- **ERPNext Web Interface**: `http://intralogistics.lab`
+- **ERPNext Web Interface**: `http://intralogistics.lab` or `http://localhost:9000`
 - **Traefik Dashboard**: `http://dashboard.intralogistics.lab`
-- **MODBUS TCP**: `localhost:502` (industrial communication)
-- **PLC Bridge SSE**: `localhost:7654` (real-time events)
+- **PLC Bridge SSE**: `http://localhost:7654` (real-time PLC events and signal monitoring)
 - **Login Credentials**: Username `Administrator`, Password `admin`
 
 ### Business Data Import & Backup
@@ -146,17 +144,19 @@ The project uses a modular override system allowing flexible service combination
 
 ### Lab Domain System
 The lab deployment uses custom domain routing via Traefik:
-- ERPNext: `intralogistics.lab`
+- ERPNext: `intralogistics.lab` (via Traefik) or `localhost:9000` (direct nginx)
 - Traefik Dashboard: `dashboard.intralogistics.lab`
-- MODBUS TCP: Fixed port 502
-- PLC Bridge SSE: Port 7654
+- PLC Bridge SSE: `localhost:7654` (real-time event stream)
 
 ### EpiBus Industrial Integration
 The EpiBus app provides:
-- **MODBUS Communication**: Real-time PLC data exchange
-- **Document Automation**: Frappe document events trigger PLC actions
-- **Signal Monitoring**: Web-based dashboard for industrial signals
-- **Event Logging**: Complete audit trail of industrial operations
+- **MODBUS Client**: Connects to external PLCs and MODBUS servers for real-time data exchange
+- **PLC Bridge Service**: Persistent connection manager with automatic retries and health monitoring
+- **Document Automation**: Frappe document events trigger PLC actions via server scripts
+- **Signal Monitoring**: Real-time signal value updates via SSE endpoint at `localhost:7654`
+- **Event Logging**: Complete audit trail of industrial operations in Frappe
+
+**Important**: EpiBus acts as a MODBUS *client*, not a server. It connects to external PLCs/MODBUS devices. No MODBUS server is exposed by this deployment.
 
 ### Platform Considerations
 **Mac M-series (ARM64)**:

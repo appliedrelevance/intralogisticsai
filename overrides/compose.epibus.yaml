@@ -115,22 +115,6 @@ services:
       PLC_BRIDGE_HOST: plc-bridge
       PLC_BRIDGE_PORT: 7654
 
-    build:
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    environment:
-      OPENPLC_LOG_LEVEL: ${OPENPLC_LOG_LEVEL:-INFO}
-    ports:
-      - "${OPENPLC_WEB_PORT:-8081}:8080"  # Web interface
-      - "502:502"  # MODBUS TCP
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - frappe_network
-
   # PLC Bridge Service
   plc-bridge:
     build:

@@ -2,7 +2,14 @@
   "permissions": {
     "allow": [
       "Read(//mnt/c/Users/Geordie/Code/**)",
-      "Bash(docker compose exec:*)"
+      "Bash(docker compose exec:*)",
+      "Bash(docker compose logs:*)",
+      "Bash(docker inspect:*)",
+      "Bash(./scripts/restore_clean_backup.sh:*)",
+      "Bash(./deploy.sh:*)",
+      "Bash(curl:*)",
+      "Bash(docker compose restart:*)",
+      "Bash(docker compose cp:*)"
     ],
     "deny": [],
     "ask": []

@@ -23,8 +23,7 @@ services:
       - traefik.http.routers.frontend-http.middlewares=redirect-to-https
 
     # Fixed ports for web deployment
-    ports:
-      - "502:502"    # MODBUS TCP server
+    # ports: none required - all traffic via Traefik
     networks:
       - frappe_network
     labels:
