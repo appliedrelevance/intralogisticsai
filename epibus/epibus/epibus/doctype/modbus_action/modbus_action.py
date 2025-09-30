@@ -103,6 +103,184 @@ class ModbusAction(Document):
             logger.debug(f"Clearing modbus context for action {self.name}")
             frappe.flags.modbus_context = None
 
+    @frappe.whitelist()
+    def test_doctype_event(self):
+        """
+        Test a DocType Event script without actually triggering document changes
+
+        Args:
+            self: The Modbus Action document
+
+        Returns:
+            dict: Test result
+        """
+        logger.debug(f"🧪 Testing DocType Event script for {self.name}")
+
+        try:
+            # Get the referenced server script
+            script = frappe.get_doc("Server Script", self.server_script)
+
+            # Create a dummy doc for the referenced doctype
+            # This won't be saved/submitted, just used for script execution context
+            dummy_doc = frappe.new_doc(self.reference_doctype)
+
+            # Add some minimal test data
+            dummy_doc.update({
+                "_test_mode": True,
+                "doctype": self.reference_doctype,
+                "name": f"Test-{frappe.utils.now()}"
+            })
+
+            # Set up the modbus context
+            connection_doc = frappe.get_doc("Modbus Connection", self.connection)
+            signal_doc = None
+            if self.modbus_signal:
+                # Find the signal in the connection's signals table
+                for signal in connection_doc.signals:
+                    if signal.name == self.modbus_signal:
+                        signal_doc = signal
+                        break
+
+            # Create params dict from parameters table
+            params = {p.parameter: p.value for p in self.parameters}
+
+            # Store context in flags for access during execution
+            frappe.flags.modbus_context = {
+                "action": self,
+                "connection": connection_doc,
+                "signal": signal_doc,
+                "device": connection_doc,  # For backward compatibility
+                "params": params,
+                "test_mode": True,
+                "event_type": self.doctype_event,
+                "dummy_doc": dummy_doc
+            }
+
+            logger.debug(
+                f"🧩 Set up test context with connection {connection_doc.name}")
+
+            try:
+                # Execute the script with the dummy doc
+                result = script.execute_doc(dummy_doc)
+
+                # Create a Modbus Event to record this test
+                frappe.get_doc({
+                    "doctype": "Modbus Event",
+                    "event_type": "Script Execution",
+                    "reference_doctype": "Modbus Action",
+                    "reference_name": self.name,
+                    "signal": self.modbus_signal or "N/A",
+                    "value": "Test DocType Event",
+                    "details": f"Test execution of {self.doctype_event} event on {self.reference_doctype}",
+                    "message": f"Test execution of action '{self.name}' for {self.doctype_event} event on {self.reference_doctype}"
+                }).insert(ignore_permissions=True)
+
+                return {
+                    "status": "success",
+                    "value": f"Test execution successful. DocType Event: {self.doctype_event}",
+                    "result": result
+                }
+
+            except Exception as e:
+                logger.error(f"❌ Error executing script: {str(e)}")
+                return {
+                    "status": "error",
+                    "error": str(e)
+                }
+            finally:
+                # Clear context
+                frappe.flags.modbus_context = None
+
+        except Exception as e:
+            logger.error(f"❌ Error in test setup: {str(e)}")
+            return {
+                "status": "error",
+                "error": f"Test setup failed: {str(e)}"
+            }
+
+    @frappe.whitelist()
+    def test_scheduler_event(self):
+        """
+        Test a Scheduler Event script by simulating a scheduled run
+
+        Args:
+            self: The Modbus Action document
+
+        Returns:
+            dict: Test result
+        """
+        logger.debug(f"🧪 Testing Scheduler Event script for {self.name}")
+
+        try:
+            # Get the referenced server script
+            script = frappe.get_doc("Server Script", self.server_script)
+
+            # Set up the modbus context
+            connection_doc = frappe.get_doc("Modbus Connection", self.connection)
+            signal_doc = None
+            if self.modbus_signal:
+                # Find the signal in the connection's signals table
+                for signal in connection_doc.signals:
+                    if signal.name == self.modbus_signal:
+                        signal_doc = signal
+                        break
+
+            # Create params dict from parameters table
+            params = {p.parameter: p.value for p in self.parameters}
+
+            # Store context in flags for access during execution
+            frappe.flags.modbus_context = {
+                "action": self,
+                "connection": connection_doc,
+                "signal": signal_doc,
+                "device": connection_doc,  # For backward compatibility
+                "params": params,
+                "test_mode": True,
+                "event_type": "scheduler"
+            }
+
+            logger.debug(
+                f"🧩 Set up test context with connection {connection_doc.name}")
+
+            try:
+                # Execute the script without any arguments (as scheduler would)
+                result = script.execute_method()
+
+                # Create a Modbus Event to record this test
+                frappe.get_doc({
+                    "doctype": "Modbus Event",
+                    "event_type": "Script Execution",
+                    "reference_doctype": "Modbus Action",
+                    "reference_name": self.name,
+                    "signal": self.modbus_signal or "N/A",
+                    "value": "Test Scheduler Event",
+                    "details": f"Test execution of {self.event_frequency} scheduler event",
+                    "message": f"Test execution of scheduler action '{self.name}' with frequency {self.event_frequency}"
+                }).insert(ignore_permissions=True)
+
+                return {
+                    "status": "success",
+                    "value": f"Test execution successful. Scheduler Event: {self.event_frequency}",
+                    "result": result
+                }
+
+            except Exception as e:
+                logger.error(f"❌ Error executing script: {str(e)}")
+                return {
+                    "status": "error",
+                    "error": str(e)
+                }
+            finally:
+                # Clear context
+                frappe.flags.modbus_context = None
+
+        except Exception as e:
+            logger.error(f"❌ Error in test setup: {str(e)}")
+            return {
+                "status": "error",
+                "error": f"Test setup failed: {str(e)}"
+            }
+
 
 @frappe.whitelist(methods=['GET', 'POST'])
 def test_action_script(action_name):
@@ -234,102 +412,6 @@ def check_recent_events(action_name, signal_name):
 
 
 @frappe.whitelist()
-def test_doctype_event(self):
-    """
-    Test a DocType Event script without actually triggering document changes
-
-    Args:
-        self: The Modbus Action document
-
-    Returns:
-        dict: Test result
-    """
-    logger.debug(f"🧪 Testing DocType Event script for {self.name}")
-
-    try:
-        # Get the referenced server script
-        script = frappe.get_doc("Server Script", self.server_script)
-
-        # Create a dummy doc for the referenced doctype
-        # This won't be saved/submitted, just used for script execution context
-        dummy_doc = frappe.new_doc(self.reference_doctype)
-
-        # Add some minimal test data
-        dummy_doc.update({
-            "_test_mode": True,
-            "doctype": self.reference_doctype,
-            "name": f"Test-{frappe.utils.now()}"
-        })
-
-        # Set up the modbus context
-        connection_doc = frappe.get_doc("Modbus Connection", self.connection)
-        signal_doc = None
-        if self.modbus_signal:
-            # Find the signal in the connection's signals table
-            for signal in connection_doc.signals:
-                if signal.name == self.modbus_signal:
-                    signal_doc = signal
-                    break
-
-        # Create params dict from parameters table
-        params = {p.parameter: p.value for p in self.parameters}
-
-        # Store context in flags for access during execution
-        frappe.flags.modbus_context = {
-            "action": self,
-            "connection": connection_doc,
-            "signal": signal_doc,
-            "device": connection_doc,  # For backward compatibility
-            "params": params,
-            "test_mode": True,
-            "event_type": self.doctype_event,
-            "dummy_doc": dummy_doc
-        }
-
-        logger.debug(
-            f"🧩 Set up test context with connection {connection_doc.name}")
-
-        try:
-            # Execute the script with the dummy doc
-            result = script.execute_doc(dummy_doc)
-
-            # Create a Modbus Event to record this test
-            frappe.get_doc({
-                "doctype": "Modbus Event",
-                "event_type": "Script Execution",
-                "reference_doctype": "Modbus Action",
-                "reference_name": self.name,
-                "signal": self.modbus_signal or "N/A",
-                "value": "Test DocType Event",
-                "details": f"Test execution of {self.doctype_event} event on {self.reference_doctype}",
-                "message": f"Test execution of action '{self.name}' for {self.doctype_event} event on {self.reference_doctype}"
-            }).insert(ignore_permissions=True)
-
-            return {
-                "status": "success",
-                "value": f"Test execution successful. DocType Event: {self.doctype_event}",
-                "result": result
-            }
-
-        except Exception as e:
-            logger.error(f"❌ Error executing script: {str(e)}")
-            return {
-                "status": "error",
-                "error": str(e)
-            }
-        finally:
-            # Clear context
-            frappe.flags.modbus_context = None
-
-    except Exception as e:
-        logger.error(f"❌ Error in test setup: {str(e)}")
-        return {
-            "status": "error",
-            "error": f"Test setup failed: {str(e)}"
-        }
-
-
-@frappe.whitelist()
 def direct_test_script(action_name):
     """
     Directly execute the server script for a Modbus Action without any signal checks
@@ -378,87 +460,3 @@ def direct_test_script(action_name):
     finally:
         # Clear the context
         frappe.flags.modbus_context = None
-
-
-@frappe.whitelist()
-def test_scheduler_event(self):
-    """
-    Test a Scheduler Event script by simulating a scheduled run
-
-    Args:
-        self: The Modbus Action document
-
-    Returns:
-        dict: Test result
-    """
-    logger.debug(f"🧪 Testing Scheduler Event script for {self.name}")
-
-    try:
-        # Get the referenced server script
-        script = frappe.get_doc("Server Script", self.server_script)
-
-        # Set up the modbus context
-        connection_doc = frappe.get_doc("Modbus Connection", self.connection)
-        signal_doc = None
-        if self.modbus_signal:
-            # Find the signal in the connection's signals table
-            for signal in connection_doc.signals:
-                if signal.name == self.modbus_signal:
-                    signal_doc = signal
-                    break
-
-        # Create params dict from parameters table
-        params = {p.parameter: p.value for p in self.parameters}
-
-        # Store context in flags for access during execution
-        frappe.flags.modbus_context = {
-            "action": self,
-            "connection": connection_doc,
-            "signal": signal_doc,
-            "device": connection_doc,  # For backward compatibility
-            "params": params,
-            "test_mode": True,
-            "event_type": "scheduler"
-        }
-
-        logger.debug(
-            f"🧩 Set up test context with connection {connection_doc.name}")
-
-        try:
-            # Execute the script without any arguments (as scheduler would)
-            result = script.execute_method()
-
-            # Create a Modbus Event to record this test
-            frappe.get_doc({
-                "doctype": "Modbus Event",
-                "event_type": "Script Execution",
-                "reference_doctype": "Modbus Action",
-                "reference_name": self.name,
-                "signal": self.modbus_signal or "N/A",
-                "value": "Test Scheduler Event",
-                "details": f"Test execution of {self.event_frequency} scheduler event",
-                "message": f"Test execution of scheduler action '{self.name}' with frequency {self.event_frequency}"
-            }).insert(ignore_permissions=True)
-
-            return {
-                "status": "success",
-                "value": f"Test execution successful. Scheduler Event: {self.event_frequency}",
-                "result": result
-            }
-
-        except Exception as e:
-            logger.error(f"❌ Error executing script: {str(e)}")
-            return {
-                "status": "error",
-                "error": str(e)
-            }
-        finally:
-            # Clear context
-            frappe.flags.modbus_context = None
-
-    except Exception as e:
-        logger.error(f"❌ Error in test setup: {str(e)}")
-        return {
-            "status": "error",
-            "error": f"Test setup failed: {str(e)}"
-        }
