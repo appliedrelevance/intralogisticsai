@@ -179,6 +179,7 @@ class ModbusSignal(Document):
         signal_name: DF.Data
         signal_type: DF.Literal["Digital Output Coil", "Digital Input Contact",
                                 "Analog Input Register", "Analog Output Register", "Holding Register"]
+        warehouse: DF.Link | None
     # end: auto-generated types
 
     def validate(self):
