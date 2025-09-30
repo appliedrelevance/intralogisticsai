@@ -220,21 +220,45 @@ class SimplePLCBridge:
                 'value': new_value,
                 'timestamp': time.time()
             }
-            
+
             response = requests.post(
                 f"{self.frappe_url}/api/method/epibus.api.plc.signal_update",
                 json=data,
                 headers={'Host': 'intralogistics.lab'},
                 timeout=5
             )
-            
+
             if response.status_code == 200:
                 self.logger.info(f"Sent signal change: {self.current_signals[signal_id]['signal_name']} = {new_value}")
             else:
                 self.logger.warning(f"Failed to send signal change: HTTP {response.status_code}")
-                
+
         except Exception as e:
             self.logger.warning(f"Failed to send signal change: {e}")
+
+    def trigger_complete_handler(self, signal_name):
+        """Trigger COMPLETE signal handler in Frappe"""
+        try:
+            self.logger.info(f"🤖 COMPLETE signal detected: {signal_name}")
+
+            response = requests.post(
+                f"{self.frappe_url}/api/method/epibus.api.plc.trigger_complete_handler",
+                json={'signal_name': signal_name},
+                headers={'Host': 'intralogistics.lab'},
+                timeout=10
+            )
+
+            if response.status_code == 200:
+                result = response.json()
+                if result.get('message', {}).get('success'):
+                    self.logger.info(f"✅ COMPLETE handler executed successfully: {signal_name}")
+                else:
+                    self.logger.warning(f"⚠️ COMPLETE handler returned error: {result.get('message', {}).get('message')}")
+            else:
+                self.logger.warning(f"Failed to trigger COMPLETE handler: HTTP {response.status_code}")
+
+        except Exception as e:
+            self.logger.error(f"Failed to trigger COMPLETE handler: {e}")
     
     def polling_loop(self):
         """Simple polling loop - no complexity"""
@@ -259,9 +283,16 @@ class SimplePLCBridge:
                         # Check for changes and notify Frappe
                         if new_value != old_value:
                             changes.append((signal_id, old_value, new_value))
-                            
+
                             # Send to Frappe
                             self.send_signal_change_to_frappe(signal_id, old_value, new_value)
+
+                            # Check for COMPLETE signal rising edge (False -> True)
+                            signal_name = signal['signal_name']
+                            if (signal_name in ['PICK_TO_RECEIVING_COMPLETE', 'PICK_TO_PICKPACK_COMPLETE'] and
+                                old_value == False and new_value == True):
+                                self.logger.info(f"🚨 Rising edge detected on {signal_name}")
+                                self.trigger_complete_handler(signal_name)
                     else:
                         self.logger.warning(f"Failed to read signal {signal['signal_name']} ({signal_id})")
                 

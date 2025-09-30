@@ -312,6 +312,226 @@ def signal_update():
         logger.error(f"Error handling signal update: {str(e)}")
         return {"success": False, "message": str(e)}
 
+@frappe.whitelist(allow_guest=True)
+def trigger_complete_handler(signal_name):
+    """Called by PLC Bridge when COMPLETE signals pulse
+
+    This handles the robot completion signals and triggers document creation
+    """
+    try:
+        logger.info(f"🤖 Received COMPLETE signal: {signal_name}")
+
+        if signal_name == "PICK_TO_RECEIVING_COMPLETE":
+            return handle_receiving_complete()
+        elif signal_name == "PICK_TO_PICKPACK_COMPLETE":
+            return handle_pickpack_complete()
+        else:
+            return {"success": False, "message": f"Unknown COMPLETE signal: {signal_name}"}
+
+    except Exception as e:
+        logger.error(f"Error handling COMPLETE signal {signal_name}: {str(e)}")
+        return {"success": False, "message": str(e)}
+
+def handle_receiving_complete():
+    """Handle PICK_TO_RECEIVING_COMPLETE signal
+
+    Creates draft Stock Entry and resets command signals
+    """
+    try:
+        # Get the Modbus Connection
+        conn = frappe.get_doc("Modbus Connection", "Roots Intralogistics Learning Lab")
+
+        # Find which bin and station are active
+        active_bin_signal = None
+        active_station_signal = None
+        bin_warehouse = None
+
+        for signal in conn.signals:
+            # Read current value
+            current_value = signal.read_signal()
+
+            if signal.signal_name.startswith("PICK_BIN_") and current_value == True:
+                active_bin_signal = signal
+                bin_warehouse = signal.warehouse
+            if signal.signal_name == "TO_RECEIVING_STA_1" and current_value == True:
+                active_station_signal = signal
+
+        if not active_bin_signal or not bin_warehouse:
+            logger.error("No active bin signal found when PICK_TO_RECEIVING_COMPLETE fired")
+            return {"success": False, "message": "No active bin signal found"}
+
+        logger.info(f"📦 Bin {active_bin_signal.signal_name} completed movement to receiving station")
+
+        # Find recent Purchase Receipt for this bin
+        from frappe.utils import now_datetime, add_to_date
+        yesterday = add_to_date(now_datetime(), days=-1)
+
+        purchase_receipts = frappe.get_all(
+            "Purchase Receipt",
+            filters={
+                "docstatus": 1,
+                "creation": [">=", yesterday]
+            },
+            fields=["name"],
+            order_by="creation desc"
+        )
+
+        matching_pr = None
+        for pr_name in purchase_receipts:
+            pr = frappe.get_doc("Purchase Receipt", pr_name.name)
+            for item in pr.items:
+                if item.target_warehouse == bin_warehouse:
+                    matching_pr = pr
+                    break
+            if matching_pr:
+                break
+
+        if not matching_pr:
+            logger.error(f"No Purchase Receipt found for bin {bin_warehouse}")
+            # Reset signals anyway
+            active_bin_signal.write_signal(False)
+            if active_station_signal:
+                active_station_signal.write_signal(False)
+            return {"success": False, "message": "No matching Purchase Receipt found"}
+
+        logger.info(f"📋 Found Purchase Receipt: {matching_pr.name}")
+
+        # Create draft Stock Entry
+        se = frappe.new_doc("Stock Entry")
+        se.stock_entry_type = "Material Transfer"
+        se.from_warehouse = "Receiving Station 1 - GTAL"
+        se.to_warehouse = bin_warehouse
+
+        for item in matching_pr.items:
+            se.append("items", {
+                "item_code": item.item_code,
+                "qty": item.qty,
+                "uom": item.uom,
+                "s_warehouse": "Receiving Station 1 - GTAL",
+                "t_warehouse": bin_warehouse
+            })
+
+        se.insert()
+        frappe.db.commit()
+
+        logger.info(f"✅ Created draft Stock Entry: {se.name}")
+
+        # Reset command signals
+        active_bin_signal.write_signal(False)
+        if active_station_signal:
+            active_station_signal.write_signal(False)
+
+        logger.info("🔄 Reset command signals")
+
+        return {
+            "success": True,
+            "stock_entry": se.name,
+            "purchase_receipt": matching_pr.name
+        }
+
+    except Exception as e:
+        logger.error(f"Error in handle_receiving_complete: {str(e)}")
+        frappe.log_error(str(e), "Receiving Complete Handler Error")
+        return {"success": False, "message": str(e)}
+
+def handle_pickpack_complete():
+    """Handle PICK_TO_PICKPACK_COMPLETE signal
+
+    Creates draft Delivery Note and resets command signals
+    """
+    try:
+        # Get the Modbus Connection
+        conn = frappe.get_doc("Modbus Connection", "Roots Intralogistics Learning Lab")
+
+        # Find which bin and station are active
+        active_bin_signal = None
+        active_station_signal = None
+        bin_warehouse = None
+
+        for signal in conn.signals:
+            # Read current value
+            current_value = signal.read_signal()
+
+            if signal.signal_name.startswith("PICK_BIN_") and current_value == True:
+                active_bin_signal = signal
+                bin_warehouse = signal.warehouse
+            if signal.signal_name == "TO_PICKPACK_STA_2" and current_value == True:
+                active_station_signal = signal
+
+        if not active_bin_signal or not bin_warehouse:
+            logger.error("No active bin signal found when PICK_TO_PICKPACK_COMPLETE fired")
+            return {"success": False, "message": "No active bin signal found"}
+
+        logger.info(f"📦 Bin {active_bin_signal.signal_name} completed movement to pick & pack station")
+
+        # Find recent POS Invoice
+        from frappe.utils import now_datetime, add_to_date
+        yesterday = add_to_date(now_datetime(), days=-1)
+
+        pos_invoices = frappe.get_all(
+            "POS Invoice",
+            filters={
+                "docstatus": 1,
+                "creation": [">=", yesterday]
+            },
+            fields=["name"],
+            order_by="creation desc",
+            limit=10
+        )
+
+        matching_invoice = None
+        for inv_name in pos_invoices:
+            inv = frappe.get_doc("POS Invoice", inv_name.name)
+            # Take most recent POS Invoice (simplified logic)
+            matching_invoice = inv
+            break
+
+        if not matching_invoice:
+            logger.error("No recent POS Invoice found for Pick & Pack completion")
+            # Reset signals anyway
+            active_bin_signal.write_signal(False)
+            if active_station_signal:
+                active_station_signal.write_signal(False)
+            return {"success": False, "message": "No matching POS Invoice found"}
+
+        logger.info(f"📋 Found POS Invoice: {matching_invoice.name}")
+
+        # Create draft Delivery Note
+        dn = frappe.new_doc("Delivery Note")
+        dn.customer = matching_invoice.customer
+        dn.set_warehouse = bin_warehouse
+
+        for item in matching_invoice.items:
+            dn.append("items", {
+                "item_code": item.item_code,
+                "qty": item.qty,
+                "uom": item.uom,
+                "warehouse": bin_warehouse
+            })
+
+        dn.insert()
+        frappe.db.commit()
+
+        logger.info(f"✅ Created draft Delivery Note: {dn.name}")
+
+        # Reset command signals
+        active_bin_signal.write_signal(False)
+        if active_station_signal:
+            active_station_signal.write_signal(False)
+
+        logger.info("🔄 Reset command signals")
+
+        return {
+            "success": True,
+            "delivery_note": dn.name,
+            "pos_invoice": matching_invoice.name
+        }
+
+    except Exception as e:
+        logger.error(f"Error in handle_pickpack_complete: {str(e)}")
+        frappe.log_error(str(e), "Pick Pack Complete Handler Error")
+        return {"success": False, "message": str(e)}
+
 def process_signal_actions(signal_name, value):
     """Process actions triggered by a signal update"""
     try:
