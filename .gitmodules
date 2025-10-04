@@ -1,0 +1,7 @@
+[submodule "epitag"]
+	path = epitag
+	url = https://github.com/appliedrelevance/epitag.git
+[submodule "erpnext"]
+	path = erpnext
+	url = https://github.com/frappe/erpnext.git
+	branch = version-15

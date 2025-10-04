@@ -1,0 +1,71 @@
+================================================================================
+INTRALOGISTICS AI LAB - DEPLOYMENT SUMMARY
+================================================================================
+
+System Status: READY FOR OFFLINE DEPLOYMENT
+
+Custom Docker Image: frappe-epibus:latest
+Build Date: $(date)
+Apps Included: frappe (v15), erpnext (v15), epibus, epitag
+
+================================================================================
+INCLUDED APPS
+================================================================================
+
+1. FRAPPE (Framework)
+   - Version: 15.84.0
+   - Source: Included in base image
+
+2. ERPNEXT (ERP System)
+   - Version: 15.81.1
+   - Source: Local repository (./erpnext/)
+   - No internet required for build
+
+3. EPIBUS (Industrial Automation)
+   - Version: 0.1.0
+   - Source: Local repository (./epibus/)
+   - Features: MODBUS TCP, PLC integration, real-time signals
+
+4. EPITAG (Tag Management)
+   - Version: 0.0.1
+   - Source: Local repository (./epitag/)
+   - Repository: https://github.com/appliedrelevance/epitag.git
+
+================================================================================
+OFFLINE DEPLOYMENT READY
+================================================================================
+
+✅ All apps built from local sources
+✅ No internet required for deployment
+✅ Docker images can be saved and transferred
+✅ Complete isolated LAN operation
+
+See OFFLINE_BUILD.md for detailed instructions on:
+- Saving Docker images for transfer
+- Loading images on isolated systems
+- Deploying without internet connection
+
+================================================================================
+NETWORK CONFIGURATION
+================================================================================
+
+Server IP: 192.168.0.100 (static, ethernet)
+PLC IP: 192.168.0.11:502
+Gateway: 192.168.0.1
+
+Access Points:
+- ERPNext: http://intralogistics.lab
+- Traefik Dashboard: http://dashboard.intralogistics.lab:8080
+- PLC Bridge API: http://192.168.0.100:7654
+- MODBUS TCP: 192.168.0.100:502
+
+Default Credentials: Administrator / admin
+
+================================================================================
+DEPLOYMENT COMMAND
+================================================================================
+
+cd /home/intralogisticsuser/intralogisticsai
+./deploy.sh
+
+================================================================================

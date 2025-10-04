@@ -31,7 +31,7 @@ if [ ! -f "compose.yaml" ]; then
     exit 1
 fi
 
-# Create apps.json with EpiBus (using local path)
+# Create apps.json with EpiBus and EpiTag (using local path)
 cat > apps-epibus-build.json << EOF
 [
   {
@@ -40,6 +40,10 @@ cat > apps-epibus-build.json << EOF
   },
   {
     "url": "file:///opt/epibus",
+    "branch": "main"
+  },
+  {
+    "url": "https://github.com/appliedrelevance/epitag.git",
     "branch": "main"
   }
 ]
