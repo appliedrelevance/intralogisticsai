@@ -129,7 +129,6 @@ services:
     ports:
       - "7654:7654"  # SSE server for real-time events
     depends_on:
-        condition: service_healthy
       backend:
         condition: service_started
     healthcheck:
