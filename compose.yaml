@@ -17,8 +17,6 @@ x-backend-defaults: &backend_defaults
   <<: [*depends_on_configurator, *customizable_image]
   volumes:
     - sites:/home/frappe/frappe-bench/sites
-  extra_hosts:
-    - "host.docker.internal:host-gateway"
 
 services:
   configurator:
@@ -51,6 +49,8 @@ services:
   backend:
     <<: *backend_defaults
     platform: linux/amd64
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - frappe_network
 
@@ -73,8 +73,6 @@ services:
     depends_on:
       - backend
       - websocket
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     networks:
       - frappe_network
 
@@ -86,8 +84,6 @@ services:
       - /home/frappe/frappe-bench/apps/frappe/socketio.js
     volumes:
       - sites:/home/frappe/frappe-bench/sites
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     networks:
       - frappe_network
 

@@ -6,5 +6,9 @@
   {
     "url": "file:///opt/epibus",
     "branch": "main"
+  },
+  {
+    "url": "https://github.com/appliedrelevance/epitag.git",
+    "branch": "main"
   }
 ]

@@ -8,10 +8,10 @@ ARG APPS_JSON_BASE64
 
 USER root
 
-# Apps will be installed directly with bench get-app commands
-
-# Copy local epibus app for build
+# Copy all local apps for offline build
 COPY epibus /opt/epibus
+COPY erpnext /opt/erpnext
+COPY epitag /opt/epitag
 
 USER frappe
 
@@ -24,7 +24,14 @@ RUN printf "n\n" | bench init \
     --verbose \
     /home/frappe/frappe-bench && \
   cd /home/frappe/frappe-bench && \
-  bench get-app --branch version-15 erpnext && \
+  cp -r /opt/erpnext apps/ && \
+  cd apps/erpnext && \
+  /home/frappe/frappe-bench/env/bin/pip install -e . && \
+  cd /home/frappe/frappe-bench && \
+  cp -r /opt/epitag apps/ && \
+  cd apps/epitag && \
+  /home/frappe/frappe-bench/env/bin/pip install -e . && \
+  cd /home/frappe/frappe-bench && \
   cp -r /opt/epibus apps/ && \
   cd apps/epibus && \
   /home/frappe/frappe-bench/env/bin/pip install -e . && \
