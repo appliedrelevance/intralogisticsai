@@ -23,7 +23,6 @@ fixtures = [
         ["name", "in", ["Modbus Administrator", "Modbus User"]]]},
     {"dt": "Workspace", "filters": [["name", "in", ["EpiBus"]]]},
     {"dt": "Server Script", "filters": [["module", "in", ["EpiBus"]]]},
-    {"dt": "Custom Field", "filters": [["module", "in", ["EpiBus"]]]},
     {"dt": "Modbus Connection", "filters": [
         ["name", "in", ["Roots Intralogistics Learning Lab"]]]},
 ]
