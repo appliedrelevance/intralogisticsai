@@ -9,7 +9,8 @@
       "Bash(./deploy.sh:*)",
       "Bash(curl:*)",
       "Bash(docker compose restart:*)",
-      "Bash(docker compose cp:*)"
+      "Bash(docker compose cp:*)",
+      "Bash(sg docker:*)"
     ],
     "deny": [],
     "ask": []
