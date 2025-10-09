@@ -10,7 +10,9 @@
       "Bash(curl:*)",
       "Bash(docker compose restart:*)",
       "Bash(docker compose cp:*)",
-      "Bash(sg docker:*)"
+      "Bash(sg docker:*)",
+      "Bash(docker ps:*)",
+      "Bash(xargs:*)"
     ],
     "deny": [],
     "ask": []
