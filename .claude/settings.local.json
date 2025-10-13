@@ -18,7 +18,8 @@
       "Bash(for branch in cleanup-obsolete-code plc_bridge plc_bridge_to_queue)",
       "Bash(do echo \"=== $branch ===\")",
       "Bash(done)",
-      "Bash(git ls-remote:*)"
+      "Bash(git ls-remote:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
