@@ -4,14 +4,11 @@ FROM frappe/build:${FRAPPE_BRANCH} AS builder
 
 ARG FRAPPE_BRANCH=version-15
 ARG FRAPPE_PATH=https://github.com/frappe/frappe
-ARG APPS_JSON_BASE64
 
 USER root
 
-# Copy all local apps for offline build
+# Copy local epibus app (source of truth)
 COPY epibus /opt/epibus
-COPY erpnext /opt/erpnext
-COPY epitag /opt/epitag
 
 USER frappe
 
@@ -24,14 +21,8 @@ RUN printf "n\n" | bench init \
     --verbose \
     /home/frappe/frappe-bench && \
   cd /home/frappe/frappe-bench && \
-  cp -r /opt/erpnext apps/ && \
-  cd apps/erpnext && \
-  /home/frappe/frappe-bench/env/bin/pip install -e . && \
-  cd /home/frappe/frappe-bench && \
-  cp -r /opt/epitag apps/ && \
-  cd apps/epitag && \
-  /home/frappe/frappe-bench/env/bin/pip install -e . && \
-  cd /home/frappe/frappe-bench && \
+  bench get-app --branch version-15 https://github.com/frappe/erpnext.git && \
+  bench get-app --branch main https://github.com/appliedrelevance/epitag.git && \
   cp -r /opt/epibus apps/ && \
   cd apps/epibus && \
   /home/frappe/frappe-bench/env/bin/pip install -e . && \
