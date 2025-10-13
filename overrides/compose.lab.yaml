@@ -11,6 +11,10 @@ services:
     ports:
       - "9000:8080"  # Direct nginx access (works with any hostname)
 
+    # Force all requests to serve intralogistics.lab site regardless of incoming IP/hostname
+    environment:
+      FRAPPE_SITE_NAME_HEADER: intralogistics.lab
+
   proxy:
     image: traefik:v2.11
     command:
