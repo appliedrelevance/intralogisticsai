@@ -542,6 +542,11 @@ restore_golden_master() {
         
         log "✅ Golden master backup restored successfully"
         log "Site now has complete GTAL company, warehouse structure, and enabled scheduler"
+
+        # Ensure currentsite.txt exists after restore
+        log "Setting default site..."
+        docker compose exec backend bash -c "echo 'intralogistics.lab' > sites/currentsite.txt"
+        log "✅ Default site set to intralogistics.lab"
     else
         log "❌ Failed to restore golden master backup"
         return 1
