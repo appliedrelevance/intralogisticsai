@@ -529,24 +529,29 @@ restore_golden_master() {
         
         # Clean up temporary files
         docker compose exec backend rm -f "/tmp/${backup_prefix}-*"
-        
-        # Run migrations and restart services
+
+        # Run migrations
         log "Running migrations after golden master restore..."
         docker compose exec backend bench --site "$site_name" migrate
-        
-        log "Restarting backend services..."
-        docker compose restart backend frontend queue-short queue-long scheduler websocket
-        
-        # Wait for services
-        sleep 15
-        
-        log "✅ Golden master backup restored successfully"
-        log "Site now has complete GTAL company, warehouse structure, and enabled scheduler"
 
         # Ensure currentsite.txt exists after restore
         log "Setting default site..."
         docker compose exec backend bash -c "echo 'intralogistics.lab' > sites/currentsite.txt"
-        log "✅ Default site set to intralogistics.lab"
+
+        # Clear Redis cache to remove stale session data
+        log "Clearing Redis cache..."
+        docker compose exec redis-cache redis-cli FLUSHALL >/dev/null 2>&1 || true
+        docker compose exec redis-queue redis-cli FLUSHALL >/dev/null 2>&1 || true
+
+        log "Restarting backend services..."
+        docker compose restart backend frontend queue-short queue-long scheduler websocket
+
+        # Wait longer for services to fully initialize
+        log "Waiting for services to initialize..."
+        sleep 30
+
+        log "✅ Golden master backup restored successfully"
+        log "Site now has complete GTAL company, warehouse structure, and enabled scheduler"
     else
         log "❌ Failed to restore golden master backup"
         return 1
