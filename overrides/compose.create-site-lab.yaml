@@ -40,10 +40,12 @@ services:
         bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=${DB_PASSWORD} --install-app erpnext --set-default intralogistics.lab --force;
         echo "Installing EpiBus app on intralogistics.lab";
         bench --site intralogistics.lab install-app epibus;
-        echo "Building assets for intralogistics.lab with both ERPNext and EpiBus";
+        echo "Installing EpiTag app on intralogistics.lab";
+        bench --site intralogistics.lab install-app epitag;
+        echo "Building assets for intralogistics.lab with ERPNext, EpiBus, and EpiTag";
         bench --site intralogistics.lab build;
         echo "Assets built successfully";
-        echo "Site creation completed with ERPNext and EpiBus installed";
+        echo "Site creation completed with ERPNext, EpiBus, and EpiTag installed";
         echo "Setup wizard will be available at http://intralogistics.lab";
 
 networks:
